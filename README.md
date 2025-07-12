@@ -1,2 +1,2 @@
 # delly-tables
-Flowchartting software with simple navigation
+Flowchartting a diagramming software with clean navigation to drill down into different sections of charts, tables, views, and cells.
