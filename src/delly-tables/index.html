@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Delly Tables</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .canvas-container {
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            display: block;
+            cursor: grab;
+            background-color: white;
+        }
+
+            canvas:active {
+                cursor: grabbing;
+            }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tool-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 0 10px;
+            border-left: 1px solid #ddd;
+        }
+
+            .tool-section:first-child {
+                border-left: none;
+                padding-left: 0;
+            }
+
+            .tool-section label {
+                font-weight: bold;
+                color: #333;
+            }
+
+        select {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 32px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .active-tool {
+            background-color: #28a745 !important;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+            button:hover {
+                background-color: #0056b3;
+            }
+
+        .info {
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+            max-width: 600px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Delly Table</h1>
+
+        <div class="canvas-container">
+            <canvas id="gridCanvas" width="800" height="600"></canvas>
+        </div>
+
+        <div class="controls">
+            <div class="tool-section">
+                <label>Tool:</label>
+                <button id="panTool" onclick="setTool('pan')" class="active-tool">Pan</button>
+                <button id="rectangleTool" onclick="setTool('rectangle')">Rectangle</button>
+                <button id="circleTool" onclick="setTool('circle')">Circle</button>
+                <button id="lineTool" onclick="setTool('line')">Line</button>
+            </div>
+
+            <div class="tool-section">
+                <label>Color:</label>
+                <input type="color" id="shapeColor" class="color-picker" value="#007bff">
+                <select id="fillMode">
+                    <option value="stroke">Outline</option>
+                    <option value="fill">Filled</option>
+                </select>
+            </div>
+
+            <div class="tool-section">
+                <button onclick="resetView()">Reset View</button>
+                <button onclick="toggleGridSize()">Toggle Grid Size</button>
+                <button onclick="clearShapes()">Clear Shapes</button>
+            </div>
+
+            <div class="tool-section">
+                <span id="coordinates">Position: (0, 0)</span>
+            </div>
+        </div>
+
+        <div class="info">
+            <strong>Instructions:</strong><br>
+            • <strong>Pan Mode:</strong> Click and drag to move around the grid<br>
+            • <strong>Draw Mode:</strong> Click and drag to draw shapes (Rectangle, Circle, Line)<br>
+            • Shapes are drawn in grid coordinates and stay in place when you pan<br>
+            • Use the color picker and fill mode to customize your shapes
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gridCanvas');
+        const ctx = canvas.getContext('2d');
+        const coordsDisplay = document.getElementById('coordinates');
+        const shapeColorPicker = document.getElementById('shapeColor');
+        const fillModeSelect = document.getElementById('fillMode');
+
+        // Grid and view state
+        let gridSize = 40;
+        let offsetX = 0;
+        let offsetY = 0;
+
+        // Tool state
+        let currentTool = 'pan';
+        let shapes = [];
+
+        // Drawing state
+        let isDrawing = false;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        let previewShape = null;
+
+        // Convert screen coordinates to grid coordinates
+        function screenToGrid(screenX, screenY) {
+            return {
+                x: (screenX - offsetX) / gridSize,
+                y: (screenY - offsetY) / gridSize
+            };
+        }
+
+        // Convert grid coordinates to screen coordinates
+        function gridToScreen(gridX, gridY) {
+            return {
+                x: gridX * gridSize + offsetX,
+                y: gridY * gridSize + offsetY
+            };
+        }
+
+        function drawShapes() {
+            shapes.forEach(shape => {
+                const start = gridToScreen(shape.startX, shape.startY);
+                const end = gridToScreen(shape.endX, shape.endY);
+
+                ctx.strokeStyle = shape.color;
+                ctx.fillStyle = shape.color;
+                ctx.lineWidth = 2;
+
+                if (shape.type === 'rectangle') {
+                    const width = end.x - start.x;
+                    const height = end.y - start.y;
+
+                    if (shape.fillMode === 'fill') {
+                        ctx.fillRect(start.x, start.y, width, height);
+                    } else {
+                        ctx.strokeRect(start.x, start.y, width, height);
+                    }
+                } else if (shape.type === 'circle') {
+                    const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+
+                    ctx.beginPath();
+                    ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+                    if (shape.fillMode === 'fill') {
+                        ctx.fill();
+                    } else {
+                        ctx.stroke();
+                    }
+                } else if (shape.type === 'line') {
+                    ctx.beginPath();
+                    ctx.moveTo(start.x, start.y);
+                    ctx.lineTo(end.x, end.y);
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function drawPreviewShape() {
+            if (!previewShape) return;
+
+            const start = gridToScreen(previewShape.startX, previewShape.startY);
+            const end = gridToScreen(previewShape.endX, previewShape.endY);
+
+            ctx.strokeStyle = previewShape.color;
+            ctx.fillStyle = previewShape.color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]); // Dashed line for preview
+
+            if (previewShape.type === 'rectangle') {
+                const width = end.x - start.x;
+                const height = end.y - start.y;
+                ctx.strokeRect(start.x, start.y, width, height);
+            } else if (previewShape.type === 'circle') {
+                const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                ctx.beginPath();
+                ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
+                ctx.stroke();
+            } else if (previewShape.type === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(start.x, start.y);
+                ctx.lineTo(end.x, end.y);
+                ctx.stroke();
+            }
+
+            ctx.setLineDash([]); // Reset to solid line
+        }
+
+        // Grid colors
+        const majorGridColor = '#ddd';
+        const minorGridColor = '#f0f0f0';
+        const originColor = '#ff0000';
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate visible grid range
+            const startX = Math.floor(-offsetX / gridSize) - 1;
+            const endX = Math.ceil((canvas.width - offsetX) / gridSize) + 1;
+            const startY = Math.floor(-offsetY / gridSize) - 1;
+            const endY = Math.ceil((canvas.height - offsetY) / gridSize) + 1;
+
+            // Draw minor grid lines
+            ctx.strokeStyle = minorGridColor;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+
+            // Vertical lines
+            for (let i = startX; i <= endX; i++) {
+                const x = i * gridSize + offsetX;
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+            }
+
+            // Horizontal lines
+            for (let i = startY; i <= endY; i++) {
+                const y = i * gridSize + offsetY;
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+            }
+
+            ctx.stroke();
+
+            // Draw major grid lines (every 5th line)
+            ctx.strokeStyle = majorGridColor;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+
+            // Major vertical lines
+            for (let i = startX; i <= endX; i++) {
+                if (i % 5 === 0) {
+                    const x = i * gridSize + offsetX;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                }
+            }
+
+            // Major horizontal lines
+            for (let i = startY; i <= endY; i++) {
+                if (i % 5 === 0) {
+                    const y = i * gridSize + offsetY;
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                }
+            }
+
+            ctx.stroke();
+
+            // Draw origin axes
+            ctx.strokeStyle = originColor;
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+
+            // X-axis (horizontal line through origin)
+            if (offsetY >= 0 && offsetY <= canvas.height) {
+                ctx.moveTo(0, offsetY);
+                ctx.lineTo(canvas.width, offsetY);
+            }
+
+            // Y-axis (vertical line through origin)
+            if (offsetX >= 0 && offsetX <= canvas.width) {
+                ctx.moveTo(offsetX, 0);
+                ctx.lineTo(offsetX, canvas.height);
+            }
+
+            ctx.stroke();
+
+            // Draw shapes
+            drawShapes();
+
+            // Draw preview shape
+            drawPreviewShape();
+
+            // Update coordinates display
+            const gridX = Math.round(-offsetX / gridSize);
+            const gridY = Math.round(-offsetY / gridSize);
+            coordsDisplay.textContent = `Position: (${gridX}, ${gridY})`;
+        }
+
+        // Mouse event handlers
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (currentTool === 'pan') {
+                isDragging = true;
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+                canvas.style.cursor = 'grabbing';
+            } else {
+                isDrawing = true;
+                const gridPos = screenToGrid(mouseX, mouseY);
+                startX = gridPos.x;
+                startY = gridPos.y;
+
+                previewShape = {
+                    type: currentTool,
+                    startX: startX,
+                    startY: startY,
+                    endX: startX,
+                    endY: startY,
+                    color: shapeColorPicker.value,
+                    fillMode: fillModeSelect.value
+                };
+                canvas.style.cursor = 'crosshair';
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            if (currentTool === 'pan' && isDragging) {
+                const deltaX = e.clientX - lastMouseX;
+                const deltaY = e.clientY - lastMouseY;
+
+                offsetX += deltaX;
+                offsetY += deltaY;
+
+                lastMouseX = e.clientX;
+                lastMouseY = e.clientY;
+
+                drawGrid();
+            } else if (currentTool !== 'pan' && isDrawing) {
+                const gridPos = screenToGrid(mouseX, mouseY);
+                previewShape.endX = gridPos.x;
+                previewShape.endY = gridPos.y;
+                drawGrid();
+            }
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+            if (currentTool === 'pan') {
+                isDragging = false;
+                canvas.style.cursor = currentTool === 'pan' ? 'grab' : 'crosshair';
+            } else if (isDrawing) {
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                const gridPos = screenToGrid(mouseX, mouseY);
+
+                // Only add shape if there's actual movement
+                if (Math.abs(gridPos.x - startX) > 0.1 || Math.abs(gridPos.y - startY) > 0.1) {
+                    shapes.push({
+                        type: currentTool,
+                        startX: startX,
+                        startY: startY,
+                        endX: gridPos.x,
+                        endY: gridPos.y,
+                        color: shapeColorPicker.value,
+                        fillMode: fillModeSelect.value
+                    });
+                }
+
+                isDrawing = false;
+                previewShape = null;
+                drawGrid();
+            }
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            isDragging = false;
+            isDrawing = false;
+            previewShape = null;
+            canvas.style.cursor = currentTool === 'pan' ? 'grab' : 'crosshair';
+            drawGrid();
+        });
+
+        // Touch support for mobile
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            lastMouseX = touch.clientX - rect.left;
+            lastMouseY = touch.clientY - rect.top;
+            isDragging = true;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isDragging) {
+                const touch = e.touches[0];
+                const rect = canvas.getBoundingClientRect();
+                const currentX = touch.clientX - rect.left;
+                const currentY = touch.clientY - rect.top;
+
+                const deltaX = currentX - lastMouseX;
+                const deltaY = currentY - lastMouseY;
+
+                offsetX += deltaX;
+                offsetY += deltaY;
+
+                lastMouseX = currentX;
+                lastMouseY = currentY;
+
+                drawGrid();
+            }
+        });
+
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            isDragging = false;
+        });
+
+        // Tool management
+        function setTool(tool) {
+            currentTool = tool;
+
+            // Update button styles
+            document.querySelectorAll('.controls button').forEach(btn => {
+                btn.classList.remove('active-tool');
+            });
+            document.getElementById(tool + 'Tool').classList.add('active-tool');
+
+            // Update cursor
+            canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
+
+            // Clear any ongoing drawing
+            isDrawing = false;
+            isDragging = false;
+            previewShape = null;
+            drawGrid();
+        }
+
+        // Control functions
+        function resetView() {
+            offsetX = 0;
+            offsetY = 0;
+            drawGrid();
+        }
+
+        function toggleGridSize() {
+            gridSize = gridSize === 40 ? 20 : 40;
+            drawGrid();
+        }
+
+        function clearShapes() {
+            shapes = [];
+            previewShape = null;
+            drawGrid();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            drawGrid();
+        });
+
+        // Initial draw
+        drawGrid();
+    </script>
+</body>
+</html>
