@@ -110,7 +110,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Delly Table</h1>
+        <h1>Delly Tables</h1>
 
         <div class="canvas-container">
             <canvas id="gridCanvas" width="800" height="600"></canvas>
@@ -123,6 +123,7 @@
                 <button id="rectangleTool" onclick="setTool('rectangle')">Rectangle</button>
                 <button id="circleTool" onclick="setTool('circle')">Circle</button>
                 <button id="lineTool" onclick="setTool('line')">Line</button>
+                <button id="selectTool" onclick="setTool('select')">Select</button>
             </div>
 
             <div class="tool-section">
@@ -147,10 +148,11 @@
 
         <div class="info">
             <strong>Instructions:</strong><br>
-            • <strong>Pan Mode:</strong> Click and drag to move around the grid<br>
-            • <strong>Draw Mode:</strong> Click and drag to draw shapes (Rectangle, Circle, Line)<br>
-            • Shapes are drawn in grid coordinates and stay in place when you pan<br>
-            • Use the color picker and fill mode to customize your shapes
+            â€¢ <strong>Pan Mode:</strong> Click and drag to move around the grid<br>
+            â€¢ <strong>Draw Mode:</strong> Click and drag to draw shapes (Rectangle, Circle, Line)<br>
+            â€¢ <strong>Select Mode:</strong> Click on shapes to select them, then drag to move<br>
+            â€¢ Shapes are drawn in grid coordinates and stay in place when you pan<br>
+            â€¢ Use the color picker and fill mode to customize your shapes
         </div>
     </div>
 
@@ -179,6 +181,12 @@
         let lastMouseY = 0;
         let previewShape = null;
 
+        // Selection and dragging state
+        let selectedShape = null;
+        let isDraggingShape = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
         // Convert screen coordinates to grid coordinates
         function screenToGrid(screenX, screenY) {
             return {
@@ -195,6 +203,75 @@
             };
         }
 
+        // Check if a point is inside a shape
+        function isPointInShape(mouseX, mouseY, shape) {
+            const start = gridToScreen(shape.startX, shape.startY);
+            const end = gridToScreen(shape.endX, shape.endY);
+
+            if (shape.type === 'rectangle') {
+                const minX = Math.min(start.x, end.x);
+                const maxX = Math.max(start.x, end.x);
+                const minY = Math.min(start.y, end.y);
+                const maxY = Math.max(start.y, end.y);
+                
+                return mouseX >= minX && mouseX <= maxX && mouseY >= minY && mouseY <= maxY;
+            } else if (shape.type === 'circle') {
+                const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                const distance = Math.sqrt(Math.pow(mouseX - start.x, 2) + Math.pow(mouseY - start.y, 2));
+                return distance <= radius;
+            } else if (shape.type === 'line') {
+                // Line hit detection with some tolerance
+                const tolerance = 8;
+                const lineLength = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                
+                if (lineLength === 0) return false;
+                
+                // Calculate distance from point to line
+                const A = mouseX - start.x;
+                const B = mouseY - start.y;
+                const C = end.x - start.x;
+                const D = end.y - start.y;
+                
+                const dot = A * C + B * D;
+                const lenSq = C * C + D * D;
+                let param = -1;
+                
+                if (lenSq !== 0) param = dot / lenSq;
+                
+                let xx, yy;
+                
+                if (param < 0) {
+                    xx = start.x;
+                    yy = start.y;
+                } else if (param > 1) {
+                    xx = end.x;
+                    yy = end.y;
+                } else {
+                    xx = start.x + param * C;
+                    yy = start.y + param * D;
+                }
+                
+                const dx = mouseX - xx;
+                const dy = mouseY - yy;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                return distance <= tolerance;
+            }
+            
+            return false;
+        }
+
+        // Find the topmost shape at a given point
+        function getShapeAtPoint(mouseX, mouseY) {
+            // Search from end to beginning to get topmost shape
+            for (let i = shapes.length - 1; i >= 0; i--) {
+                if (isPointInShape(mouseX, mouseY, shapes[i])) {
+                    return shapes[i];
+                }
+            }
+            return null;
+        }
+
         function drawShapes() {
             shapes.forEach(shape => {
                 const start = gridToScreen(shape.startX, shape.startY);
@@ -202,7 +279,7 @@
 
                 ctx.strokeStyle = shape.color;
                 ctx.fillStyle = shape.color;
-                ctx.lineWidth = 2;
+                ctx.lineWidth = shape === selectedShape ? 3 : 2;
 
                 if (shape.type === 'rectangle') {
                     const width = end.x - start.x;
@@ -228,6 +305,30 @@
                     ctx.moveTo(start.x, start.y);
                     ctx.lineTo(end.x, end.y);
                     ctx.stroke();
+                }
+
+                // Draw selection indicator
+                if (shape === selectedShape) {
+                    ctx.strokeStyle = '#ff6b00';
+                    ctx.lineWidth = 1;
+                    ctx.setLineDash([5, 5]);
+                    
+                    if (shape.type === 'rectangle') {
+                        const width = end.x - start.x;
+                        const height = end.y - start.y;
+                        ctx.strokeRect(start.x - 5, start.y - 5, width + 10, height + 10);
+                    } else if (shape.type === 'circle') {
+                        const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
+                        ctx.beginPath();
+                        ctx.arc(start.x, start.y, radius + 5, 0, 2 * Math.PI);
+                        ctx.stroke();
+                    } else if (shape.type === 'line') {
+                        // Draw selection boxes at endpoints
+                        ctx.strokeRect(start.x - 5, start.y - 5, 10, 10);
+                        ctx.strokeRect(end.x - 5, end.y - 5, 10, 10);
+                    }
+                    
+                    ctx.setLineDash([]);
                 }
             });
         }
@@ -364,8 +465,26 @@
                 lastMouseX = e.clientX;
                 lastMouseY = e.clientY;
                 canvas.style.cursor = 'grabbing';
+            } else if (currentTool === 'select') {
+                const clickedShape = getShapeAtPoint(mouseX, mouseY);
+                
+                if (clickedShape && clickedShape === selectedShape) {
+                    // Start dragging the selected shape
+                    isDraggingShape = true;
+                    const gridPos = screenToGrid(mouseX, mouseY);
+                    dragOffsetX = gridPos.x - selectedShape.startX;
+                    dragOffsetY = gridPos.y - selectedShape.startY;
+                    canvas.style.cursor = 'move';
+                } else {
+                    // Select a different shape or deselect
+                    selectedShape = clickedShape;
+                    canvas.style.cursor = clickedShape ? 'move' : 'default';
+                }
+                
+                drawGrid();
             } else {
                 isDrawing = true;
+                selectedShape = null; // Deselect when drawing
                 const gridPos = screenToGrid(mouseX, mouseY);
                 startX = gridPos.x;
                 startY = gridPos.y;
@@ -399,7 +518,25 @@
                 lastMouseY = e.clientY;
 
                 drawGrid();
-            } else if (currentTool !== 'pan' && isDrawing) {
+            } else if (currentTool === 'select' && isDraggingShape && selectedShape) {
+                const gridPos = screenToGrid(mouseX, mouseY);
+                const newStartX = gridPos.x - dragOffsetX;
+                const newStartY = gridPos.y - dragOffsetY;
+                
+                const deltaX = newStartX - selectedShape.startX;
+                const deltaY = newStartY - selectedShape.startY;
+                
+                selectedShape.startX = newStartX;
+                selectedShape.startY = newStartY;
+                selectedShape.endX += deltaX;
+                selectedShape.endY += deltaY;
+                
+                drawGrid();
+            } else if (currentTool === 'select' && !isDraggingShape) {
+                // Update cursor based on whether we're hovering over a shape
+                const hoverShape = getShapeAtPoint(mouseX, mouseY);
+                canvas.style.cursor = hoverShape ? 'pointer' : 'default';
+            } else if (currentTool !== 'pan' && currentTool !== 'select' && isDrawing) {
                 const gridPos = screenToGrid(mouseX, mouseY);
                 previewShape.endX = gridPos.x;
                 previewShape.endY = gridPos.y;
@@ -410,7 +547,10 @@
         canvas.addEventListener('mouseup', (e) => {
             if (currentTool === 'pan') {
                 isDragging = false;
-                canvas.style.cursor = currentTool === 'pan' ? 'grab' : 'crosshair';
+                canvas.style.cursor = 'grab';
+            } else if (currentTool === 'select') {
+                isDraggingShape = false;
+                canvas.style.cursor = selectedShape ? 'move' : 'default';
             } else if (isDrawing) {
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
@@ -439,10 +579,21 @@
         canvas.addEventListener('mouseleave', () => {
             isDragging = false;
             isDrawing = false;
+            isDraggingShape = false;
             previewShape = null;
-            canvas.style.cursor = currentTool === 'pan' ? 'grab' : 'crosshair';
+            updateCursor();
             drawGrid();
         });
+
+        function updateCursor() {
+            if (currentTool === 'pan') {
+                canvas.style.cursor = 'grab';
+            } else if (currentTool === 'select') {
+                canvas.style.cursor = selectedShape ? 'move' : 'default';
+            } else {
+                canvas.style.cursor = 'crosshair';
+            }
+        }
 
         // Touch support for mobile
         canvas.addEventListener('touchstart', (e) => {
@@ -483,6 +634,7 @@
         // Tool management
         function setTool(tool) {
             currentTool = tool;
+            selectedShape = null; // Clear selection when changing tools
 
             // Update button styles
             document.querySelectorAll('.controls button').forEach(btn => {
@@ -491,11 +643,12 @@
             document.getElementById(tool + 'Tool').classList.add('active-tool');
 
             // Update cursor
-            canvas.style.cursor = tool === 'pan' ? 'grab' : 'crosshair';
+            updateCursor();
 
-            // Clear any ongoing drawing
+            // Clear any ongoing operations
             isDrawing = false;
             isDragging = false;
+            isDraggingShape = false;
             previewShape = null;
             drawGrid();
         }
@@ -514,6 +667,7 @@
 
         function clearShapes() {
             shapes = [];
+            selectedShape = null;
             previewShape = null;
             drawGrid();
         }
