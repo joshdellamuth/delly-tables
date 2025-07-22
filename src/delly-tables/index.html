@@ -121,8 +121,6 @@
                 <label>Tool:</label>
                 <button id="panTool" onclick="setTool('pan')" class="active-tool">Pan</button>
                 <button id="rectangleTool" onclick="setTool('rectangle')">Rectangle</button>
-                <button id="circleTool" onclick="setTool('circle')">Circle</button>
-                <button id="lineTool" onclick="setTool('line')">Line</button>
                 <button id="selectTool" onclick="setTool('select')">Select</button>
             </div>
 
@@ -290,21 +288,6 @@
                     } else {
                         ctx.strokeRect(start.x, start.y, width, height);
                     }
-                } else if (shape.type === 'circle') {
-                    const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
-
-                    ctx.beginPath();
-                    ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
-                    if (shape.fillMode === 'fill') {
-                        ctx.fill();
-                    } else {
-                        ctx.stroke();
-                    }
-                } else if (shape.type === 'line') {
-                    ctx.beginPath();
-                    ctx.moveTo(start.x, start.y);
-                    ctx.lineTo(end.x, end.y);
-                    ctx.stroke();
                 }
 
                 // Draw selection indicator
@@ -317,15 +300,6 @@
                         const width = end.x - start.x;
                         const height = end.y - start.y;
                         ctx.strokeRect(start.x - 5, start.y - 5, width + 10, height + 10);
-                    } else if (shape.type === 'circle') {
-                        const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
-                        ctx.beginPath();
-                        ctx.arc(start.x, start.y, radius + 5, 0, 2 * Math.PI);
-                        ctx.stroke();
-                    } else if (shape.type === 'line') {
-                        // Draw selection boxes at endpoints
-                        ctx.strokeRect(start.x - 5, start.y - 5, 10, 10);
-                        ctx.strokeRect(end.x - 5, end.y - 5, 10, 10);
                     }
                     
                     ctx.setLineDash([]);
@@ -348,16 +322,6 @@
                 const width = end.x - start.x;
                 const height = end.y - start.y;
                 ctx.strokeRect(start.x, start.y, width, height);
-            } else if (previewShape.type === 'circle') {
-                const radius = Math.sqrt(Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2));
-                ctx.beginPath();
-                ctx.arc(start.x, start.y, radius, 0, 2 * Math.PI);
-                ctx.stroke();
-            } else if (previewShape.type === 'line') {
-                ctx.beginPath();
-                ctx.moveTo(start.x, start.y);
-                ctx.lineTo(end.x, end.y);
-                ctx.stroke();
             }
 
             ctx.setLineDash([]); // Reset to solid line
