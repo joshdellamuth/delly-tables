@@ -24,4 +24,4 @@ Will put a checkmark next to each of the ones I choose to use and put reasoning 
  - [ ] Different views based on the objects in the tables
  - [ ] Search functionality to pull specific objects from the view
  - [ ] Automatically assign IDs to objects for user to see
- - [ ] 
+ - [ ] Ability to export the flowchart as json to be version controlled (the json would have to include shape position, object properties, and object instances on the canvas)
