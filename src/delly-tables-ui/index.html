@@ -2,56 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/style.css">
     <title>Delly Tables</title>
+    <style>
+        /* Add some basic styling to make the canvas visible */
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Delly Tables</h1>
+    <canvas id="canvas" width="1300" height="800"></canvas>
+    <div id="offset"></div>
 
-        <div class="canvas-container">
-            <canvas id="gridCanvas" width="800" height="600"></canvas>
-        </div>
-
-        <div class="controls">
-            <div class="tool-section">
-                <label>Tool:</label>
-                <button id="panTool" onclick="setTool('pan')" class="active-tool">Pan</button>
-                <button id="rectangleTool" onclick="setTool('rectangle')">Rectangle</button>
-                <button id="selectTool" onclick="setTool('select')">Select</button>
-            </div>
-
-            <div class="tool-section">
-                <label>Color:</label>
-                <input type="color" id="shapeColor" class="color-picker" value="#007bff">
-                <select id="fillMode">
-                    <option value="stroke">Outline</option>
-                    <option value="fill">Filled</option>
-                </select>
-            </div>
-
-            <div class="tool-section">
-                <button onclick="resetView()">Reset View</button>
-                <button onclick="toggleGridSize()">Toggle Grid Size</button>
-                <button onclick="clearShapes()">Clear Shapes</button>
-            </div>
-
-            <div class="tool-section">
-                <span id="coordinates">Position: (0, 0)</span>
-            </div>
-        </div>
-
-        <div class="info">
-            <strong>Instructions:</strong><br>
-            • <strong>Pan Mode:</strong> Click and drag to move around the grid<br>
-            • <strong>Draw Mode:</strong> Click and drag to draw shapes (Rectangle, Circle, Line)<br>
-            • <strong>Select Mode:</strong> Click on shapes to select them, then drag to move<br>
-            • Shapes are drawn in grid coordinates and stay in place when you pan<br>
-            • Use the color picker and fill mode to customize your shapes
-        </div>
-    </div>
-    <script src="js/index.js"></script>
+    <!-- Use type of 'module' when working with imports and exports -->
+    <script type="module" src="js/index.js"></script>
 </body>
 </html>

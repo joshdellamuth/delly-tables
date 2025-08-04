@@ -12,17 +12,26 @@ body {
     gap: 2px;
 }
 
+
 .canvas-container {
     border: 2px solid #333;
     border-radius: 8px;
     overflow: hidden;
+    text-align: center;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+.canvas-title {
+    position: absolute;
+}
+
 canvas {
-    display: block;
+    display: relative;
     cursor: grab;
     background-color: white;
+    width: 100vw;
+    height: 75vh;
+
 }
 
     canvas:active {
@@ -91,10 +100,3 @@ button {
     button:hover {
         background-color: #0056b3;
     }
-
-.info {
-    color: #666;
-    font-size: 14px;
-    text-align: center;
-    max-width: 600px;
-}
