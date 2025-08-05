@@ -71,7 +71,7 @@ canvas.addEventListener('mousemove', (e) => {
 
 canvas.addEventListener('mouseup', (e) => {
     // Button 2 is the right mouse button.
-    if (e.buttons === 2) {
+    if (e.button === 2) {
         endPan();
     }
 });
