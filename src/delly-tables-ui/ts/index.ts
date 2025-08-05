@@ -36,15 +36,15 @@ canvasObjects.addDrawable(box);
 // #region Event Listeners
 
 
-canvas.addEventListener("mousemove", e => {
-  if (isPanning) {
-    xOffset += (e.offsetX - startX);
-    yOffset += (e.offsetY - startY);
-    startX = e.offsetX;
-    startY = e.offsetY;
-    draw();
-  }
-});
+//canvas.addEventListener("mousemove", e => {
+  //if (isPanning) {
+    //xOffset += (e.offsetX - startX);
+    //yOffset += (e.offsetY - startY);
+    //startX = e.offsetX;
+    //startY = e.offsetY;
+    //draw();
+  //}
+//});
 
 
 // When inside of the canvas, this prevents right click menu showing when right clicking
