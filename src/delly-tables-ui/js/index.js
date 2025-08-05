@@ -1,22 +1,35 @@
-console.log("Before the imports!");
 import { Box } from './CoreObjects/Box.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
-console.log("After the imports!");
 // This gets the canvas element and its context.
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 // This is for the element that displays the x and y coordinates on the grid.
 const offsetDisplay = document.getElementById('offset');
 // Pan state
-let panOffset = { x: 0, y: 0 };
+let xOffset = 0;
+let yOffset = 0;
 let isPanning = false;
 let lastMousePos = { x: 0, y: 0 };
+// Scaling for zoom
+let scale = 1;
+// The starting X and Y
+let startX;
+let startY;
 // Represents the running list of canvas objects to be added to and deleted
 const canvasObjects = new CanvasObjects();
 // Sample box to draw
 const box = new Box(200, 100, '#ff6b6b', 100, 100);
 canvasObjects.addDrawable(box);
 // #region Event Listeners
+canvas.addEventListener("mousemove", e => {
+    if (isPanning) {
+        xOffset += (e.offsetX - startX);
+        yOffset += (e.offsetY - startY);
+        startX = e.offsetX;
+        startY = e.offsetY;
+        draw();
+    }
+});
 // When inside of the canvas, this prevents right click menu showing when right clicking
 canvas.addEventListener('contextmenu', (e) => {
     e.preventDefault();
@@ -24,6 +37,8 @@ canvas.addEventListener('contextmenu', (e) => {
 canvas.addEventListener('mousedown', (e) => {
     // Button 2 is the right mouse button.
     if (e.buttons === 2) {
+        startX = e.offsetX;
+        startY = e.offsetY;
         startPan(e);
     }
 });
@@ -45,6 +60,18 @@ canvas.addEventListener('mouseleave', (e) => {
         endPan();
     }
 });
+canvas.addEventListener("wheel", e => {
+    e.preventDefault();
+    const zoomFactor = 1.15;
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+    const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+    const prevScale = scale;
+    scale *= delta;
+    xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
+    yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
+    draw();
+});
 // #endregion Event Listeners
 function startPan(e) {
     isPanning = true;
@@ -56,8 +83,8 @@ function doPan(e) {
     const currentMousePos = getMousePos(e);
     const deltaX = currentMousePos.x - lastMousePos.x;
     const deltaY = currentMousePos.y - lastMousePos.y;
-    panOffset.x += deltaX;
-    panOffset.y += deltaY;
+    xOffset += deltaX;
+    yOffset += deltaY;
     lastMousePos = currentMousePos;
     updateDisplay();
     draw();
@@ -73,38 +100,42 @@ function getMousePos(e) {
     };
 }
 function updateDisplay() {
-    offsetDisplay.textContent = `X: ${Math.round(panOffset.x)}, Y: ${Math.round(panOffset.y)}`;
+    offsetDisplay.textContent = `X: ${Math.round(xOffset)}, Y: ${Math.round(yOffset)}`;
 }
 function drawGrid() {
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 1;
     const gridSize = 50;
-    const startX = Math.floor(-panOffset.x / gridSize) * gridSize;
-    const startY = Math.floor(-panOffset.y / gridSize) * gridSize;
-    // Vertical lines
-    for (let x = startX; x < canvas.width - panOffset.x; x += gridSize) {
+    const startX = Math.floor(-xOffset / gridSize) * gridSize;
+    const startY = Math.floor(-yOffset / gridSize) * gridSize;
+    // Draw the vertical lines of the canvas.
+    for (let x = startX; x < canvas.width - xOffset; x += gridSize) {
         ctx.beginPath();
-        ctx.moveTo(x + panOffset.x, 0);
-        ctx.lineTo(x + panOffset.x, canvas.height);
+        ctx.moveTo(x + xOffset, 0);
+        ctx.lineTo(x + xOffset, canvas.height);
         ctx.stroke();
     }
-    // Horizontal lines
-    for (let y = startY; y < canvas.height - panOffset.y; y += gridSize) {
+    // Draw the horizontal lines of the canvas.
+    for (let y = startY; y < canvas.height - yOffset; y += gridSize) {
         ctx.beginPath();
-        ctx.moveTo(0, y + panOffset.y);
-        ctx.lineTo(canvas.width, y + panOffset.y);
+        ctx.moveTo(0, y + yOffset);
+        ctx.lineTo(canvas.width, y + yOffset);
         ctx.stroke();
     }
 }
 function drawObjects() {
     const objects = canvasObjects.drawables;
     objects.forEach((drawable) => {
-        drawable.drawWithOffset(ctx, panOffset.x, panOffset.y);
+        drawable.drawWithOffset(ctx, xOffset, yOffset);
     });
 }
 function draw() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Reset transformation matrix 
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.setTransform(scale, 0, 0, scale, xOffset, yOffset);
     // Draw grid
     drawGrid();
     // Draw objects
