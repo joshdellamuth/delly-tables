@@ -3,24 +3,30 @@ import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
 // This gets the canvas element and its context.
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-// This is for the element that displays the x and y coordinates on the grid.
-const offsetDisplay = document.getElementById('offset');
-// Pan state
 let xOffset = 0;
 let yOffset = 0;
+// Pan state
 let isPanning = false;
-let lastMousePos = { x: 0, y: 0 };
 // Scaling for zoom
 let scale = 1;
 // The starting X and Y
 let startX;
 let startY;
+// #region Add shapes to canvas
 // Represents the running list of canvas objects to be added to and deleted
 const canvasObjects = new CanvasObjects();
 // Sample box to draw
-const box = new Box(200, 100, '#ff6b6b', 100, 100);
-canvasObjects.addDrawable(box);
+const box1 = new Box(200, 100, '#5c9dffff', 100, 100);
+canvasObjects.addDrawable(box1);
+const box2 = new Box(200, 200, '#00446bff', 400, 500);
+canvasObjects.addDrawable(box2);
+const box3 = new Box(200, 300, '#8ef7ffff', 750, 300);
+canvasObjects.addDrawable(box3);
+const box4 = new Box(100, 300, '#ecaf2aff', 600, -300);
+canvasObjects.addDrawable(box4);
+// #endregion Add shapes to canvas
 // #region Event Listeners
+// MOUSE MOVE
 canvas.addEventListener("mousemove", e => {
     if (isPanning) {
         xOffset += (e.offsetX - startX);
@@ -30,36 +36,27 @@ canvas.addEventListener("mousemove", e => {
         draw();
     }
 });
-// When inside of the canvas, this prevents right click menu showing when right clicking
-canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-});
+// MOUSE DOWN ON CANVAS
 canvas.addEventListener('mousedown', (e) => {
-    // Button 2 is the right mouse button.
-    if (e.buttons === 2) {
+    isPanning = true;
+    startX = e.offsetX;
+    startY = e.offsetY;
+});
+// MOUSE MOVE ON CANVAS
+canvas.addEventListener('mousemove', (e) => {
+    if (isPanning) {
+        xOffset += (e.offsetX - startX);
+        yOffset += (e.offsetY - startY);
         startX = e.offsetX;
         startY = e.offsetY;
-        startPan(e);
+        draw();
     }
 });
-canvas.addEventListener('mousemove', (e) => {
-    // Button 2 is the right mouse button.
-    if (e.buttons === 2) {
-        doPan(e);
-    }
-});
-canvas.addEventListener('mouseup', (e) => {
-    // Button 2 is the right mouse button.
-    if (e.buttons === 2) {
-        endPan();
-    }
-});
-canvas.addEventListener('mouseleave', (e) => {
-    // Button 2 is the right mouse button.
-    if (e.buttons === 2) {
-        endPan();
-    }
-});
+// MOUSE UP ON CANVAS
+canvas.addEventListener("mouseup", () => isPanning = false);
+// MOUSE LEAVE ON CANVAS
+canvas.addEventListener("mouseleave", () => isPanning = false);
+// MOUSE WHEEL ON CANVAS
 canvas.addEventListener("wheel", e => {
     e.preventDefault();
     const zoomFactor = 1.15;
@@ -72,57 +69,11 @@ canvas.addEventListener("wheel", e => {
     yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
     draw();
 });
+// When inside of the canvas, this prevents right click menu showing when right clicking
+canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+});
 // #endregion Event Listeners
-function startPan(e) {
-    isPanning = true;
-    lastMousePos = getMousePos(e);
-}
-function doPan(e) {
-    if (!isPanning)
-        return;
-    const currentMousePos = getMousePos(e);
-    const deltaX = currentMousePos.x - lastMousePos.x;
-    const deltaY = currentMousePos.y - lastMousePos.y;
-    xOffset += deltaX;
-    yOffset += deltaY;
-    lastMousePos = currentMousePos;
-    updateDisplay();
-    draw();
-}
-function endPan() {
-    isPanning = false;
-}
-function getMousePos(e) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-    };
-}
-function updateDisplay() {
-    offsetDisplay.textContent = `X: ${Math.round(xOffset)}, Y: ${Math.round(yOffset)}`;
-}
-function drawGrid() {
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
-    const gridSize = 50;
-    const startX = Math.floor(-xOffset / gridSize) * gridSize;
-    const startY = Math.floor(-yOffset / gridSize) * gridSize;
-    // Draw the vertical lines of the canvas.
-    for (let x = startX; x < canvas.width - xOffset; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x + xOffset, 0);
-        ctx.lineTo(x + xOffset, canvas.height);
-        ctx.stroke();
-    }
-    // Draw the horizontal lines of the canvas.
-    for (let y = startY; y < canvas.height - yOffset; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y + yOffset);
-        ctx.lineTo(canvas.width, y + yOffset);
-        ctx.stroke();
-    }
-}
 function drawObjects() {
     const objects = canvasObjects.drawables;
     objects.forEach((drawable) => {
@@ -130,15 +81,11 @@ function drawObjects() {
     });
 }
 function draw() {
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     // Reset transformation matrix 
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.setTransform(scale, 0, 0, scale, xOffset, yOffset);
-    // Draw grid
-    drawGrid();
-    // Draw objects
+    // Draw the objects on the canvas
     drawObjects();
 }
 // Initial draw
