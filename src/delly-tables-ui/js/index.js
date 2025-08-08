@@ -25,6 +25,20 @@ canvasObjects.addDrawable(box3);
 const box4 = new Box(100, 300, '#ecaf2aff', 600, -300);
 canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
+const xOffsetElement = document.getElementById('xOffset');
+const yOffsetElement = document.getElementById('yOffset');
+const startXElement = document.getElementById('startX');
+const startYElement = document.getElementById('startY');
+const isPanningElement = document.getElementById('isPanning');
+const scaleElement = document.getElementById('scale');
+function updateValues() {
+    xOffsetElement.innerText = `xOffset: ${xOffset}`;
+    yOffsetElement.innerText = `yOffset: ${yOffset}`;
+    startXElement.innerText = `startX: ${startX}`;
+    startYElement.innerText = `startY: ${startY}`;
+    isPanningElement.innerText = `isPanning: ${isPanning}`;
+    scaleElement.innerText = `scale: ${scale}`;
+}
 // #region Event Listeners
 // MOUSE MOVE
 canvas.addEventListener("mousemove", e => {
@@ -33,6 +47,7 @@ canvas.addEventListener("mousemove", e => {
         yOffset += (e.offsetY - startY);
         startX = e.offsetX;
         startY = e.offsetY;
+        updateValues();
         draw();
     }
 });
@@ -41,6 +56,7 @@ canvas.addEventListener('mousedown', (e) => {
     isPanning = true;
     startX = e.offsetX;
     startY = e.offsetY;
+    updateValues();
 });
 // MOUSE MOVE ON CANVAS
 canvas.addEventListener('mousemove', (e) => {
@@ -49,13 +65,20 @@ canvas.addEventListener('mousemove', (e) => {
         yOffset += (e.offsetY - startY);
         startX = e.offsetX;
         startY = e.offsetY;
+        updateValues();
         draw();
     }
 });
 // MOUSE UP ON CANVAS
-canvas.addEventListener("mouseup", () => isPanning = false);
+canvas.addEventListener("mouseup", () => {
+    isPanning = false;
+    updateValues();
+});
 // MOUSE LEAVE ON CANVAS
-canvas.addEventListener("mouseleave", () => isPanning = false);
+canvas.addEventListener("mouseleave", () => {
+    isPanning = false;
+    updateValues();
+});
 // MOUSE WHEEL ON CANVAS
 canvas.addEventListener("wheel", e => {
     e.preventDefault();
@@ -67,6 +90,7 @@ canvas.addEventListener("wheel", e => {
     scale *= delta;
     xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
     yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
+    updateValues();
     draw();
 });
 // When inside of the canvas, this prevents right click menu showing when right clicking
@@ -90,3 +114,5 @@ function draw() {
 }
 // Initial draw
 draw();
+// update the values seen on the UI 
+updateValues();

@@ -15,8 +15,8 @@ let isPanning: boolean = false;
 let scale: number = 1;
 
 // The starting X and Y
-let startX : number; 
-let startY : number;
+let startX: number;
+let startY: number;
 
 
 // #region Add shapes to canvas
@@ -40,17 +40,36 @@ canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
 
 
+const xOffsetElement = document.getElementById('xOffset') as HTMLParagraphElement;
+const yOffsetElement = document.getElementById('yOffset') as HTMLParagraphElement;
+
+const startXElement = document.getElementById('startX') as HTMLParagraphElement;
+const startYElement = document.getElementById('startY') as HTMLParagraphElement;
+
+const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
+const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
+
+function updateValues() {
+    xOffsetElement.innerText = `xOffset: ${xOffset}`;
+    yOffsetElement.innerText = `yOffset: ${yOffset}`;
+    startXElement.innerText = `startX: ${startX}`;
+    startYElement.innerText = `startY: ${startY}`;
+    isPanningElement.innerText = `isPanning: ${isPanning}`;
+    scaleElement.innerText = `scale: ${scale}`;
+}
+
 // #region Event Listeners
 
 // MOUSE MOVE
 canvas.addEventListener("mousemove", e => {
-  if (isPanning) {
-    xOffset += (e.offsetX - startX);
-    yOffset += (e.offsetY - startY);
-    startX = e.offsetX;
-    startY = e.offsetY;
-    draw();
-  }
+    if (isPanning) {
+        xOffset += (e.offsetX - startX);
+        yOffset += (e.offsetY - startY);
+        startX = e.offsetX;
+        startY = e.offsetY;
+        updateValues();
+        draw();
+    }
 });
 
 // MOUSE DOWN ON CANVAS
@@ -58,40 +77,49 @@ canvas.addEventListener('mousedown', (e) => {
     isPanning = true;
     startX = e.offsetX;
     startY = e.offsetY;
+    updateValues();
 });
 
 // MOUSE MOVE ON CANVAS
 canvas.addEventListener('mousemove', (e) => {
-  if (isPanning) {
-    xOffset += (e.offsetX - startX);
-    yOffset += (e.offsetY - startY);
-    startX = e.offsetX;
-    startY = e.offsetY;
-    draw();
-  }
+    if (isPanning) {
+        xOffset += (e.offsetX - startX);
+        yOffset += (e.offsetY - startY);
+        startX = e.offsetX;
+        startY = e.offsetY;
+        updateValues();
+        draw();
+    }
 });
 
 // MOUSE UP ON CANVAS
-canvas.addEventListener("mouseup", () => isPanning = false);
+canvas.addEventListener("mouseup", () => {
+    isPanning = false;
+    updateValues();
+});
 
 // MOUSE LEAVE ON CANVAS
-canvas.addEventListener("mouseleave", () => isPanning = false);
+canvas.addEventListener("mouseleave", () => {
+    isPanning = false;
+    updateValues();
+});
 
 // MOUSE WHEEL ON CANVAS
 canvas.addEventListener("wheel", e => {
-  e.preventDefault();
-  const zoomFactor = 1.15;
-  const mouseX = e.offsetX;
-  const mouseY = e.offsetY;
-  const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
+    e.preventDefault();
+    const zoomFactor = 1.15;
+    const mouseX = e.offsetX;
+    const mouseY = e.offsetY;
+    const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
 
-  const prevScale = scale;
-  scale *= delta;
+    const prevScale = scale;
+    scale *= delta;
 
-  xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
-  yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
+    xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
+    yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
+    updateValues();
 
-  draw();
+    draw();
 });
 
 // When inside of the canvas, this prevents right click menu showing when right clicking
@@ -121,3 +149,6 @@ function draw() {
 
 // Initial draw
 draw();
+
+// update the values seen on the UI 
+updateValues();
