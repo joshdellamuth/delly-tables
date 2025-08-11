@@ -20,17 +20,26 @@ export class Box implements IDrawable {
         this.color = color;
     }
 
-    draw(context: CanvasRenderingContext2D): void {
+    draw(context: CanvasRenderingContext2D, offsetX: number, offsetY: number): void {
         console.log("Drawing a box!")
 
-        context.fillStyle = this.color;
-        context.fillRect(this.xPosition, this.yPosition, this.width, this.height);
-    }
+        // There is currently an error with rounding, so making it 0 for now.
+        let rounding = 15;
 
-        drawWithOffset(context: CanvasRenderingContext2D, offsetX: number, offsetY: number): void {
-        console.log("Drawing a box!")
+        let x1 = this.xPosition + offsetX;
+        let y1 = this.yPosition + offsetY;
+        let x2 = this.xPosition + offsetX + this.width;
+        let y2 = this.yPosition + offsetY + this.height;
 
         context.fillStyle = this.color;
-        context.fillRect(this.xPosition + offsetX, this.yPosition + offsetY, this.width, this.height);
+        context.beginPath();
+        // go to the starting point
+        context.moveTo(x1, y1);
+        context.arcTo(x2, y1, x2, y2, rounding);
+        context.arcTo(x2, y2, x1, y2, rounding);
+        context.arcTo(x1, y2, x1, y1, rounding);
+        context.arcTo(x1, y1, x2, y1, rounding);
+        context.closePath();
+        context.fill();
     }
 }

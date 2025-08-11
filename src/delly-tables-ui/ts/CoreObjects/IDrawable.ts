@@ -4,7 +4,5 @@ export interface IDrawable {
     xPosition: number;
     yPosition: number;
 
-    draw(context: CanvasRenderingContext2D): void;
-
-    drawWithOffset(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
+    draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
 }

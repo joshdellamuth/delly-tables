@@ -133,7 +133,7 @@ canvas.addEventListener('contextmenu', (e) => {
 function drawObjects() {
     const objects = canvasObjects.drawables;
     objects.forEach((drawable: IDrawable) => {
-        drawable.drawWithOffset(ctx, xOffset, yOffset);
+        drawable.draw(ctx, xOffset, yOffset);
     });
 }
 

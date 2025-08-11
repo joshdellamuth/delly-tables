@@ -6,14 +6,23 @@ export class Box {
         this.height = height;
         this.color = color;
     }
-    draw(context) {
+    draw(context, offsetX, offsetY) {
         console.log("Drawing a box!");
+        // There is currently an error with rounding, so making it 0 for now.
+        let rounding = 15;
+        let x1 = this.xPosition + offsetX;
+        let y1 = this.yPosition + offsetY;
+        let x2 = this.xPosition + offsetX + this.width;
+        let y2 = this.yPosition + offsetY + this.height;
         context.fillStyle = this.color;
-        context.fillRect(this.xPosition, this.yPosition, this.width, this.height);
-    }
-    drawWithOffset(context, offsetX, offsetY) {
-        console.log("Drawing a box!");
-        context.fillStyle = this.color;
-        context.fillRect(this.xPosition + offsetX, this.yPosition + offsetY, this.width, this.height);
+        context.beginPath();
+        // go to the starting point
+        context.moveTo(x1, y1);
+        context.arcTo(x2, y1, x2, y2, rounding);
+        context.arcTo(x2, y2, x1, y2, rounding);
+        context.arcTo(x1, y2, x1, y1, rounding);
+        context.arcTo(x1, y1, x2, y1, rounding);
+        context.closePath();
+        context.fill();
     }
 }
