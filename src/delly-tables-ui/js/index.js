@@ -1,8 +1,10 @@
 import { Box } from './CoreObjects/Box.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
+import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 // This gets the canvas element and its context.
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const infiniteCanvas = new InfiniteCanvas('canvas2', 1000, 1000);
 let panDistanceX = 0;
 let panDistanceY = 0;
 // Pan state
