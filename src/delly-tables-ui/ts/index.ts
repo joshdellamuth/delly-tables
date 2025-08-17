@@ -1,13 +1,18 @@
 import { Box } from './CoreObjects/Box.js';
 import { IDrawable } from './CoreObjects/IDrawable.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
+import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
 // This gets the canvas element and its context.
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-let xOffset: number = 0;
-let yOffset: number = 0;
+
+const infiniteCanvas: InfiniteCanvas = new InfiniteCanvas('canvas2', 1000, 1000);
+
+let panDistanceX: number = 0;
+let panDistanceY: number = 0;
+
 // Pan state
 let isPanning: boolean = false;
 
@@ -15,8 +20,9 @@ let isPanning: boolean = false;
 let scale: number = 1;
 
 // The starting X and Y
-let startX: number;
-let startY: number;
+// initial x and y coordinates when you start panning the canvas
+let panStartX: number;
+let panStartY: number;
 
 
 // #region Add shapes to canvas
@@ -28,7 +34,7 @@ const canvasObjects: CanvasObjects = new CanvasObjects();
 const box1: Box = new Box(200, 100, '#5c9dffff', 100, 100);
 canvasObjects.addDrawable(box1);
 
-const box2: Box = new Box(200, 200, '#00446bff', 400, 500);
+const box2: Box = new Box(200, 200, '#aa269fff', 400, 500);
 canvasObjects.addDrawable(box2);
 
 const box3: Box = new Box(200, 300, '#8ef7ffff', 750, 300);
@@ -40,20 +46,20 @@ canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
 
 
-const xOffsetElement = document.getElementById('xOffset') as HTMLParagraphElement;
-const yOffsetElement = document.getElementById('yOffset') as HTMLParagraphElement;
+const panDistanceXElement = document.getElementById('panDistanceX') as HTMLParagraphElement;
+const panDistanceYElement = document.getElementById('panDistanceY') as HTMLParagraphElement;
 
-const startXElement = document.getElementById('startX') as HTMLParagraphElement;
-const startYElement = document.getElementById('startY') as HTMLParagraphElement;
+const panStartXElement = document.getElementById('panStartX') as HTMLParagraphElement;
+const panStartYElement = document.getElementById('panStartY') as HTMLParagraphElement;
 
 const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
 const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
 
 function updateValues() {
-    xOffsetElement.innerText = `xOffset: ${xOffset}`;
-    yOffsetElement.innerText = `yOffset: ${yOffset}`;
-    startXElement.innerText = `startX: ${startX}`;
-    startYElement.innerText = `startY: ${startY}`;
+    panDistanceXElement.innerText = `panDistanceX: ${panDistanceX}`;
+    panDistanceYElement.innerText = `panDistanceY: ${panDistanceY}`;
+    panStartXElement.innerText = `panStartX: ${panStartX}`;
+    panStartYElement.innerText = `panStartY: ${panStartY}`;
     isPanningElement.innerText = `isPanning: ${isPanning}`;
     scaleElement.innerText = `scale: ${scale}`;
 }
@@ -63,10 +69,12 @@ function updateValues() {
 // MOUSE MOVE
 canvas.addEventListener("mousemove", e => {
     if (isPanning) {
-        xOffset += (e.offsetX - startX);
-        yOffset += (e.offsetY - startY);
-        startX = e.offsetX;
-        startY = e.offsetY;
+        // e.OffsetX is the horizontal distance of the mouse from the left edge of the canvas 
+        panDistanceX += (e.offsetX - panStartX); 
+        // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
+        panDistanceY += (e.offsetY - panStartY); 
+        panStartX = e.offsetX;
+        panStartY = e.offsetY;
         updateValues();
         draw();
     }
@@ -75,18 +83,18 @@ canvas.addEventListener("mousemove", e => {
 // MOUSE DOWN ON CANVAS
 canvas.addEventListener('mousedown', (e) => {
     isPanning = true;
-    startX = e.offsetX;
-    startY = e.offsetY;
+    panStartX = e.offsetX; 
+    panStartY = e.offsetY; // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
     updateValues();
 });
 
 // MOUSE MOVE ON CANVAS
 canvas.addEventListener('mousemove', (e) => {
     if (isPanning) {
-        xOffset += (e.offsetX - startX);
-        yOffset += (e.offsetY - startY);
-        startX = e.offsetX;
-        startY = e.offsetY;
+        panDistanceX += (e.offsetX - panStartX);
+        panDistanceY += (e.offsetY - panStartY);
+        panStartX = e.offsetX;
+        panStartY = e.offsetY;
         updateValues();
         draw();
     }
@@ -115,8 +123,8 @@ canvas.addEventListener("wheel", e => {
     const prevScale = scale;
     scale *= delta;
 
-    xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
-    yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
+    panDistanceX = mouseX - (mouseX - panDistanceX) * (scale / prevScale);
+    panDistanceY = mouseY - (mouseY - panDistanceY) * (scale / prevScale);
     updateValues();
 
     draw();
@@ -133,7 +141,7 @@ canvas.addEventListener('contextmenu', (e) => {
 function drawObjects() {
     const objects = canvasObjects.drawables;
     objects.forEach((drawable: IDrawable) => {
-        drawable.draw(ctx, xOffset, yOffset);
+        drawable.draw(ctx, panDistanceX, panDistanceY);
     });
 }
 
@@ -141,7 +149,7 @@ function draw() {
     // Reset transformation matrix 
     ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(scale, 0, 0, scale, xOffset, yOffset);
+    ctx.setTransform(scale, 0, 0, scale, panDistanceX, panDistanceY);
 
     // Draw the objects on the canvas
     drawObjects();
