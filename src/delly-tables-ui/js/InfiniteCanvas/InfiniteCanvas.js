@@ -8,6 +8,7 @@ export class InfiniteCanvas {
         this.panStartX = 0;
         this.panStartY = 0;
         this.scale = 1;
+        this.backgroundColor = '#bcffcdff';
         this.canvasID = canvasID;
         this.canvas = document.getElementById(canvasID);
         // The ! is a type assertion that says you are sure a non-null value will be returned
@@ -25,6 +26,12 @@ export class InfiniteCanvas {
         // update the values seen on the UI 
         this.updateValues();
     }
+    updateSize(width, height) {
+        this.width = width;
+        this.height = height;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
     drawObjects() {
         this.canvasObjects.drawables.forEach((drawable) => {
             drawable.draw(this.ctx, this.panDistanceX, this.panDistanceY);
@@ -34,6 +41,9 @@ export class InfiniteCanvas {
         // Reset transformation matrix 
         this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        // Draw background before applying the transformations. 
+        this.ctx.fillStyle = this.backgroundColor;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panDistanceX, this.panDistanceY);
         // Draw the objects on the canvas
         this.drawObjects();

@@ -17,7 +17,16 @@ canvasObjects.addDrawable(box3);
 const box4 = new Box(100, 300, '#ecaf2aff', 600, -300);
 canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
+// calculate the width and height of the screen
+const canvasWidth = window.innerWidth;
+const spaceForVariableValues = 150;
+const canvasHeight = window.innerHeight - spaceForVariableValues;
 // create the canvas
-// calculate the size of the width of the screen
-// calulate the height of the screen
-const infiniteCanvas = new InfiniteCanvas('canvas', 1500, 700, canvasObjects);
+const infiniteCanvas = new InfiniteCanvas('canvas', canvasWidth, canvasHeight, canvasObjects);
+// make the canvas size the same as the window
+window.addEventListener('resize', () => {
+    const canvasWidth = window.innerWidth;
+    const canvasHeight = window.innerHeight - spaceForVariableValues;
+    infiniteCanvas.updateSize(canvasWidth, canvasHeight);
+    infiniteCanvas.draw();
+});

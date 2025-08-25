@@ -11,9 +11,10 @@ export class InfiniteCanvas {
     isPanning: boolean = false;
     panDistanceX: number = 0;
     panDistanceY: number = 0;
-    public panStartX: number = 0;
+    panStartX: number = 0;
     panStartY: number = 0;
     scale: number = 1;
+    backgroundColor: string = '#bcffcdff';
 
     constructor(canvasID: string, width: number, height: number, canvasObjects?: CanvasObjects) {
         this.canvasID = canvasID;
@@ -40,6 +41,14 @@ export class InfiniteCanvas {
         this.updateValues();
     }
 
+    updateSize(width: number, height: number) {
+        this.width = width;
+        this.height = height;
+        
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+    }
+
     drawObjects() {
         this.canvasObjects.drawables.forEach((drawable: IDrawable) => {
             drawable.draw(this.ctx, this.panDistanceX, this.panDistanceY);
@@ -50,6 +59,11 @@ export class InfiniteCanvas {
         // Reset transformation matrix 
         this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Draw background before applying the transformations. 
+        this.ctx.fillStyle = this.backgroundColor;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
         this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panDistanceX, this.panDistanceY);
 
         // Draw the objects on the canvas
