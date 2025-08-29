@@ -4,10 +4,36 @@
     <meta charset="UTF-8">
     <title>Delly Tables</title>
     <link rel="stylesheet" href="css/style.css"></style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <canvas id="canvas"></canvas>
-    <div id="offset"></div>
+    <div class="toolbar-row">
+
+        <div class="toolbar">
+            <button class="toolbar-button">
+                <i class="toolbar-icon fa-solid fa-arrows-up-down-left-right"></i>
+            </button>
+            <button class="toolbar-button">
+                <i class="toolbar-icon fa-solid fa-shapes"></i>
+            </button>
+
+            <button class="toolbar-button">
+                <i class="toolbar-icon fa-regular fa-object-group"></i>
+            </button>
+
+            <button class="toolbar-button">
+                <i class="toolbar-icon fa-solid fa-font"></i>
+            </button>
+
+            <button class="toolbar-button">
+                <span class="toolbar-icon">🔍</span>
+            </button>
+
+        </div>
+    </div>
+    
+
     <div id="codeValues">
         <span id="panDistanceX"></span>
         <span id="panDistanceY"></span>
