@@ -160,13 +160,11 @@ export class InfiniteCanvas {
         const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
         const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
 
-        panDistanceXElement.innerText = `panDistanceX: ${(this.panDistanceX).toFixed(4)} | `;
-        panDistanceYElement.innerText = `panDistanceY: ${(this.panDistanceY).toFixed(4)} | `;
-        panStartXElement.innerText = `panStartX: ${(this.panStartX).toFixed(4)} | `;
-        panStartYElement.innerText = `panStartY: ${(this.panStartY).toFixed(4)} | `;
-        isPanningElement.innerText = `isPanning: ${(this.isPanning)} | `;
-        scaleElement.innerText = `scale: ${(this.scale).toFixed(4)} `;
+        panDistanceXElement.innerText = `| panDistanceX: ${(this.panDistanceX).toFixed(4)} | `;
+        panDistanceYElement.innerText = `| panDistanceY: ${(this.panDistanceY).toFixed(4)} | `;
+        panStartXElement.innerText = `| panStartX: ${(this.panStartX).toFixed(4)} | `;
+        panStartYElement.innerText = `| panStartY: ${(this.panStartY).toFixed(4)} | `;
+        isPanningElement.innerText = `| isPanning: ${(this.isPanning)} | `;
+        scaleElement.innerText = `| scale: ${(this.scale).toFixed(4)} `;
     }
-
-
 }

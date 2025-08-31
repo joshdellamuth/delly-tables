@@ -28,10 +28,9 @@ body {
     display: flex;
     flex-direction: row;
     position: fixed;
-    bottom: 35px;
+    bottom: 20px;
     color: rgb(141, 141, 141);
-    border-radius: 15px;
-    gap: 1em;
+    border-radius: 10px;
     padding: .5em;
     background: white;
     opacity: 0.75;
@@ -40,9 +39,17 @@ body {
 
 .toolbar-button{
     padding: .3em;
-    border-radius: 10px;
+    border-radius: 5px;
     border: none;
     background: white;
+}
+
+.toolbar-button-selected{
+    background: rgb(234, 234, 234);
+}
+
+.toolbar-button:hover{
+    background: rgb(234, 234, 234);
 }
 
 
