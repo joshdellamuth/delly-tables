@@ -29,7 +29,7 @@ body {
     border-radius: 15px;
     gap: 1em;
     padding: .5em;
-    background: linear-gradient(135deg, #9d9d9d 0%, #545454 100%);
+    background: linear-gradient(135deg, #9d9d9d 0%, #ababab 100%);
 }
 
 
@@ -42,8 +42,9 @@ body {
 
 
 .toolbar-icon{
-    font-size: 3em;
+    width: 3em;
+    height: 3em;
     padding: .1em;
-    color: rgb(243, 243, 243);
+    fill: rgb(243, 243, 243);
 }
 
