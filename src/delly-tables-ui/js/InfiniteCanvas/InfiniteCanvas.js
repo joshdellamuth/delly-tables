@@ -8,7 +8,7 @@ export class InfiniteCanvas {
         this.panStartX = 0;
         this.panStartY = 0;
         this.scale = 1;
-        this.backgroundColor = '#bcffcdff';
+        this.backgroundColor = '#f7f7f7ff';
         this.canvasID = canvasID;
         this.canvas = document.getElementById(canvasID);
         // The ! is a type assertion that says you are sure a non-null value will be returned
@@ -121,11 +121,11 @@ export class InfiniteCanvas {
         const panStartYElement = document.getElementById('panStartY');
         const isPanningElement = document.getElementById('isPanning');
         const scaleElement = document.getElementById('scale');
-        panDistanceXElement.innerText = `panDistanceX: ${this.panDistanceX}`;
-        panDistanceYElement.innerText = `panDistanceY: ${this.panDistanceY}`;
-        panStartXElement.innerText = `panStartX: ${this.panStartX}`;
-        panStartYElement.innerText = `panStartY: ${this.panStartY}`;
-        isPanningElement.innerText = `isPanning: ${this.isPanning}`;
-        scaleElement.innerText = `scale: ${this.scale}`;
+        panDistanceXElement.innerText = `panDistanceX: ${(this.panDistanceX).toFixed(4)} | `;
+        panDistanceYElement.innerText = `panDistanceY: ${(this.panDistanceY).toFixed(4)} | `;
+        panStartXElement.innerText = `panStartX: ${(this.panStartX).toFixed(4)} | `;
+        panStartYElement.innerText = `panStartY: ${(this.panStartY).toFixed(4)} | `;
+        isPanningElement.innerText = `isPanning: ${(this.isPanning)} | `;
+        scaleElement.innerText = `scale: ${(this.scale).toFixed(4)}`;
     }
 }

@@ -14,7 +14,7 @@ export class InfiniteCanvas {
     panStartX: number = 0;
     panStartY: number = 0;
     scale: number = 1;
-    backgroundColor: string = '#bcffcdff';
+    backgroundColor: string = '#f7f7f7ff';
 
     constructor(canvasID: string, width: number, height: number, canvasObjects?: CanvasObjects) {
         this.canvasID = canvasID;
@@ -160,12 +160,12 @@ export class InfiniteCanvas {
         const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
         const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
 
-        panDistanceXElement.innerText = `panDistanceX: ${this.panDistanceX}`;
-        panDistanceYElement.innerText = `panDistanceY: ${this.panDistanceY}`;
-        panStartXElement.innerText = `panStartX: ${this.panStartX}`;
-        panStartYElement.innerText = `panStartY: ${this.panStartY}`;
-        isPanningElement.innerText = `isPanning: ${this.isPanning}`;
-        scaleElement.innerText = `scale: ${this.scale}`;
+        panDistanceXElement.innerText = `panDistanceX: ${(this.panDistanceX).toFixed(4)} | `;
+        panDistanceYElement.innerText = `panDistanceY: ${(this.panDistanceY).toFixed(4)} | `;
+        panStartXElement.innerText = `panStartX: ${(this.panStartX).toFixed(4)} | `;
+        panStartYElement.innerText = `panStartY: ${(this.panStartY).toFixed(4)} | `;
+        isPanningElement.innerText = `isPanning: ${(this.isPanning)} | `;
+        scaleElement.innerText = `scale: ${(this.scale).toFixed(4)} `;
     }
 
 
