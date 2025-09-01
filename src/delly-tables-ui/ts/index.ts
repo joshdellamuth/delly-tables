@@ -1,23 +1,10 @@
 import { Box } from './CoreObjects/Box.js';
-import { IDrawable } from './CoreObjects/IDrawable.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
+import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
 // This gets the canvas element and its context.
 const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
 const ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-let xOffset: number = 0;
-let yOffset: number = 0;
-// Pan state
-let isPanning: boolean = false;
-
-// Scaling for zoom
-let scale: number = 1;
-
-// The starting X and Y
-let startX: number;
-let startY: number;
-
 
 // #region Add shapes to canvas
 
@@ -28,7 +15,7 @@ const canvasObjects: CanvasObjects = new CanvasObjects();
 const box1: Box = new Box(200, 100, '#5c9dffff', 100, 100);
 canvasObjects.addDrawable(box1);
 
-const box2: Box = new Box(200, 200, '#00446bff', 400, 500);
+const box2: Box = new Box(200, 200, '#aa269fff', 400, 500);
 canvasObjects.addDrawable(box2);
 
 const box3: Box = new Box(200, 300, '#8ef7ffff', 750, 300);
@@ -40,115 +27,18 @@ canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
 
 
-const xOffsetElement = document.getElementById('xOffset') as HTMLParagraphElement;
-const yOffsetElement = document.getElementById('yOffset') as HTMLParagraphElement;
+// calculate the width and height of the screen
+const canvasWidth = window.innerWidth;
+const canvasHeight = window.innerHeight;
 
-const startXElement = document.getElementById('startX') as HTMLParagraphElement;
-const startYElement = document.getElementById('startY') as HTMLParagraphElement;
+// create the canvas
+const infiniteCanvas: InfiniteCanvas = new InfiniteCanvas('canvas', canvasWidth, canvasHeight, canvasObjects);
 
-const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
-const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
+// make the canvas size the same as the window
+window.addEventListener('resize', () => {
+    const canvasWidth = window.innerWidth;
+    const canvasHeight = window.innerHeight;
+    infiniteCanvas.updateSize(canvasWidth, canvasHeight);
 
-function updateValues() {
-    xOffsetElement.innerText = `xOffset: ${xOffset}`;
-    yOffsetElement.innerText = `yOffset: ${yOffset}`;
-    startXElement.innerText = `startX: ${startX}`;
-    startYElement.innerText = `startY: ${startY}`;
-    isPanningElement.innerText = `isPanning: ${isPanning}`;
-    scaleElement.innerText = `scale: ${scale}`;
-}
-
-// #region Event Listeners
-
-// MOUSE MOVE
-canvas.addEventListener("mousemove", e => {
-    if (isPanning) {
-        xOffset += (e.offsetX - startX);
-        yOffset += (e.offsetY - startY);
-        startX = e.offsetX;
-        startY = e.offsetY;
-        updateValues();
-        draw();
-    }
+    infiniteCanvas.draw();
 });
-
-// MOUSE DOWN ON CANVAS
-canvas.addEventListener('mousedown', (e) => {
-    isPanning = true;
-    startX = e.offsetX;
-    startY = e.offsetY;
-    updateValues();
-});
-
-// MOUSE MOVE ON CANVAS
-canvas.addEventListener('mousemove', (e) => {
-    if (isPanning) {
-        xOffset += (e.offsetX - startX);
-        yOffset += (e.offsetY - startY);
-        startX = e.offsetX;
-        startY = e.offsetY;
-        updateValues();
-        draw();
-    }
-});
-
-// MOUSE UP ON CANVAS
-canvas.addEventListener("mouseup", () => {
-    isPanning = false;
-    updateValues();
-});
-
-// MOUSE LEAVE ON CANVAS
-canvas.addEventListener("mouseleave", () => {
-    isPanning = false;
-    updateValues();
-});
-
-// MOUSE WHEEL ON CANVAS
-canvas.addEventListener("wheel", e => {
-    e.preventDefault();
-    const zoomFactor = 1.15;
-    const mouseX = e.offsetX;
-    const mouseY = e.offsetY;
-    const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
-
-    const prevScale = scale;
-    scale *= delta;
-
-    xOffset = mouseX - (mouseX - xOffset) * (scale / prevScale);
-    yOffset = mouseY - (mouseY - yOffset) * (scale / prevScale);
-    updateValues();
-
-    draw();
-});
-
-// When inside of the canvas, this prevents right click menu showing when right clicking
-canvas.addEventListener('contextmenu', (e) => {
-    e.preventDefault();
-});
-
-// #endregion Event Listeners
-
-
-function drawObjects() {
-    const objects = canvasObjects.drawables;
-    objects.forEach((drawable: IDrawable) => {
-        drawable.draw(ctx, xOffset, yOffset);
-    });
-}
-
-function draw() {
-    // Reset transformation matrix 
-    ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(scale, 0, 0, scale, xOffset, yOffset);
-
-    // Draw the objects on the canvas
-    drawObjects();
-}
-
-// Initial draw
-draw();
-
-// update the values seen on the UI 
-updateValues();
