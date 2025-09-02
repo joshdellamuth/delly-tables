@@ -9,7 +9,16 @@
 body {
     margin: 0;
     padding: 0;
+    font-family: 'Inter', sans-serif;
 }
+
+.logo-text{
+    font-family: 'Inter', sans-serif;
+    font-size: x-large;
+    font-weight: 750;
+    padding: 4px;
+}
+
 
 #codeValues {
     display: flex;
@@ -24,18 +33,37 @@ body {
     align-items: center; /* Centers vertically */
 }
 
+.option-button-row {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    top: 0px;
+    background: rgb(233, 233, 233);
+    opacity: 0.75;
+    border-radius: 5px;
+}
+
+.option-button{
+    background-color: transparent;
+    border: none;
+    font-size: large;
+    border-radius: 5px;
+}
+
+.option-button:hover{
+    background: rgb(194, 194, 194);
+}
+
 .toolbar {
     display: flex;
     flex-direction: row;
     position: fixed;
     bottom: 20px;
-    color: rgb(141, 141, 141);
     border-radius: 10px;
     padding: .5em;
     background: white;
     opacity: 0.75;
 }
-
 
 .toolbar-button{
     padding: .3em;
@@ -58,5 +86,6 @@ body {
     height: 1.5em;
     padding: .1em;
     fill: black;
+    overflow: visible;
 }
 
