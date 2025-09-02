@@ -38,14 +38,18 @@ export class InfiniteCanvas {
         });
     }
     draw() {
-        // Reset transformation matrix 
-        this.ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+        // Reset transformation matrix. This cancels any previosu scale, rotate, translate or skew operations.
+        // This ensures drawing commands start from a neutral coordinate system.  
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        // Removes the pixel content of the canvas. (Would get ghosting and trails without this)
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        // Draw background before applying the transformations. 
+        // Draw background before re-applying the transformations. 
         this.ctx.fillStyle = this.backgroundColor;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        // Re-applies the zoom and the panning for the current frame.
+        // this.scale is used twice for both horizontal and vertical scaling. 
         this.ctx.setTransform(this.scale, 0, 0, this.scale, this.panDistanceX, this.panDistanceY);
-        // Draw the objects on the canvas
+        // Draw the objects on the canvas.
         this.drawObjects();
     }
     addEventlisteners() {
@@ -121,11 +125,18 @@ export class InfiniteCanvas {
         const panStartYElement = document.getElementById('panStartY');
         const isPanningElement = document.getElementById('isPanning');
         const scaleElement = document.getElementById('scale');
-        panDistanceXElement.innerText = `| panDistanceX: ${(this.panDistanceX).toFixed(4)} | `;
-        panDistanceYElement.innerText = `| panDistanceY: ${(this.panDistanceY).toFixed(4)} | `;
-        panStartXElement.innerText = `| panStartX: ${(this.panStartX).toFixed(4)} | `;
-        panStartYElement.innerText = `| panStartY: ${(this.panStartY).toFixed(4)} | `;
+        panDistanceXElement.innerText = `| panDistanceX: ${(this.panDistanceX).toFixed(3)} | `;
+        panDistanceYElement.innerText = `| panDistanceY: ${(this.panDistanceY).toFixed(3)} | `;
+        panStartXElement.innerText = `| panStartX: ${(this.panStartX).toFixed(3)} | `;
+        panStartYElement.innerText = `| panStartY: ${(this.panStartY).toFixed(3)} | `;
         isPanningElement.innerText = `| isPanning: ${(this.isPanning)} | `;
-        scaleElement.innerText = `| scale: ${(this.scale).toFixed(4)} `;
+        scaleElement.innerText = `| scale: ${(this.scale).toFixed(3)} `;
+    }
+    getMousePos(mouseEvent) {
+        const rect = this.canvas.getBoundingClientRect();
+        return {
+            x: mouseEvent.clientX - rect.left,
+            y: mouseEvent.clientY - rect.top
+        };
     }
 }

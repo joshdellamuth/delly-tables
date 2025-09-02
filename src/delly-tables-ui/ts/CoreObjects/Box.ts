@@ -1,9 +1,12 @@
 import { IDrawable } from '../../ts/CoreObjects/IDrawable.js';
+import { Position } from '../../ts/InfiniteCanvas/Position.js';
 
 export class Box implements IDrawable {
     // properties enforced by the interface
     xPosition: number;
     yPosition: number;
+
+    isSelected: boolean = true;
 
     // properties just in the Box class
     public width: number;
@@ -12,17 +15,16 @@ export class Box implements IDrawable {
 
 
     constructor(width: number, height: number, color: string,
-        xPosition: number, yPosition: number) {
+        xPosition: number, yPosition: number, isSelected: boolean = false) {
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.width = width;
         this.height = height;
         this.color = color;
+        this.isSelected = isSelected;
     }
 
     draw(context: CanvasRenderingContext2D, offsetX: number, offsetY: number): void {
-        console.log("Drawing a box!")
-
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 15;
 
@@ -41,5 +43,59 @@ export class Box implements IDrawable {
         context.arcTo(x1, y1, x2, y1, rounding);
         context.closePath();
         context.fill();
+
+        if (this.isSelected) {
+            this.drawSelectionOutline(context, x1, y1, x2, y2, rounding);
+        }
+    }
+
+    drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {
+        context.save(); // Save current state
+        context.strokeStyle = "skyblue";
+        context.lineWidth = 3;
+
+        context.setLineDash([14, 8]); // 14px dash, 8px gap
+
+        context.beginPath();
+
+        context.moveTo(x1 + this.width / 2, y1); // Start at the middle of the top of the box
+        context.arcTo(x2, y1, x2, y2, rounding);
+        context.arcTo(x2, y2, x1, y2, rounding);
+        context.arcTo(x1, y2, x1, y1, rounding);
+        context.arcTo(x1, y1, x2, y1, rounding);
+        context.closePath();
+        context.stroke();
+
+        type Point = [number, number];
+
+        // Corner points
+        const corners: Point[] = [
+            [x1, y1],
+            [x2, y1],
+            [x2, y2],
+            [x1, y2]
+        ];
+
+        // Midpoints
+        const midpoints: Point[] = [
+            [(x1 + x2) / 2, y1], // Top center
+            [x2, (y1 + y2) / 2], // Right center
+            [(x1 + x2) / 2, y2], // Bottom center
+            [x1, (y1 + y2) / 2]  // Left center
+        ];
+
+        // Combine the corners list and midpoints list that was calucated. 
+        const markerPoints = [...corners, ...midpoints];
+
+        // Draw all markers as small squares
+        markerPoints.forEach(([cx, cy]: Point) => {
+            context.beginPath();
+            context.arc(cx, cy, 4, 0, Math.PI * 2); // Full circle
+            context.fillStyle = "skyblue"; 
+            context.fill();
+        });
+
+        // Sets the canvas settings back to when context.save() was called.
+        context.restore();
     }
 }
