@@ -40,14 +40,16 @@ body {
     top: 0px;
     background: rgb(233, 233, 233);
     opacity: 0.75;
-    border-radius: 5px;
+    border-radius: 7px;
+    opacity: 0.75;
 }
 
 .option-button{
     background-color: transparent;
     border: none;
     font-size: large;
-    border-radius: 5px;
+    border-radius: 7px;
+    opacity: 0.75;
 }
 
 .option-button:hover{
