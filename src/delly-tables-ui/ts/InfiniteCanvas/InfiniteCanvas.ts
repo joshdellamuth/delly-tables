@@ -99,15 +99,23 @@ export class InfiniteCanvas {
 
         // MOUSE DOWN ON CANVAS
         this.canvas.addEventListener('mousedown', (e) => {
-            this.isPanning = true;
-            this.canvas.style.cursor = 'grab';
-            this.panStartX = e.offsetX;
-            this.panStartY = e.offsetY; // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
-            this.updateValues();
+            // This will eventuall be used to select objects.
+            if (e.button == 0) {
+                this.canvas.style.cursor = 'crosshair';
+            }
+            
+            if (e.button == 2) {
+                this.isPanning = true;
+                this.canvas.style.cursor = 'grab';
+                this.panStartX = e.offsetX;
+                this.panStartY = e.offsetY; // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
+                this.updateValues();
+            }
         });
 
         // MOUSE MOVE ON CANVAS
         this.canvas.addEventListener('mousemove', (e) => {
+            // The isPanning variable is only set when the right click is down.
             if (this.isPanning) {
                 this.canvas.style.cursor = 'grabbing';
                 this.panDistanceX += (e.offsetX - this.panStartX);
@@ -121,9 +129,13 @@ export class InfiniteCanvas {
 
         // MOUSE UP ON CANVAS
         this.canvas.addEventListener("mouseup", () => {
-            this.isPanning = false;
-            this.canvas.style.cursor = 'grab';
-            this.updateValues();
+            this.canvas.style.cursor = 'default';
+
+            if (this.isPanning) {
+                this.isPanning = false;
+                
+                this.updateValues();
+            }
         });
 
         // MOUSE LEAVE ON CANVAS
