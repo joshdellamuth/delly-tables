@@ -1,9 +1,24 @@
 import { Box } from './CoreObjects/Box.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
-// This gets the canvas element and its context.
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+// Get the correct URL based on the hostname 
+function getBaseURL() {
+    const hostname = window.location.hostname;
+    // If running locally, use localhost URL and port.
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5500/src/delly-tables-ui/';
+    }
+    else if (hostname === 'joshdellamuth.github.io') {
+        return 'https://joshdellamuth.github.io/delly-tables/';
+    }
+    else {
+        const error = new Error('Unknown hostname: ' + hostname);
+        alert("Error: " + error.message);
+        throw error;
+    }
+}
+let baseURL = getBaseURL();
+console.log(`The base URL is ${baseURL}.`);
 // #region Add shapes to canvas
 // Represents the running list of canvas objects to be added to and deleted
 const canvasObjects = new CanvasObjects();

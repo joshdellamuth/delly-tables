@@ -1,6 +1,6 @@
 export class Box {
     constructor(width, height, color, xPosition, yPosition, isSelected = false) {
-        this.isSelected = true;
+        this.isSelected = false;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.width = width;
@@ -28,6 +28,10 @@ export class Box {
         if (this.isSelected) {
             this.drawSelectionOutline(context, x1, y1, x2, y2, rounding);
         }
+    }
+    isMouseOver(x, y) {
+        return (x > this.xPosition && x < this.xPosition + this.width &&
+            y > this.yPosition && y < this.yPosition + this.height);
     }
     drawSelectionOutline(context, x1, y1, x2, y2, rounding) {
         context.save(); // Save current state

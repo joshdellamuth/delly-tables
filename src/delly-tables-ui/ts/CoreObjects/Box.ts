@@ -1,18 +1,16 @@
 import { IDrawable } from '../../ts/CoreObjects/IDrawable.js';
-import { Position } from '../../ts/InfiniteCanvas/Position.js';
 
 export class Box implements IDrawable {
     // properties enforced by the interface
     xPosition: number;
     yPosition: number;
 
-    isSelected: boolean = true;
+    isSelected: boolean = false;
 
     // properties just in the Box class
     public width: number;
     public height: number;
     public color: string;
-
 
     constructor(width: number, height: number, color: string,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
@@ -47,6 +45,11 @@ export class Box implements IDrawable {
         if (this.isSelected) {
             this.drawSelectionOutline(context, x1, y1, x2, y2, rounding);
         }
+    }
+
+    isMouseOver(x: number, y: number): boolean {
+        return (x > this.xPosition && x < this.xPosition + this.width &&
+            y > this.yPosition && y < this.yPosition + this.height);
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {

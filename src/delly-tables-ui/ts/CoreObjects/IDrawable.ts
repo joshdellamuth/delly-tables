@@ -4,6 +4,7 @@ export interface IDrawable {
     yPosition: number;
 
     isSelected: boolean;
-
     draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
+
+    isMouseOver(x: number, y: number): boolean;
 }

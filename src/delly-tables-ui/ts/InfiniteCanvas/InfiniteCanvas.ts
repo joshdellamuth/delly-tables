@@ -1,6 +1,7 @@
 import { CanvasObjects } from '../CanvasObjects/CanvasObjects.js';
 import { IDrawable } from '../CoreObjects/IDrawable.js';
 
+
 export class InfiniteCanvas {
     canvasID: string;
     canvas: HTMLCanvasElement;
@@ -14,7 +15,11 @@ export class InfiniteCanvas {
     panStartX: number = 0;
     panStartY: number = 0;
     scale: number = 1;
+    mouseX: number | null = null;
+    mouseY : number | null = null;
     backgroundColor: string = '#f7f7f7ff';
+    selectedDrawable: IDrawable | null = null;
+    isDragging: boolean = false;
 
     constructor(canvasID: string, width: number, height: number, canvasObjects?: CanvasObjects) {
         this.canvasID = canvasID;
@@ -83,25 +88,21 @@ export class InfiniteCanvas {
 
         // #region Event Listeners
 
-        // MOUSE MOVE
-        this.canvas.addEventListener("mousemove", e => {
-            if (this.isPanning) {
-                // e.OffsetX is the horizontal distance of the mouse from the left edge of the canvas 
-                this.panDistanceX += (e.offsetX - this.panStartX);
-                // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
-                this.panDistanceY += (e.offsetY - this.panStartY);
-                this.panStartX = e.offsetX;
-                this.panStartY = e.offsetY;
-                this.updateValues();
-                this.draw();
-            }
-        });
-
         // MOUSE DOWN ON CANVAS
         this.canvas.addEventListener('mousedown', (e) => {
             // This will eventuall be used to select objects.
             if (e.button == 0) {
-                this.canvas.style.cursor = 'crosshair';
+                // Check to see if we clicked a shape
+                for (let i = this.canvasObjects.drawables.length - 1; i >= 0; i--) {
+                    if (this.canvasObjects.drawables[i].isMouseOver(e.offsetX, e.offsetY)) {
+                        this.selectedDrawable = this.canvasObjects.drawables[i];
+                        this.canvasObjects.drawables[i].isSelected = true;
+                        this.draw();
+                        this.resetSelectedShapes(this.canvasObjects.drawables);
+                        this.updateValues();
+                        break;
+                    }
+                }
             }
             
             if (e.button == 2) {
@@ -115,6 +116,20 @@ export class InfiniteCanvas {
 
         // MOUSE MOVE ON CANVAS
         this.canvas.addEventListener('mousemove', (e) => {
+            // Get mouse position when mouse moves.
+            const mouse = this.getMousePos(e);
+            this.mouseX = mouse.x;
+            this.mouseY = mouse.y;
+            this.updateValues();
+
+            if (this.isDragging && this.selectedDrawable !== null) {
+                // Move the selected shape
+                this.selectedDrawable.xPosition = mouse.x - this.panDistanceX;
+                this.selectedDrawable.yPosition = mouse.y - this.panDistanceY;
+                this.draw();
+                this.updateValues();
+            }
+
             // The isPanning variable is only set when the right click is down.
             if (this.isPanning) {
                 this.canvas.style.cursor = 'grabbing';
@@ -147,7 +162,7 @@ export class InfiniteCanvas {
         // MOUSE WHEEL ON CANVAS
         this.canvas.addEventListener("wheel", e => {
             e.preventDefault();
-            const zoomFactor = 1.15;
+            const zoomFactor = 1.12;
             const mouseX = e.offsetX;
             const mouseY = e.offsetY;
             const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
@@ -166,29 +181,54 @@ export class InfiniteCanvas {
     }
 
     updateValues() {
+        const debuggingValuesElement = document.getElementById('debuggingValues') as HTMLParagraphElement;
 
-        const panDistanceXElement = document.getElementById('panDistanceX') as HTMLParagraphElement;
-        const panDistanceYElement = document.getElementById('panDistanceY') as HTMLParagraphElement;
+        const panDistanceXDisplay = this.panDistanceX.toFixed(3);
+        const panDistanceYDisplay = this.panDistanceY.toFixed(3);
+        const panStartXDisplay = this.panStartX.toFixed(3);
+        const panStartYDisplay = this.panStartY.toFixed(3);
+        const isPanningDisplay = this.isPanning;
+        const scaleDisplay = this.scale.toFixed(3);
+        const mouseXDisplay = this.mouseX === null ? 'null' : this.mouseX.toFixed(3);
+        const mouseYDisplay = this.mouseY === null ? 'null' : this.mouseY.toFixed(3);
+        const selectedDrawableX = this.selectedDrawable?.xPosition ?? 'null';
+        const selectedDrawableY = this.selectedDrawable?.yPosition ?? 'null';
 
-        const panStartXElement = document.getElementById('panStartX') as HTMLParagraphElement;
-        const panStartYElement = document.getElementById('panStartY') as HTMLParagraphElement;
-
-        const isPanningElement = document.getElementById('isPanning') as HTMLParagraphElement;
-        const scaleElement = document.getElementById('scale') as HTMLParagraphElement;
-
-        panDistanceXElement.innerText = `| panDistanceX: ${(this.panDistanceX).toFixed(3)} | `;
-        panDistanceYElement.innerText = `| panDistanceY: ${(this.panDistanceY).toFixed(3)} | `;
-        panStartXElement.innerText = `| panStartX: ${(this.panStartX).toFixed(3)} | `;
-        panStartYElement.innerText = `| panStartY: ${(this.panStartY).toFixed(3)} | `;
-        isPanningElement.innerText = `| isPanning: ${(this.isPanning)} | `;
-        scaleElement.innerText = `| scale: ${(this.scale).toFixed(3)} `;
+        debuggingValuesElement.innerText = 
+            `| panDistanceX: ${panDistanceXDisplay} ` +
+            `| panDistanceY: ${panDistanceYDisplay} ` +
+            `| panStartX: ${panStartXDisplay} ` +
+            `| panStartY: ${panStartYDisplay} ` +
+            `| isPanning: ${isPanningDisplay} ` +
+            `| scale: ${scaleDisplay} ` +
+            `| mouseX: ${mouseXDisplay} ` +
+            `| mouseY: ${mouseYDisplay} ` +
+            `| selectedDrawable: ${selectedDrawableX} + ${selectedDrawableY} |`;
     }
 
-    getMousePos(mouseEvent: MouseEvent) {
+    // getMousePos(mouseEvent: MouseEvent) {
+    //     const rect = this.canvas.getBoundingClientRect();
+    //     return {
+    //         x: mouseEvent.clientX - rect.left,
+    //         y: mouseEvent.clientY - rect.top
+    //     };
+    // }
+
+    getMousePos(e: MouseEvent) : any {
         const rect = this.canvas.getBoundingClientRect();
-        return {
-            x: mouseEvent.clientX - rect.left,
-            y: mouseEvent.clientY - rect.top
-        };
+        const canvasX = e.clientX - rect.left;
+        const canvasY = e.clientY - rect.top;
+        
+        // Transform canvas coordinates to world coordinates
+        const worldX = (canvasX - this.panDistanceX) / this.scale;
+        const worldY = (canvasY - this.panDistanceY) / this.scale;
+        
+        return { x: worldX, y: worldY, canvasX, canvasY };
+    }
+
+    resetSelectedShapes(drawables: IDrawable[]) : void {
+        this.canvasObjects.drawables.forEach((drawable: IDrawable) => {
+            drawable.isSelected = false;
+        });
     }
 }

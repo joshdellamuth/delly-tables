@@ -10,11 +10,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <!-- This is what is used for PWAs -->
-    <link rel="manifest" href="/site.webmanifest">
+    <!-- <link rel="manifest" href="/site.webmanifest"> -->
 </head>
 <body>
-
-
     <canvas id="canvas"></canvas>
     <div class="toolbar-row">
 
@@ -70,18 +68,21 @@
         <button class="option-button">Export</button>
         <button class="option-button">Help</button>
     </div>
-    
 
     <!-- #endregion -->
     
     <!-- #region Code Values for debugging -->
     <div id="codeValues">
+        <span id="debuggingValues"></span>
         <span id="panDistanceX"></span>
         <span id="panDistanceY"></span>
         <span id="panStartX"></span>
         <span id="panStartY"></span>
         <span id="isPanning"></span>
         <span id="scale"></span>
+        <span id="mouseX"></span>
+        <span id="mouseY"></span>
+        <span id="selectedDrawable"></span>
     </div>
     <!-- #endregion -->
 

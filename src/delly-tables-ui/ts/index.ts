@@ -2,9 +2,26 @@ import { Box } from './CoreObjects/Box.js';
 import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
-// This gets the canvas element and its context.
-const canvas: HTMLCanvasElement = document.getElementById('canvas') as HTMLCanvasElement;
-const ctx: CanvasRenderingContext2D = canvas.getContext('2d') as CanvasRenderingContext2D;
+// Get the correct URL based on the hostname 
+function getBaseURL() : string {
+    const hostname: string = window.location.hostname;
+    // If running locally, use localhost URL and port.
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5500/src/delly-tables-ui/';
+    } 
+    else if (hostname === 'joshdellamuth.github.io') {
+        return 'https://joshdellamuth.github.io/delly-tables/';
+    }
+    else {
+        const error = new Error('Unknown hostname: ' + hostname);    
+        alert("Error: " + error.message);
+        throw error;
+    }
+}
+
+let baseURL: string = getBaseURL();
+
+console.log(`The base URL is ${baseURL}.`);
 
 // #region Add shapes to canvas
 
