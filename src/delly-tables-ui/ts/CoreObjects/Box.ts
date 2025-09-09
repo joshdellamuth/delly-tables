@@ -1,9 +1,10 @@
 import { IDrawable } from '../../ts/CoreObjects/IDrawable.js';
+import { Position } from '../InfiniteCanvas/Position.js';
 
 export class Box implements IDrawable {
     // properties enforced by the interface
-    xPosition: number;
-    yPosition: number;
+    gridPosition: Position = new Position(null, null);
+    cavnvasPostion: Position = new Position(null, null);
 
     isSelected: boolean = false;
 
@@ -14,8 +15,8 @@ export class Box implements IDrawable {
 
     constructor(width: number, height: number, color: string,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+        this.gridPosition.x = xPosition;
+        this.gridPosition.y = yPosition;
         this.width = width;
         this.height = height;
         this.color = color;
@@ -26,10 +27,10 @@ export class Box implements IDrawable {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 15;
 
-        let x1 = this.xPosition + offsetX;
-        let y1 = this.yPosition + offsetY;
-        let x2 = this.xPosition + offsetX + this.width;
-        let y2 = this.yPosition + offsetY + this.height;
+        let x1 = this.gridPosition.x! + offsetX;
+        let y1 = this.gridPosition.y! + offsetY;
+        let x2 = this.gridPosition.x! + offsetX + this.width;
+        let y2 = this.gridPosition.y! + offsetY + this.height;
 
         context.fillStyle = this.color;
         context.beginPath();
@@ -48,8 +49,8 @@ export class Box implements IDrawable {
     }
 
     isMouseOver(x: number, y: number): boolean {
-        return (x > this.xPosition && x < this.xPosition + this.width &&
-            y > this.yPosition && y < this.yPosition + this.height);
+        return (x > this.gridPosition.x! && x < this.gridPosition.x! + this.width &&
+            y > this.gridPosition.y! && y < this.gridPosition.y! + this.height);
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {

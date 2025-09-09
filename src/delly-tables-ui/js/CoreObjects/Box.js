@@ -1,8 +1,12 @@
+import { Position } from '../InfiniteCanvas/Position.js';
 export class Box {
     constructor(width, height, color, xPosition, yPosition, isSelected = false) {
+        // properties enforced by the interface
+        this.gridPosition = new Position(null, null);
+        this.cavnvasPostion = new Position(null, null);
         this.isSelected = false;
-        this.xPosition = xPosition;
-        this.yPosition = yPosition;
+        this.gridPosition.x = xPosition;
+        this.gridPosition.y = yPosition;
         this.width = width;
         this.height = height;
         this.color = color;
@@ -11,10 +15,10 @@ export class Box {
     draw(context, offsetX, offsetY) {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 15;
-        let x1 = this.xPosition + offsetX;
-        let y1 = this.yPosition + offsetY;
-        let x2 = this.xPosition + offsetX + this.width;
-        let y2 = this.yPosition + offsetY + this.height;
+        let x1 = this.gridPosition.x + offsetX;
+        let y1 = this.gridPosition.y + offsetY;
+        let x2 = this.gridPosition.x + offsetX + this.width;
+        let y2 = this.gridPosition.y + offsetY + this.height;
         context.fillStyle = this.color;
         context.beginPath();
         // go to the starting point
@@ -30,8 +34,8 @@ export class Box {
         }
     }
     isMouseOver(x, y) {
-        return (x > this.xPosition && x < this.xPosition + this.width &&
-            y > this.yPosition && y < this.yPosition + this.height);
+        return (x > this.gridPosition.x && x < this.gridPosition.x + this.width &&
+            y > this.gridPosition.y && y < this.gridPosition.y + this.height);
     }
     drawSelectionOutline(context, x1, y1, x2, y2, rounding) {
         context.save(); // Save current state

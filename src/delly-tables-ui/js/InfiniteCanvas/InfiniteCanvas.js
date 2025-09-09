@@ -1,15 +1,16 @@
 import { CanvasObjects } from '../CanvasObjects/CanvasObjects.js';
+import { Position } from './Position.js';
+import { Size } from './Size.js';
 export class InfiniteCanvas {
     constructor(canvasID, width, height, canvasObjects) {
+        this.size = new Size(0, 0);
         this.canvasObjects = new CanvasObjects();
         this.isPanning = false;
         this.panDistanceX = 0;
         this.panDistanceY = 0;
-        this.panStartX = 0;
-        this.panStartY = 0;
+        this.panStart = new Position(null, null);
         this.scale = 1;
-        this.mouseX = null;
-        this.mouseY = null;
+        this.mouseGridPosition = new Position(null, null);
         this.backgroundColor = '#f7f7f7ff';
         this.selectedDrawable = null;
         this.isDragging = false;
@@ -17,10 +18,9 @@ export class InfiniteCanvas {
         this.canvas = document.getElementById(canvasID);
         // The ! is a type assertion that says you are sure a non-null value will be returned
         this.ctx = this.canvas.getContext('2d');
-        this.width = width;
-        this.height = height;
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
+        this.size = new Size(width, height);
+        this.canvas.width = this.size.width;
+        this.canvas.height = this.size.height;
         if (canvasObjects) {
             this.canvasObjects = canvasObjects;
         }
@@ -31,10 +31,10 @@ export class InfiniteCanvas {
         this.updateValues();
     }
     updateSize(width, height) {
-        this.width = width;
-        this.height = height;
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
+        this.size.width = width;
+        this.size.height = height;
+        this.canvas.width = this.size.width;
+        this.canvas.height = this.size.height;
     }
     drawObjects() {
         this.canvasObjects.drawables.forEach((drawable) => {
@@ -72,7 +72,7 @@ export class InfiniteCanvas {
                         this.selectedDrawable = this.canvasObjects.drawables[i];
                         this.canvasObjects.drawables[i].isSelected = true;
                         this.draw();
-                        this.resetSelectedShapes(this.canvasObjects.drawables);
+                        this.resetSelectedShapes();
                         this.updateValues();
                         break;
                     }
@@ -81,8 +81,8 @@ export class InfiniteCanvas {
             if (e.button == 2) {
                 this.isPanning = true;
                 this.canvas.style.cursor = 'grab';
-                this.panStartX = e.offsetX;
-                this.panStartY = e.offsetY; // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
+                this.panStart.x = e.offsetX;
+                this.panStart.y = e.offsetY; // e.OffsetY is the veritical distance of the mouse from the top edge of the canvas 
                 this.updateValues();
             }
         });
@@ -90,23 +90,23 @@ export class InfiniteCanvas {
         this.canvas.addEventListener('mousemove', (e) => {
             // Get mouse position when mouse moves.
             const mouse = this.getMousePos(e);
-            this.mouseX = mouse.x;
-            this.mouseY = mouse.y;
+            this.mouseGridPosition.x = mouse.x;
+            this.mouseGridPosition.y = mouse.y;
             this.updateValues();
             if (this.isDragging && this.selectedDrawable !== null) {
                 // Move the selected shape
-                this.selectedDrawable.xPosition = mouse.x - this.panDistanceX;
-                this.selectedDrawable.yPosition = mouse.y - this.panDistanceY;
+                this.selectedDrawable.gridPosition.x = mouse.x - this.panDistanceX;
+                this.selectedDrawable.gridPosition.y = mouse.y - this.panDistanceY;
                 this.draw();
                 this.updateValues();
             }
             // The isPanning variable is only set when the right click is down.
             if (this.isPanning) {
                 this.canvas.style.cursor = 'grabbing';
-                this.panDistanceX += (e.offsetX - this.panStartX);
-                this.panDistanceY += (e.offsetY - this.panStartY);
-                this.panStartX = e.offsetX;
-                this.panStartY = e.offsetY;
+                this.panDistanceX += (e.offsetX - this.panStart.x);
+                this.panDistanceY += (e.offsetY - this.panStart.y);
+                this.panStart.x = e.offsetX;
+                this.panStart.y = e.offsetY;
                 this.updateValues();
                 this.draw();
             }
@@ -128,13 +128,13 @@ export class InfiniteCanvas {
         this.canvas.addEventListener("wheel", e => {
             e.preventDefault();
             const zoomFactor = 1.12;
-            const mouseX = e.offsetX;
-            const mouseY = e.offsetY;
+            this.mouseGridPosition.x = e.offsetX;
+            this.mouseGridPosition.y = e.offsetY;
             const delta = e.deltaY < 0 ? zoomFactor : 1 / zoomFactor;
             const prevScale = this.scale;
             this.scale *= delta;
-            this.panDistanceX = mouseX - (mouseX - this.panDistanceX) * (this.scale / prevScale);
-            this.panDistanceY = mouseY - (mouseY - this.panDistanceY) * (this.scale / prevScale);
+            this.panDistanceX = this.mouseGridPosition.x - (this.mouseGridPosition.x - this.panDistanceX) * (this.scale / prevScale);
+            this.panDistanceY = this.mouseGridPosition.y - (this.mouseGridPosition.y - this.panDistanceY) * (this.scale / prevScale);
             this.updateValues();
             this.draw();
         });
@@ -145,14 +145,14 @@ export class InfiniteCanvas {
         const debuggingValuesElement = document.getElementById('debuggingValues');
         const panDistanceXDisplay = this.panDistanceX.toFixed(3);
         const panDistanceYDisplay = this.panDistanceY.toFixed(3);
-        const panStartXDisplay = this.panStartX.toFixed(3);
-        const panStartYDisplay = this.panStartY.toFixed(3);
+        const panStartXDisplay = this.panStart.x === null ? 'null' : this.panStart.x.toFixed(3);
+        const panStartYDisplay = this.panStart.y === null ? 'null' : this.panStart.y.toFixed(3);
         const isPanningDisplay = this.isPanning;
         const scaleDisplay = this.scale.toFixed(3);
-        const mouseXDisplay = this.mouseX === null ? 'null' : this.mouseX.toFixed(3);
-        const mouseYDisplay = this.mouseY === null ? 'null' : this.mouseY.toFixed(3);
-        const selectedDrawableX = (_b = (_a = this.selectedDrawable) === null || _a === void 0 ? void 0 : _a.xPosition) !== null && _b !== void 0 ? _b : 'null';
-        const selectedDrawableY = (_d = (_c = this.selectedDrawable) === null || _c === void 0 ? void 0 : _c.yPosition) !== null && _d !== void 0 ? _d : 'null';
+        const mouseGridPositionXDisplay = this.mouseGridPosition.x === null ? 'null' : this.mouseGridPosition.x.toFixed(3);
+        const mouseGridPositionYDisplay = this.mouseGridPosition.y === null ? 'null' : this.mouseGridPosition.y.toFixed(3);
+        const selectedDrawableX = (_b = (_a = this.selectedDrawable) === null || _a === void 0 ? void 0 : _a.gridPosition.x) !== null && _b !== void 0 ? _b : 'null';
+        const selectedDrawableY = (_d = (_c = this.selectedDrawable) === null || _c === void 0 ? void 0 : _c.gridPosition.y) !== null && _d !== void 0 ? _d : 'null';
         debuggingValuesElement.innerText =
             `| panDistanceX: ${panDistanceXDisplay} ` +
                 `| panDistanceY: ${panDistanceYDisplay} ` +
@@ -160,8 +160,8 @@ export class InfiniteCanvas {
                 `| panStartY: ${panStartYDisplay} ` +
                 `| isPanning: ${isPanningDisplay} ` +
                 `| scale: ${scaleDisplay} ` +
-                `| mouseX: ${mouseXDisplay} ` +
-                `| mouseY: ${mouseYDisplay} ` +
+                `| mouseGridPosition.x: ${mouseGridPositionXDisplay} ` +
+                `| mouseGridPosition.y: ${mouseGridPositionYDisplay} ` +
                 `| selectedDrawable: ${selectedDrawableX} + ${selectedDrawableY} |`;
     }
     // getMousePos(mouseEvent: MouseEvent) {
@@ -180,7 +180,7 @@ export class InfiniteCanvas {
         const worldY = (canvasY - this.panDistanceY) / this.scale;
         return { x: worldX, y: worldY, canvasX, canvasY };
     }
-    resetSelectedShapes(drawables) {
+    resetSelectedShapes() {
         this.canvasObjects.drawables.forEach((drawable) => {
             drawable.isSelected = false;
         });

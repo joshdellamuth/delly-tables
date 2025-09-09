@@ -12,15 +12,15 @@ export class MoveTool {
     onMouseDown(e, canvas) {
         canvas.isPanning = true;
         canvas.canvas.style.cursor = 'grabbing';
-        canvas.panStartX = e.offsetX;
-        canvas.panStartY = e.offsetY;
+        canvas.panStart.x = e.offsetX;
+        canvas.panStart.y = e.offsetY;
     }
     onMouseMove(e, canvas) {
         if (canvas.isPanning) {
-            canvas.panDistanceX += (e.offsetX - canvas.panStartX);
-            canvas.panDistanceY += (e.offsetY - canvas.panStartY);
-            canvas.panStartX = e.offsetX;
-            canvas.panStartY = e.offsetY;
+            canvas.panDistanceX += (e.offsetX - canvas.panStart.x);
+            canvas.panDistanceY += (e.offsetY - canvas.panStart.y);
+            canvas.panStart.x = e.offsetX;
+            canvas.panStart.y = e.offsetY;
             canvas.draw();
         }
     }
