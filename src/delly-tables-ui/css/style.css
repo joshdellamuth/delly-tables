@@ -1,5 +1,13 @@
 /* TO DO: Manage state in css with opacity and dark mode check box */
 /* Define variables to re-use globally */
+
+/* Reset default margin and padding so style looks the same across 
+   all browsers (some apply padding by default)*/
+* {
+    margin: 0;
+    padding: 0;
+}
+
 :root {
     --toolbar-color: white;
     --border-color: rgb(221, 221, 221);
@@ -13,6 +21,29 @@
     border-radius: 10px;
     margin: 0;
     padding: 0;
+}
+
+.collapse-button{
+    padding: .3em;
+    border-radius: 5px;
+    border: none;
+    background: var(--toolbar-color);
+}
+
+.collapse-button-selected{
+    background: var(--active-button-color);
+}
+
+.collapse-button:hover{
+    background: var(--active-button-color);
+}
+
+.collapse-icon{
+    width: 1.5em;
+    height: 1.5em;
+    padding: .1em;
+    fill: black;
+    overflow: visible;
 }
 
 /* Remove the default margin and padding from the body */
@@ -61,6 +92,7 @@ body {
     font-size: large;
     border-radius: 7px;
     opacity: var(--toolbar-opacity);
+    padding: .3em;
 }
 
 .option-button:hover{
@@ -93,7 +125,6 @@ body {
 .toolbar-button:hover{
     background: var(--active-button-color);
 }
-
 
 .toolbar-icon{
     width: 2em;
