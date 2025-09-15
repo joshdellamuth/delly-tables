@@ -44,6 +44,77 @@ canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
 
 
+// #region Collapse button logic
+
+const collapseButton: HTMLElement | null= document.getElementById("collapse-button");
+const uncollapseButton: HTMLElement | null= document.getElementById("uncollapse-button");
+
+const fileButton: HTMLElement | null = document.getElementById("file-button");
+const exportButton: HTMLElement | null = document.getElementById("export-button");
+const helpButton: HTMLElement | null = document.getElementById("help-button");
+const logoText: HTMLElement | null = document.getElementById("logo-text");
+const logoImage: HTMLElement | null = document.getElementById("logo-image");
+
+// Initially set to uncollapsed
+let collapsed: boolean = true;
+
+// initially toggle the menu
+updateMenuVisibility(collapsed);
+
+collapseButton?.addEventListener("click", () => {
+        console.log("Collapse button clicked.")
+        showUncollapsedMenu();
+    }
+);
+
+uncollapseButton?.addEventListener("click", () => {
+        console.log("Uncollapse button clicked.")
+        showCollapsedMenu();
+    }
+);
+
+
+function updateMenuVisibility(collapsed: boolean) : void {
+    if (collapsed) {
+        console.log("Collapsed");
+        showCollapsedMenu();
+    }
+    else {
+        console.log("Uncollapsed");
+        showUncollapsedMenu();
+    }
+}
+
+function showUncollapsedMenu() : void {
+    uncollapseButton?.classList.remove("invisible");
+    collapseButton?.classList.add("invisible");
+    
+    // Hide the file, export, and help buttons
+    fileButton?.classList.add("invisible");
+    exportButton?.classList.add("invisible");
+    helpButton?.classList.add("invisible");
+    logoText?.classList.add("invisible");
+    logoImage?.classList.remove("invisible");
+
+    collapsed = false;
+}
+
+function showCollapsedMenu() : void {
+    collapseButton?.classList.remove("invisible");
+    uncollapseButton?.classList.add("invisible");
+
+    fileButton?.classList.remove("invisible");
+    exportButton?.classList.remove("invisible");
+    helpButton?.classList.remove("invisible");
+    logoText?.classList.remove("invisible");
+    logoImage?.classList.add("invisible");
+
+    collapsed = true;
+}
+
+// #endregion Collapse button logic
+
+
 // calculate the width and height of the screen
 const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;

@@ -32,6 +32,58 @@ canvasObjects.addDrawable(box3);
 const box4 = new Box(100, 300, '#ecaf2aff', 600, -300);
 canvasObjects.addDrawable(box4);
 // #endregion Add shapes to canvas
+// #region Collapse button logic
+const collapseButton = document.getElementById("collapse-button");
+const uncollapseButton = document.getElementById("uncollapse-button");
+const fileButton = document.getElementById("file-button");
+const exportButton = document.getElementById("export-button");
+const helpButton = document.getElementById("help-button");
+const logoText = document.getElementById("logo-text");
+const logoImage = document.getElementById("logo-image");
+// Initially set to uncollapsed
+let collapsed = true;
+// initially toggle the menu
+updateMenuVisibility(collapsed);
+collapseButton === null || collapseButton === void 0 ? void 0 : collapseButton.addEventListener("click", () => {
+    console.log("Collapse button clicked.");
+    showUncollapsedMenu();
+});
+uncollapseButton === null || uncollapseButton === void 0 ? void 0 : uncollapseButton.addEventListener("click", () => {
+    console.log("Uncollapse button clicked.");
+    showCollapsedMenu();
+});
+function updateMenuVisibility(collapsed) {
+    if (collapsed) {
+        console.log("Collapsed");
+        showCollapsedMenu();
+    }
+    else {
+        console.log("Uncollapsed");
+        showUncollapsedMenu();
+    }
+}
+function showUncollapsedMenu() {
+    uncollapseButton === null || uncollapseButton === void 0 ? void 0 : uncollapseButton.classList.remove("invisible");
+    collapseButton === null || collapseButton === void 0 ? void 0 : collapseButton.classList.add("invisible");
+    // Hide the file, export, and help buttons
+    fileButton === null || fileButton === void 0 ? void 0 : fileButton.classList.add("invisible");
+    exportButton === null || exportButton === void 0 ? void 0 : exportButton.classList.add("invisible");
+    helpButton === null || helpButton === void 0 ? void 0 : helpButton.classList.add("invisible");
+    logoText === null || logoText === void 0 ? void 0 : logoText.classList.add("invisible");
+    logoImage === null || logoImage === void 0 ? void 0 : logoImage.classList.remove("invisible");
+    collapsed = false;
+}
+function showCollapsedMenu() {
+    collapseButton === null || collapseButton === void 0 ? void 0 : collapseButton.classList.remove("invisible");
+    uncollapseButton === null || uncollapseButton === void 0 ? void 0 : uncollapseButton.classList.add("invisible");
+    fileButton === null || fileButton === void 0 ? void 0 : fileButton.classList.remove("invisible");
+    exportButton === null || exportButton === void 0 ? void 0 : exportButton.classList.remove("invisible");
+    helpButton === null || helpButton === void 0 ? void 0 : helpButton.classList.remove("invisible");
+    logoText === null || logoText === void 0 ? void 0 : logoText.classList.remove("invisible");
+    logoImage === null || logoImage === void 0 ? void 0 : logoImage.classList.add("invisible");
+    collapsed = true;
+}
+// #endregion Collapse button logic
 // calculate the width and height of the screen
 const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;

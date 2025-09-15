@@ -15,6 +15,9 @@
     --toolbar-opacity: 0.75;
 }
 
+.invisible {
+    display: none;
+}
 
 #canvas {
     border: 0px solid black;
@@ -23,24 +26,9 @@
     padding: 0;
 }
 
-.collapse-button{
-    padding: .3em;
-    border-radius: 5px;
-    border: none;
-    background: var(--toolbar-color);
-}
-
-.collapse-button-selected{
-    background: var(--active-button-color);
-}
-
-.collapse-button:hover{
-    background: var(--active-button-color);
-}
-
 .collapse-icon{
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.2em;
+    height: 1.2em;
     padding: .1em;
     fill: black;
     overflow: visible;
@@ -53,13 +41,19 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-.logo-text{
+#logo-text{
     font-family: 'Inter', sans-serif;
     font-size: x-large;
     font-weight: 750;
     padding: 4px;
 }
 
+#logo-image{
+    width: 1.5em;
+    height: 1.5em;
+    padding: .5em;
+    transform: rotate(90deg);
+}
 
 #codeValues {
     display: flex;
@@ -84,6 +78,7 @@ body {
     opacity: var(--toolbar-opacity);
     border: 1px solid var(--border-color);
     margin: 10px;
+    align-items: center;
 }
 
 .option-button{
@@ -133,4 +128,3 @@ body {
     fill: black;
     overflow: visible;
 }
-
