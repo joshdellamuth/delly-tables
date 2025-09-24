@@ -11,13 +11,13 @@ export class SelectTool {
     }
     onMouseDown(e, canvas) {
         // Convert to world coordinates
-        const worldX = (e.offsetX - canvas.panDistanceX) / canvas.scale;
-        const worldY = (e.offsetY - canvas.panDistanceY) / canvas.scale;
+        const worldX = (e.offsetX - canvas.xDistanceFromOrigin) / canvas.scale;
+        const worldY = (e.offsetY - canvas.yDistanceFromOrigin) / canvas.scale;
         // Find object at this position
         const clickedObject = this.findObjectAt(worldX, worldY, canvas);
         if (clickedObject) {
             this.selectedObjects = [clickedObject];
-            canvas.draw();
+            canvas.drawCanvas();
             this.drawSelection(canvas);
         }
     }

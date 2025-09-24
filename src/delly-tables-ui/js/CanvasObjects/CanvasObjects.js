@@ -1,5 +1,7 @@
+import { Utilities } from '../InfiniteCanvas/Utilities.js';
 export class CanvasObjects {
     constructor() {
+        this._utilities = new Utilities();
         this._drawables = [];
     }
     get drawables() {
@@ -19,5 +21,18 @@ export class CanvasObjects {
         if (index !== -1) {
             this._drawables.splice(index, 1);
         }
+    }
+    drawObjects(ctx, canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale) {
+        this._drawables.forEach((drawable) => {
+            const screenPosition = this._utilities.convertToScreenPos(drawable.gridPosition, canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale);
+            console.log(`Converting for drawable: ${drawable.ID}. Screen position is: (${screenPosition.x}, ${screenPosition.y})`);
+            drawable.updateScreenPosition(screenPosition);
+            drawable.draw(ctx, xDistanceFromOrigin, yDistanceFromOrigin);
+        });
+    }
+    resetSelectedShapes() {
+        this._drawables.forEach((drawable) => {
+            drawable.isSelected = false;
+        });
     }
 }

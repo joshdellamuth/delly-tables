@@ -1,10 +1,11 @@
 import { Position } from '../InfiniteCanvas/Position.js';
 export class Box {
-    constructor(width, height, color, xPosition, yPosition, isSelected = false) {
+    constructor(id, width, height, color, xPosition, yPosition, isSelected = false) {
         // properties enforced by the interface
         this.gridPosition = new Position(null, null);
-        this.cavnvasPostion = new Position(null, null);
+        this.screenPosition = new Position(null, null);
         this.isSelected = false;
+        this.ID = id;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
         this.width = width;
@@ -14,11 +15,17 @@ export class Box {
     }
     draw(context, offsetX, offsetY) {
         // There is currently an error with rounding, so making it 0 for now.
-        let rounding = 15;
-        let x1 = this.gridPosition.x + offsetX;
-        let y1 = this.gridPosition.y + offsetY;
-        let x2 = this.gridPosition.x + offsetX + this.width;
-        let y2 = this.gridPosition.y + offsetY + this.height;
+        let rounding = 8;
+        console.log(`The grid position of this box is: (${this.gridPosition.x}, ${this.gridPosition.y})`);
+        console.log(`The canvas position of this box is: (${this.screenPosition.x}, ${this.screenPosition.y})`);
+        // let x1 = this.gridPosition.x! + offsetX;
+        // let y1 = this.gridPosition.y! + offsetY;
+        // let x2 = this.gridPosition.x! + offsetX + this.width;
+        // let y2 = this.gridPosition.y! + offsetY + this.height;
+        let x1 = this.gridPosition.x;
+        let y1 = this.gridPosition.y;
+        let x2 = this.gridPosition.x + this.width;
+        let y2 = this.gridPosition.y + this.height;
         context.fillStyle = this.color;
         context.beginPath();
         // go to the starting point
@@ -33,9 +40,9 @@ export class Box {
             this.drawSelectionOutline(context, x1, y1, x2, y2, rounding);
         }
     }
-    isMouseOver(x, y) {
-        return (x > this.gridPosition.x && x < this.gridPosition.x + this.width &&
-            y > this.gridPosition.y && y < this.gridPosition.y + this.height);
+    isMouseOver(gridX, gridY) {
+        return (gridX > this.gridPosition.x && gridX < this.gridPosition.x + this.width &&
+            gridY > this.gridPosition.y && gridY < this.gridPosition.y + this.height);
     }
     drawSelectionOutline(context, x1, y1, x2, y2, rounding) {
         context.save(); // Save current state
@@ -75,5 +82,9 @@ export class Box {
         });
         // Sets the canvas settings back to when context.save() was called.
         context.restore();
+    }
+    updateScreenPosition(screenPosition) {
+        this.screenPosition.x = screenPosition.x;
+        this.screenPosition.y = screenPosition.y;
     }
 }

@@ -22,11 +22,11 @@ export class MoveTool implements ITool {
     
     onMouseMove(e: MouseEvent, canvas: InfiniteCanvas): void {
         if (canvas.isPanning) {
-            canvas.panDistanceX += (e.offsetX - canvas.panStart.x!);
-            canvas.panDistanceY += (e.offsetY - canvas.panStart.y!);
+            canvas.xDistanceFromOrigin += (e.offsetX - canvas.panStart.x!);
+            canvas.yDistanceFromOrigin += (e.offsetY - canvas.panStart.y!);
             canvas.panStart.x = e.offsetX;
             canvas.panStart.y = e.offsetY;
-            canvas.draw();
+            canvas.drawCanvas();
         }
     }
     
@@ -45,8 +45,8 @@ export class MoveTool implements ITool {
         const prevScale = canvas.scale;
         canvas.scale *= delta;
 
-        canvas.panDistanceX = mouseX - (mouseX - canvas.panDistanceX) * (canvas.scale / prevScale);
-        canvas.panDistanceY = mouseY - (mouseY - canvas.panDistanceY) * (canvas.scale / prevScale);
-        canvas.draw();
+        canvas.xDistanceFromOrigin = mouseX - (mouseX - canvas.xDistanceFromOrigin) * (canvas.scale / prevScale);
+        canvas.yDistanceFromOrigin = mouseY - (mouseY - canvas.yDistanceFromOrigin) * (canvas.scale / prevScale);
+        canvas.drawCanvas();
     }
 }
