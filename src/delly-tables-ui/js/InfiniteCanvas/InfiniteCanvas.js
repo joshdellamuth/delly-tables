@@ -61,10 +61,10 @@ export class InfiniteCanvas {
                 // Check to see if we clicked a shape
                 for (let i = this.canvasObjects.drawables.length - 1; i >= 0; i--) {
                     if (this.canvasObjects.drawables[i].isMouseOver(this.mouseGridPosition.x, this.mouseGridPosition.y)) {
+                        this.canvasObjects.resetSelectedShapes();
                         this.selectedDrawable = this.canvasObjects.drawables[i];
                         this.canvasObjects.drawables[i].isSelected = true;
                         this.drawCanvas();
-                        this.canvasObjects.resetSelectedShapes();
                         this.updateValues();
                         break;
                     }
@@ -111,7 +111,7 @@ export class InfiniteCanvas {
         });
         // MOUSE WHEEL ON CANVAS
         this.canvas.addEventListener("wheel", e => {
-            const zoomFactor = 1.12;
+            const zoomFactor = 1.18;
             const rect = this.canvas.getBoundingClientRect();
             const mouseX = e.clientX - rect.left;
             const mouseY = e.clientY - rect.top;

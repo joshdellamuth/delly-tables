@@ -18,10 +18,6 @@ export class Box {
         let rounding = 8;
         console.log(`The grid position of this box is: (${this.gridPosition.x}, ${this.gridPosition.y})`);
         console.log(`The canvas position of this box is: (${this.screenPosition.x}, ${this.screenPosition.y})`);
-        // let x1 = this.gridPosition.x! + offsetX;
-        // let y1 = this.gridPosition.y! + offsetY;
-        // let x2 = this.gridPosition.x! + offsetX + this.width;
-        // let y2 = this.gridPosition.y! + offsetY + this.height;
         let x1 = this.gridPosition.x;
         let y1 = this.gridPosition.y;
         let x2 = this.gridPosition.x + this.width;
