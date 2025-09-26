@@ -27,6 +27,8 @@ export class InfiniteCanvas {
     utilities: Utilities = new Utilities();
     panX: number = 0;
     panY: number = 0;
+    isDraggingShape: boolean = false;
+    dragOffset: Position = new Position(null, null);
 
     constructor(ID: string, width: number, height: number, canvasObjects?: CanvasObjects) {
         this.ID = ID;
@@ -83,6 +85,13 @@ export class InfiniteCanvas {
                         this.canvasObjects.resetSelectedShapes();
                         this.selectedDrawable = this.canvasObjects.drawables[i];
                         this.canvasObjects.drawables[i].isSelected = true;
+
+                        // Dragging functionality
+                        this.isDraggingShape = true;
+                        this.dragOffset.x = this.mouseGridPosition.x! - this.selectedDrawable.gridPosition.x!;
+                        this.dragOffset.y = this.mouseGridPosition.y! - this.selectedDrawable.gridPosition.y!;
+                        this.canvas.style.cursor = 'move';
+
                         this.drawCanvas();
                         this.updateValues();
                         break;
@@ -106,6 +115,15 @@ export class InfiniteCanvas {
 
             this.updateValues();
 
+            if (this.isDraggingShape && this.selectedDrawable !== null) {
+                this.selectedDrawable.gridPosition.x = this.mouseGridPosition.x! - this.dragOffset.x!;
+                this.selectedDrawable.gridPosition.y = this.mouseGridPosition.y! - this.dragOffset.y!;
+                this.drawCanvas();
+                this.updateValues();
+                return; // Prevent panning while dragging shape
+            }
+
+
             // The isPanning variable is only set when the right click is down.
             if (this.isPanning) {
                 this.canvas.style.cursor = 'grabbing';
@@ -128,6 +146,8 @@ export class InfiniteCanvas {
         this.canvas.addEventListener("mouseup", () => {
             this.canvas.style.cursor = 'default';
 
+            this.isDraggingShape = false;
+
             if (this.isPanning) {
                 this.isPanning = false;
                 this.updateValues();
@@ -137,6 +157,7 @@ export class InfiniteCanvas {
         // MOUSE LEAVE ON CANVAS
         this.canvas.addEventListener("mouseleave", () => {
             this.isPanning = false;
+            this.isDraggingShape = false;
             this.updateValues();
         });
 
