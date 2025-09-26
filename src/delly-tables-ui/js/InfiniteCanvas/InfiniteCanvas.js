@@ -62,7 +62,9 @@ export class InfiniteCanvas {
             if (e.button == 0) {
                 // Check to see if we clicked a shape
                 for (let i = this.canvasObjects.drawables.length - 1; i >= 0; i--) {
+                    let drawableClicked = false;
                     if (this.canvasObjects.drawables[i].isMouseOver(this.mouseGridPosition.x, this.mouseGridPosition.y)) {
+                        drawableClicked = true;
                         this.canvasObjects.resetSelectedShapes();
                         this.selectedDrawable = this.canvasObjects.drawables[i];
                         this.canvasObjects.drawables[i].isSelected = true;
@@ -74,6 +76,12 @@ export class InfiniteCanvas {
                         this.drawCanvas();
                         this.updateValues();
                         break;
+                    }
+                    // If no shape was clicked, reset the selected shapes
+                    if (!drawableClicked) {
+                        this.canvasObjects.resetSelectedShapes();
+                        this.drawCanvas();
+                        this.updateValues();
                     }
                 }
             }
