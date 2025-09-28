@@ -1,7 +1,6 @@
-import { CanvasObjects } from '../CanvasObjects/CanvasObjects.js';
-import { IDrawable } from '../CoreObjects/IDrawable.js';
-import { Position } from '../InfiniteCanvas/Position.js';
-import { Utilities } from './Utilities.js';
+import { CanvasObjects } from '../Drawables/CanvasDrawables.js';
+import { IDrawable } from '../Drawables/IDrawable.js';
+import { Position } from '../Shared/Position.js';
 
 export class SelectionManager {
 private selectedDrawable: IDrawable | null = null;

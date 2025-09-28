@@ -1,4 +1,4 @@
-import { Position } from './Shared/Position.js';
+import { Position } from './Position.js';
 export class Utilities {
     convertToScreenPos(gridPosition, canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale) {
         const rect = canvas.getBoundingClientRect();

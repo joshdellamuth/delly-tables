@@ -1,9 +1,9 @@
 import { Camera } from './Camera/Camera.js';
-import { InputManager } from './InputManager.js';
-import { SelectionManager } from './SelectionManager.js';
-import { Size } from './Size.js';
-import { CanvasObjects } from '../CanvasObjects/CanvasObjects.js';
-import { Renderer } from './Renderer.js';
+import { InputManager } from './InputManager/InputManager.js';
+import { SelectionManager } from './SelectionManager/SelectionManager.js';
+import { Size } from './Shared/Size.js';
+import { CanvasObjects } from './Drawables/CanvasDrawables.js';
+import { Renderer } from './Renderer/Renderer.js';
 export class InfiniteCanvas {
     constructor(ID, width, height, canvasObjects) {
         this.camera = new Camera();

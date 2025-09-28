@@ -1,5 +1,5 @@
-import { Camera } from './Camera/Camera.js';
-import { CanvasObjects } from '../CanvasObjects/CanvasObjects.js';
+import { Camera } from '../Camera/Camera.js';
+import { CanvasObjects } from '../Drawables/CanvasDrawables.js';
 
 export class Renderer {
 private ctx: CanvasRenderingContext2D;

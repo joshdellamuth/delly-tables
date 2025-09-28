@@ -1,4 +1,4 @@
-import { Position } from '../InfiniteCanvas/Shared/Position.js';
+import { Position } from '../../Shared/Position.js';
 export class Box {
     constructor(id, width, height, color, xPosition, yPosition, isSelected = false) {
         // properties enforced by the interface

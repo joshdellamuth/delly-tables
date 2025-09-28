@@ -1,4 +1,4 @@
-import { Position } from '../InfiniteCanvas/Position.js';
+import { Position } from '../Shared/Position.js';
 
 export interface IDrawable {
     ID: string;

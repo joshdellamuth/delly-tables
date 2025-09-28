@@ -1,4 +1,4 @@
-import { Position } from '../Position.js';
+import { Position } from '../Shared/Position.js';
 
 export class Camera {
     private _scale: number = 1;

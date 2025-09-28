@@ -1,4 +1,4 @@
-import { InfiniteCanvas } from "../../InfiniteCanvas/InfiniteCanvas.js";
+import { InfiniteCanvas } from "../InfiniteCanvas.js";
 export interface ITool {
     name: string;
     activate(canvas: InfiniteCanvas): void;

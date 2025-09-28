@@ -1,5 +1,5 @@
-import { IDrawable } from '../../ts/CoreObjects/IDrawable.js';
-import { Position } from '../InfiniteCanvas/Position.js';
+import { IDrawable } from '../IDrawable.js';
+import { Position } from '../../Shared/Position.js';
 
 export class Box implements IDrawable {
     ID: string;

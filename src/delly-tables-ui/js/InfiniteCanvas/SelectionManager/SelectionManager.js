@@ -1,4 +1,4 @@
-import { Position } from './Shared/Position.js';
+import { Position } from '../Shared/Position.js';
 export class SelectionManager {
     constructor() {
         this.selectedDrawable = null;

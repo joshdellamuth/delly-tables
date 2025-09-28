@@ -1,5 +1,5 @@
-import { Box } from './CoreObjects/Box.js';
-import { CanvasObjects } from './CanvasObjects/CanvasObjects.js';
+import { Box } from './InfiniteCanvas/Drawables/Box/Box.js';
+import { CanvasObjects } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
 // Get the correct URL based on the hostname 

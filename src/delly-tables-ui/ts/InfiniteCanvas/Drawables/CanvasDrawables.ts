@@ -1,6 +1,6 @@
-import { IDrawable } from '../CoreObjects/IDrawable.js';
-import { Position } from '../InfiniteCanvas/Position.js';
-import { Utilities } from '../InfiniteCanvas/Utilities.js';
+import { IDrawable } from './IDrawable.js';
+import { Position } from '../Shared/Position.js';
+import { Utilities } from '../Shared/Utilities.js';
 
 export class CanvasObjects {
     private _utilities: Utilities = new Utilities();
