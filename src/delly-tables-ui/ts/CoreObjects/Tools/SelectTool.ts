@@ -1,40 +1,40 @@
-import { InfiniteCanvas } from "../../InfiniteCanvas/InfiniteCanvas.js";
-import { IDrawable } from "../../CoreObjects/IDrawable.js";
-import { ITool } from "./ITool.js";
+// import { InfiniteCanvas } from "../../InfiniteCanvas/InfiniteCanvas.js";
+// import { IDrawable } from "../../CoreObjects/IDrawable.js";
+// import { ITool } from "./ITool.js";
 
-export class SelectTool implements ITool {
-    name = 'select';
-    private selectedObjects: IDrawable[] = [];
+// export class SelectTool implements ITool {
+//     name = 'select';
+//     private selectedObjects: IDrawable[] = [];
     
-    activate(canvas: InfiniteCanvas): void {
-        canvas.canvas.style.cursor = 'default';
-    }
+//     activate(canvas: InfiniteCanvas): void {
+//         canvas.canvas.style.cursor = 'default';
+//     }
     
-    deactivate(canvas: InfiniteCanvas): void {
-        this.selectedObjects = [];
-    }
+//     deactivate(canvas: InfiniteCanvas): void {
+//         this.selectedObjects = [];
+//     }
     
-    onMouseDown(e: MouseEvent, canvas: InfiniteCanvas): void {
-        // Convert to world coordinates
-        const worldX = (e.offsetX - canvas.xDistanceFromOrigin) / canvas.scale;
-        const worldY = (e.offsetY - canvas.yDistanceFromOrigin) / canvas.scale;
+//     onMouseDown(e: MouseEvent, canvas: InfiniteCanvas): void {
+//         // Convert to world coordinates
+//         const worldX = (e.offsetX - canvas.xDistanceFromOrigin) / canvas.scale;
+//         const worldY = (e.offsetY - canvas.yDistanceFromOrigin) / canvas.scale;
         
-        // Find object at this position
-        const clickedObject = this.findObjectAt(worldX, worldY, canvas);
-        if (clickedObject) {
-            this.selectedObjects = [clickedObject];
-            canvas.drawCanvas();
-            this.drawSelection(canvas);
-        }
-    }
+//         // Find object at this position
+//         const clickedObject = this.findObjectAt(worldX, worldY, canvas);
+//         if (clickedObject) {
+//             this.selectedObjects = [clickedObject];
+//             canvas.drawCanvas();
+//             this.drawSelection(canvas);
+//         }
+//     }
     
-    private findObjectAt(x: number, y: number, canvas: InfiniteCanvas): IDrawable | null {
-        // Implementation to find which object was clicked
-        // This depends on your IDrawable interface having hit detection
-        return null;
-    }
+//     private findObjectAt(x: number, y: number, canvas: InfiniteCanvas): IDrawable | null {
+//         // Implementation to find which object was clicked
+//         // This depends on your IDrawable interface having hit detection
+//         return null;
+//     }
     
-    private drawSelection(canvas: InfiniteCanvas): void {
-        // Draw selection indicators around selected objects
-    }
-}
+//     private drawSelection(canvas: InfiniteCanvas): void {
+//         // Draw selection indicators around selected objects
+//     }
+// }

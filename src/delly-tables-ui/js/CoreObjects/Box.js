@@ -37,6 +37,7 @@ export class Box {
         }
     }
     isMouseOver(gridX, gridY) {
+        // Return whether the mouse is over the box
         return (gridX > this.gridPosition.x && gridX < this.gridPosition.x + this.width &&
             gridY > this.gridPosition.y && gridY < this.gridPosition.y + this.height);
     }

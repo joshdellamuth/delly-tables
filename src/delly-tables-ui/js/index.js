@@ -94,5 +94,5 @@ window.addEventListener('resize', () => {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
     infiniteCanvas.updateSize(canvasWidth, canvasHeight);
-    infiniteCanvas.drawCanvas();
+    //infiniteCanvas.drawCanvas();
 });

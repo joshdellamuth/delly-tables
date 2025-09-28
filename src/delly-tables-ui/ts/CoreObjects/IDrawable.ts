@@ -9,6 +9,7 @@ export interface IDrawable {
     isSelected: boolean;
     draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
 
+    // Takes in the cursor to set the pointer
     isMouseOver(x: number, y: number): boolean;
 
     updateScreenPosition(screenPosition: Position): void;
