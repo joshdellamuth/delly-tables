@@ -1,5 +1,5 @@
 import { Box } from './InfiniteCanvas/Drawables/Box/Box.js';
-import { CanvasObjects } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
+import { CanvasDrawables } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 // Get the correct URL based on the hostname 
 function getBaseURL() {
@@ -21,7 +21,7 @@ let baseURL = getBaseURL();
 console.log(`The base URL is ${baseURL}.`);
 // #region Add shapes to canvas
 // Represents the running list of canvas objects to be added to and deleted
-const canvasObjects = new CanvasObjects();
+const canvasObjects = new CanvasDrawables();
 // Sample box to draw
 const box1 = new Box('blue-box-1', 200, 100, '#5c9dffff', 100, 100);
 canvasObjects.addDrawable(box1);
@@ -94,5 +94,4 @@ window.addEventListener('resize', () => {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
     infiniteCanvas.updateSize(canvasWidth, canvasHeight);
-    //infiniteCanvas.drawCanvas();
 });

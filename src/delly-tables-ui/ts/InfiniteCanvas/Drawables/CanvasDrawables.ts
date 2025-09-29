@@ -2,7 +2,7 @@ import { IDrawable } from './IDrawable.js';
 import { Position } from '../Shared/Position.js';
 import { Utilities } from '../Shared/Utilities.js';
 
-export class CanvasObjects {
+export class CanvasDrawables{
     private _utilities: Utilities = new Utilities();
     private _drawables: IDrawable[];
 
@@ -33,21 +33,19 @@ export class CanvasObjects {
     }
 
 
-    drawObjects(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, xDistanceFromOrigin: number, 
+    drawObjects(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, xDistanceFromOrigin: number,
         yDistanceFromOrigin: number, scale: number): void {
 
         this._drawables.forEach((drawable: IDrawable) => {
-            const screenPosition : Position = this._utilities.convertToScreenPos(drawable.gridPosition,
+            const screenPosition: Position = this._utilities.convertToScreenPos(drawable.gridPosition,
                 canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale);
-
-            console.log(`Converting for drawable: ${drawable.ID}. Screen position is: (${screenPosition.x}, ${screenPosition.y})`);
 
             drawable.updateScreenPosition(screenPosition);
             drawable.draw(ctx, xDistanceFromOrigin, yDistanceFromOrigin);
         });
     }
 
-    resetSelectedShapes() : void {
+    resetSelectedShapes(): void {
         this._drawables.forEach((drawable: IDrawable) => {
             drawable.isSelected = false;
         });

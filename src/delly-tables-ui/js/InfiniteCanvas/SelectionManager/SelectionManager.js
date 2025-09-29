@@ -35,6 +35,7 @@ export class SelectionManager {
             if (drawable.isMouseOver(mouseGridPos.x, mouseGridPos.y)) {
                 this.clearSelection(canvasObjects);
                 this.selectDrawable(drawable, mouseGridPos);
+                console.log('The selected drawable is: ', this.selectedDrawable);
                 return true;
             }
         }

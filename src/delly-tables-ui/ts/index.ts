@@ -1,19 +1,19 @@
 import { Box } from './InfiniteCanvas/Drawables/Box/Box.js';
-import { CanvasObjects } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
+import { CanvasDrawables } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
 // Get the correct URL based on the hostname 
-function getBaseURL() : string {
+function getBaseURL(): string {
     const hostname: string = window.location.hostname;
     // If running locally, use localhost URL and port.
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return 'http://localhost:5500/src/delly-tables-ui/';
-    } 
+    }
     else if (hostname === 'joshdellamuth.github.io') {
         return 'https://joshdellamuth.github.io/delly-tables/';
     }
     else {
-        const error = new Error('Unknown hostname: ' + hostname);    
+        const error = new Error('Unknown hostname: ' + hostname);
         alert("Error: " + error.message);
         throw error;
     }
@@ -25,7 +25,7 @@ console.log(`The base URL is ${baseURL}.`);
 // #region Add shapes to canvas
 
 // Represents the running list of canvas objects to be added to and deleted
-const canvasObjects: CanvasObjects = new CanvasObjects();
+const canvasObjects: CanvasDrawables = new CanvasDrawables();
 
 // Sample box to draw
 const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 100, 100);
@@ -45,8 +45,8 @@ canvasObjects.addDrawable(box4);
 
 // #region Collapse button logic
 
-const collapseButton: HTMLElement | null= document.getElementById("collapse-button");
-const uncollapseButton: HTMLElement | null= document.getElementById("uncollapse-button");
+const collapseButton: HTMLElement | null = document.getElementById("collapse-button");
+const uncollapseButton: HTMLElement | null = document.getElementById("uncollapse-button");
 
 const fileButton: HTMLElement | null = document.getElementById("file-button");
 const exportButton: HTMLElement | null = document.getElementById("export-button");
@@ -61,19 +61,19 @@ let collapsed: boolean = true;
 updateMenuVisibility(collapsed);
 
 collapseButton?.addEventListener("click", () => {
-        console.log("Collapse button clicked.")
-        showUncollapsedMenu();
-    }
+    console.log("Collapse button clicked.")
+    showUncollapsedMenu();
+}
 );
 
 uncollapseButton?.addEventListener("click", () => {
-        console.log("Uncollapse button clicked.")
-        showCollapsedMenu();
-    }
+    console.log("Uncollapse button clicked.")
+    showCollapsedMenu();
+}
 );
 
 
-function updateMenuVisibility(collapsed: boolean) : void {
+function updateMenuVisibility(collapsed: boolean): void {
     if (collapsed) {
         console.log("Collapsed");
         showCollapsedMenu();
@@ -84,10 +84,10 @@ function updateMenuVisibility(collapsed: boolean) : void {
     }
 }
 
-function showUncollapsedMenu() : void {
+function showUncollapsedMenu(): void {
     uncollapseButton?.classList.remove("invisible");
     collapseButton?.classList.add("invisible");
-    
+
     // Hide the file, export, and help buttons
     fileButton?.classList.add("invisible");
     exportButton?.classList.add("invisible");
@@ -98,7 +98,7 @@ function showUncollapsedMenu() : void {
     collapsed = false;
 }
 
-function showCollapsedMenu() : void {
+function showCollapsedMenu(): void {
     collapseButton?.classList.remove("invisible");
     uncollapseButton?.classList.add("invisible");
 
@@ -126,6 +126,4 @@ window.addEventListener('resize', () => {
     const canvasWidth = window.innerWidth;
     const canvasHeight = window.innerHeight;
     infiniteCanvas.updateSize(canvasWidth, canvasHeight);
-
-    //infiniteCanvas.drawCanvas();
 });

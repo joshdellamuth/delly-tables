@@ -1,10 +1,15 @@
 import { Position } from '../../Shared/Position.js';
+import { HoverStatusOptions } from '../HoverStatusOptions.js';
 export class Box {
     constructor(id, width, height, color, xPosition, yPosition, isSelected = false) {
         // properties enforced by the interface
         this.gridPosition = new Position(null, null);
         this.screenPosition = new Position(null, null);
         this.isSelected = false;
+        this.x1 = null;
+        this.y1 = null;
+        this.x2 = null;
+        this.y2 = null;
         this.ID = id;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
@@ -13,27 +18,74 @@ export class Box {
         this.color = color;
         this.isSelected = isSelected;
     }
+    getHoveringState(x, y) {
+        const PADDING = 20;
+        // Calculate the bounds of the box
+        const x1 = this.gridPosition.x;
+        const y1 = this.gridPosition.y;
+        const x2 = this.gridPosition.x + this.width;
+        const y2 = this.gridPosition.y + this.height;
+        // Check if mouse is within the overall box bounds (with padding)
+        if (x === null || y === null) {
+            return HoverStatusOptions.NotHovering;
+        }
+        if (x < x1 - PADDING || x > x2 + PADDING ||
+            y < y1 - PADDING || y > y2 + PADDING) {
+            return HoverStatusOptions.NotHovering;
+        }
+        // Define helper functions for edge detection
+        const isNearLeft = x >= x1 - PADDING && x <= x1 + PADDING;
+        const isNearRight = x >= x2 - PADDING && x <= x2 + PADDING;
+        const isNearTop = y >= y1 - PADDING && y <= y1 + PADDING;
+        const isNearBottom = y >= y2 - PADDING && y <= y2 + PADDING;
+        // Check corners first (corners have priority over edges)
+        if (isNearLeft && isNearTop) {
+            return HoverStatusOptions.TopLeftCorner;
+        }
+        if (isNearRight && isNearTop) {
+            return HoverStatusOptions.TopRightCorner;
+        }
+        if (isNearLeft && isNearBottom) {
+            return HoverStatusOptions.BottomLeftCorner;
+        }
+        if (isNearRight && isNearBottom) {
+            return HoverStatusOptions.BottomRightCorner;
+        }
+        // Check edges
+        if (isNearLeft) {
+            return HoverStatusOptions.LeftEdge;
+        }
+        if (isNearRight) {
+            return HoverStatusOptions.RightEdge;
+        }
+        if (isNearTop) {
+            return HoverStatusOptions.TopEdge;
+        }
+        if (isNearBottom) {
+            return HoverStatusOptions.BottomEdge;
+        }
+        // Mouse is inside the box but not near any edge
+        return HoverStatusOptions.Inside;
+    }
     draw(context, offsetX, offsetY) {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 8;
-        console.log(`The grid position of this box is: (${this.gridPosition.x}, ${this.gridPosition.y})`);
-        console.log(`The canvas position of this box is: (${this.screenPosition.x}, ${this.screenPosition.y})`);
-        let x1 = this.gridPosition.x;
-        let y1 = this.gridPosition.y;
-        let x2 = this.gridPosition.x + this.width;
-        let y2 = this.gridPosition.y + this.height;
+        this.x1 = this.gridPosition.x;
+        this.y1 = this.gridPosition.y;
+        this.x2 = this.gridPosition.x + this.width;
+        this.y2 = this.gridPosition.y + this.height;
         context.fillStyle = this.color;
         context.beginPath();
         // go to the starting point
-        context.moveTo(x1, y1);
-        context.arcTo(x2, y1, x2, y2, rounding);
-        context.arcTo(x2, y2, x1, y2, rounding);
-        context.arcTo(x1, y2, x1, y1, rounding);
-        context.arcTo(x1, y1, x2, y1, rounding);
+        context.moveTo(this.x1, this.y1);
+        context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
+        context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
+        context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
+        context.arcTo(this.x1, this.y1, this.x2, this.y1, rounding);
         context.closePath();
         context.fill();
         if (this.isSelected) {
-            this.drawSelectionOutline(context, x1, y1, x2, y2, rounding);
+            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
         }
     }
     isMouseOver(gridX, gridY) {

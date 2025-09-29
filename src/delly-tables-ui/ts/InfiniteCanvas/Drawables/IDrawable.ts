@@ -12,5 +12,7 @@ export interface IDrawable {
     // Takes in the cursor to set the pointer
     isMouseOver(x: number, y: number): boolean;
 
+    getHoveringState(x: number | null, y: number | null): string;
+
     updateScreenPosition(screenPosition: Position): void;
 }

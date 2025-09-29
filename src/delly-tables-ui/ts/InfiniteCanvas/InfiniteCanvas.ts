@@ -2,7 +2,8 @@ import { Camera } from './Camera/Camera.js';
 import { InputManager } from './InputManager/InputManager.js';
 import { SelectionManager } from './SelectionManager/SelectionManager.js';
 import { Size } from './Shared/Size.js';
-import { CanvasObjects } from './Drawables/CanvasDrawables.js';
+import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
+import { HoverStatusOptions } from './Drawables/HoverStatusOptions.js';
 import { Renderer } from './Renderer/Renderer.js';
 
 export class InfiniteCanvas {
@@ -12,128 +13,165 @@ export class InfiniteCanvas {
     private readonly camera: Camera = new Camera();
     private readonly inputManager: InputManager = new InputManager();
     private readonly selectionManager: SelectionManager = new SelectionManager();
-    private readonly canvasObjects: CanvasObjects = new CanvasObjects();
+    private readonly canvasObjects: CanvasDrawables = new CanvasDrawables();
     private size: Size = new Size(0, 0);
 
-constructor(ID: string, width: number, height: number, canvasObjects?: CanvasObjects) {
-    this.ID = ID;
-    this.canvas = document.getElementById(ID) as HTMLCanvasElement;
-    const ctx = this.canvas.getContext('2d')!;
-    this.renderer = new Renderer(ctx);
-    
-    this.updateSize(width, height);
-    
-    if (canvasObjects) {
-        this.canvasObjects = canvasObjects;
-    }
-    
-    this.setupEventListeners();
-    this.render();
-    this.updateDebugValues();
-}
+    constructor(ID: string, width: number, height: number, canvasObjects?: CanvasDrawables) {
+        this.ID = ID;
+        this.canvas = document.getElementById(ID) as HTMLCanvasElement;
+        const ctx = this.canvas.getContext('2d')!;
+        this.renderer = new Renderer(ctx);
 
-private render(): void {
-    this.renderer.render(this.canvasObjects, this.camera, this.canvas);
-}
+        this.updateSize(width, height);
 
-private setupEventListeners(): void {
-    this.canvas.addEventListener('contextmenu', e => e.preventDefault());
-    
-    this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
-    this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
-    this.canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
-    this.canvas.addEventListener('wheel', this.handleWheel.bind(this));
-}
-
-private handleMouseDown(e: MouseEvent): void {
-    if (e.button === 0) { // Left click
-        const selected = this.selectionManager.trySelectAt(
-            this.canvasObjects, 
-            this.inputManager.mouseGridPosition
-        );
-        
-        if (selected) {
-            this.canvas.style.cursor = 'move';
-        } else {
-            this.selectionManager.clearSelection(this.canvasObjects);
+        if (canvasObjects) {
+            this.canvasObjects = canvasObjects;
         }
-        
+
+        this.setupEventListeners();
         this.render();
         this.updateDebugValues();
     }
-    
-    if (e.button === 2) { // Right click
-        this.inputManager.startPanning(e.clientX, e.clientY);
-        this.canvas.style.cursor = 'grab';
-    }
-}
 
-private handleMouseMove(e: MouseEvent): void {
-    this.inputManager.updateMousePosition(this.canvas, e.clientX, e.clientY, this.camera);
-    
-    if (this.selectionManager.isDraggingShape) {
-        this.selectionManager.updateDrag(this.inputManager.mouseGridPosition);
+    private render(): void {
+        this.renderer.render(this.canvasObjects, this.camera, this.canvas);
+    }
+
+    private setupEventListeners(): void {
+        this.canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // .bind(this) locks the function’s this to your class instance
+        this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
+        this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
+        this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
+        this.canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
+        this.canvas.addEventListener('wheel', this.handleWheel.bind(this));
+    }
+
+    private handleMouseDown(e: MouseEvent): void {
+        if (e.button === 0) { // Left click
+            const selected = this.selectionManager.trySelectAt(
+                this.canvasObjects,
+                this.inputManager.mouseGridPosition
+            );
+
+            if (selected) {
+                this.canvas.style.cursor = 'move';
+            } else {
+                this.selectionManager.clearSelection(this.canvasObjects);
+            }
+
+            this.render();
+            this.updateDebugValues();
+        }
+
+        if (e.button === 2) { // Right click
+            this.inputManager.startPanning(e.clientX, e.clientY);
+            this.canvas.style.cursor = 'grab';
+        }
+    }
+
+    private handleMouseMove(e: MouseEvent): void {
+        this.inputManager.updateMousePosition(this.canvas, e.clientX, e.clientY, this.camera);
+
+        if (this.selectionManager.isDraggingShape) {
+            this.selectionManager.updateDrag(this.inputManager.mouseGridPosition);
+            this.render();
+            this.updateDebugValues();
+            return;
+        }
+
+        if (this.inputManager.isPanningActive) {
+            this.canvas.style.cursor = 'grabbing';
+            const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
+            this.camera.pan(deltaX, deltaY);
+        }
+
+        if (this.selectionManager.selected != null) {
+            // TODO: Re-factor all this into a mouse object to control mouse style (in a set mouse hovering style method or something)
+            let hoveringStatus = this.selectionManager.selected.getHoveringState(this.inputManager.mouseGridPosition.x, this.inputManager.mouseGridPosition.y);
+            console.log('The hovering status is: ', hoveringStatus);
+            // Set the mouse pointer to the correct cursor based on the hovering state
+            switch (hoveringStatus) {
+                case HoverStatusOptions.BottomEdge:
+                case HoverStatusOptions.TopEdge:
+                    this.canvas.style.cursor = 'n-resize';
+                    break;
+                case HoverStatusOptions.RightEdge:
+                case HoverStatusOptions.LeftEdge:
+                    this.canvas.style.cursor = 'w-resize';
+                    break;
+                case HoverStatusOptions.TopLeftCorner:
+                    this.canvas.style.cursor = 'nw-resize';
+                    break;
+                case HoverStatusOptions.TopRightCorner:
+                    this.canvas.style.cursor = 'ne-resize';
+                    break;
+                case HoverStatusOptions.BottomLeftCorner:
+                    this.canvas.style.cursor = 'sw-resize';
+                    break;
+                case HoverStatusOptions.BottomRightCorner:
+                    this.canvas.style.cursor = 'se-resize';
+                    break;
+                case HoverStatusOptions.Inside:
+                    this.canvas.style.cursor = 'move';
+                    break;
+                case HoverStatusOptions.NotHovering:
+                    this.canvas.style.cursor = 'default';
+                    break;
+            }
+        }
+
+
         this.render();
         this.updateDebugValues();
-        return;
     }
-    
-    if (this.inputManager.isPanningActive) {
-        this.canvas.style.cursor = 'grabbing';
-        const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
-        this.camera.pan(deltaX, deltaY);
+
+    private handleMouseUp(): void {
+        this.canvas.style.cursor = 'default';
+        this.selectionManager.stopDragging();
+        this.inputManager.stopPanning();
+        this.updateDebugValues();
     }
-    
-    this.render();
-    this.updateDebugValues();
-}
 
-private handleMouseUp(): void {
-    this.canvas.style.cursor = 'default';
-    this.selectionManager.stopDragging();
-    this.inputManager.stopPanning();
-    this.updateDebugValues();
-}
+    private handleMouseLeave(): void {
+        this.inputManager.stopPanning();
+        this.selectionManager.stopDragging();
+        this.updateDebugValues();
+    }
 
-private handleMouseLeave(): void {
-    this.inputManager.stopPanning();
-    this.selectionManager.stopDragging();
-    this.updateDebugValues();
-}
+    private handleWheel(e: WheelEvent): void {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
 
-private handleWheel(e: WheelEvent): void {
-    const rect = this.canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    this.camera.zoom(e.deltaY, mouseX, mouseY);
-    this.render();
-    this.updateDebugValues();
-}
+        this.camera.zoom(e.deltaY, mouseX, mouseY);
+        this.render();
+        this.updateDebugValues();
+    }
 
-updateSize(width: number, height: number): void {
-    this.size.width = width;
-    this.size.height = height;
-    this.canvas.width = this.size.width;
-    this.canvas.height = this.size.height;
-}
+    updateSize(width: number, height: number): void {
+        this.size.width = width;
+        this.size.height = height;
+        this.canvas.width = this.size.width;
+        this.canvas.height = this.size.height;
+    }
 
-private updateDebugValues(): void {
-    const element = document.getElementById('debuggingValues') as HTMLParagraphElement;
-    if (!element) return;
-    
-    const mouseGrid = this.inputManager.mouseGridPosition;
-    const mouseScreen = this.inputManager.mouseScreenPosition;
-    const selected = this.selectionManager.selected;
-    
-    element.innerText = 
-        `| scale: ${this.camera.scale.toFixed(8)} ` +
-        `| panX: ${this.camera.panX.toFixed(8)} ` +
-        `| panY: ${this.camera.panY.toFixed(8)} ` +
-        `| isPanning: ${this.inputManager.isPanningActive} ` +
-        `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
-        `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +
-        `| selected: '${selected?.ID ?? 'none'}' |`;
-}
+    private updateDebugValues(): void {
+        const element = document.getElementById('debuggingValues') as HTMLParagraphElement;
+        if (!element) return;
+
+        const mouseGrid = this.inputManager.mouseGridPosition;
+        const mouseScreen = this.inputManager.mouseScreenPosition;
+        const selected = this.selectionManager.selected;
+
+        element.innerText =
+            `| scale: ${this.camera.scale.toFixed(8)} ` +
+            `| panX: ${this.camera.panX.toFixed(8)} ` +
+            `| panY: ${this.camera.panY.toFixed(8)} ` +
+            `| isPanning: ${this.inputManager.isPanningActive} ` +
+            `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
+            `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +
+            `| selected: '${selected?.ID ?? 'none'}.' |`;
+    }
 }

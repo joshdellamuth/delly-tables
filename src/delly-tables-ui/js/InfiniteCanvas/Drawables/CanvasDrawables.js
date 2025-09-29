@@ -1,5 +1,5 @@
 import { Utilities } from '../Shared/Utilities.js';
-export class CanvasObjects {
+export class CanvasDrawables {
     constructor() {
         this._utilities = new Utilities();
         this._drawables = [];
@@ -25,7 +25,6 @@ export class CanvasObjects {
     drawObjects(ctx, canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale) {
         this._drawables.forEach((drawable) => {
             const screenPosition = this._utilities.convertToScreenPos(drawable.gridPosition, canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale);
-            console.log(`Converting for drawable: ${drawable.ID}. Screen position is: (${screenPosition.x}, ${screenPosition.y})`);
             drawable.updateScreenPosition(screenPosition);
             drawable.draw(ctx, xDistanceFromOrigin, yDistanceFromOrigin);
         });

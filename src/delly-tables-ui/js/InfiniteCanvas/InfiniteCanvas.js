@@ -2,14 +2,15 @@ import { Camera } from './Camera/Camera.js';
 import { InputManager } from './InputManager/InputManager.js';
 import { SelectionManager } from './SelectionManager/SelectionManager.js';
 import { Size } from './Shared/Size.js';
-import { CanvasObjects } from './Drawables/CanvasDrawables.js';
+import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
+import { HoverStatusOptions } from './Drawables/HoverStatusOptions.js';
 import { Renderer } from './Renderer/Renderer.js';
 export class InfiniteCanvas {
     constructor(ID, width, height, canvasObjects) {
         this.camera = new Camera();
         this.inputManager = new InputManager();
         this.selectionManager = new SelectionManager();
-        this.canvasObjects = new CanvasObjects();
+        this.canvasObjects = new CanvasDrawables();
         this.size = new Size(0, 0);
         this.ID = ID;
         this.canvas = document.getElementById(ID);
@@ -28,6 +29,7 @@ export class InfiniteCanvas {
     }
     setupEventListeners() {
         this.canvas.addEventListener('contextmenu', e => e.preventDefault());
+        // .bind(this) locks the function’s this to your class instance
         this.canvas.addEventListener('mousedown', this.handleMouseDown.bind(this));
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
@@ -63,6 +65,40 @@ export class InfiniteCanvas {
             this.canvas.style.cursor = 'grabbing';
             const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
             this.camera.pan(deltaX, deltaY);
+        }
+        if (this.selectionManager.selected != null) {
+            // TODO: Re-factor all this into a mouse object to control mouse style (in a set mouse hovering style method or something)
+            let hoveringStatus = this.selectionManager.selected.getHoveringState(this.inputManager.mouseGridPosition.x, this.inputManager.mouseGridPosition.y);
+            console.log('The hovering status is: ', hoveringStatus);
+            // Set the mouse pointer to the correct cursor based on the hovering state
+            switch (hoveringStatus) {
+                case HoverStatusOptions.BottomEdge:
+                case HoverStatusOptions.TopEdge:
+                    this.canvas.style.cursor = 'n-resize';
+                    break;
+                case HoverStatusOptions.RightEdge:
+                case HoverStatusOptions.LeftEdge:
+                    this.canvas.style.cursor = 'w-resize';
+                    break;
+                case HoverStatusOptions.TopLeftCorner:
+                    this.canvas.style.cursor = 'nw-resize';
+                    break;
+                case HoverStatusOptions.TopRightCorner:
+                    this.canvas.style.cursor = 'ne-resize';
+                    break;
+                case HoverStatusOptions.BottomLeftCorner:
+                    this.canvas.style.cursor = 'sw-resize';
+                    break;
+                case HoverStatusOptions.BottomRightCorner:
+                    this.canvas.style.cursor = 'se-resize';
+                    break;
+                case HoverStatusOptions.Inside:
+                    this.canvas.style.cursor = 'move';
+                    break;
+                case HoverStatusOptions.NotHovering:
+                    this.canvas.style.cursor = 'default';
+                    break;
+            }
         }
         this.render();
         this.updateDebugValues();
@@ -107,6 +143,6 @@ export class InfiniteCanvas {
                 `| isPanning: ${this.inputManager.isPanningActive} ` +
                 `| mouseGrid: ${(_b = (_a = mouseGrid.x) === null || _a === void 0 ? void 0 : _a.toFixed(8)) !== null && _b !== void 0 ? _b : 'null'}, ${(_d = (_c = mouseGrid.y) === null || _c === void 0 ? void 0 : _c.toFixed(8)) !== null && _d !== void 0 ? _d : 'null'} ` +
                 `| mouseScreen: ${(_f = (_e = mouseScreen.x) === null || _e === void 0 ? void 0 : _e.toFixed(8)) !== null && _f !== void 0 ? _f : 'null'}, ${(_h = (_g = mouseScreen.y) === null || _g === void 0 ? void 0 : _g.toFixed(8)) !== null && _h !== void 0 ? _h : 'null'} ` +
-                `| selected: '${(_j = selected === null || selected === void 0 ? void 0 : selected.ID) !== null && _j !== void 0 ? _j : 'none'}' |`;
+                `| selected: '${(_j = selected === null || selected === void 0 ? void 0 : selected.ID) !== null && _j !== void 0 ? _j : 'none'}.' |`;
     }
 }
