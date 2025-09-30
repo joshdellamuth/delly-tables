@@ -9,4 +9,4 @@ PositionOnDrawable.TopRightCorner = 'top-right-corner';
 PositionOnDrawable.BottomLeftCorner = 'bottom-left-corner';
 PositionOnDrawable.BottomRightCorner = 'bottom-right-corner';
 PositionOnDrawable.Inside = 'inside';
-PositionOnDrawable.NotHovering = 'not-hovering';
+PositionOnDrawable.NotOn = 'not-on';

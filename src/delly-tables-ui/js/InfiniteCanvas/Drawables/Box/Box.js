@@ -1,15 +1,18 @@
 import { Position } from '../../Shared/Position.js';
-import { HoverStatusOptions } from '../HoverStatusOptions.js';
+import { PositionOnDrawable } from '../PositionOnDrawable.js';
 export class Box {
     constructor(id, width, height, color, xPosition, yPosition, isSelected = false) {
         // properties enforced by the interface
         this.gridPosition = new Position(null, null);
         this.screenPosition = new Position(null, null);
+        this.padding = 20;
         this.isSelected = false;
         this.x1 = null;
         this.y1 = null;
         this.x2 = null;
         this.y2 = null;
+        this.lastMousePosition = PositionOnDrawable.NotOn;
+        this.hoveringMousePosition = PositionOnDrawable.NotOn;
         this.ID = id;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
@@ -18,54 +21,69 @@ export class Box {
         this.color = color;
         this.isSelected = isSelected;
     }
-    getHoveringState(x, y) {
-        const PADDING = 20;
+    resize(gridPosition) {
+        // Update width and height of the box
+        this.width = gridPosition.x - this.gridPosition.x;
+        this.height = gridPosition.y - this.gridPosition.y;
+    }
+    getHoveringState(mousePosition) {
         // Calculate the bounds of the box
         const x1 = this.gridPosition.x;
         const y1 = this.gridPosition.y;
         const x2 = this.gridPosition.x + this.width;
         const y2 = this.gridPosition.y + this.height;
         // Check if mouse is within the overall box bounds (with padding)
-        if (x === null || y === null) {
-            return HoverStatusOptions.NotHovering;
+        if (mousePosition.x === null || mousePosition.y === null) {
+            this.lastMousePosition = PositionOnDrawable.NotOn;
+            return PositionOnDrawable.NotOn;
         }
-        if (x < x1 - PADDING || x > x2 + PADDING ||
-            y < y1 - PADDING || y > y2 + PADDING) {
-            return HoverStatusOptions.NotHovering;
+        if (mousePosition.x < x1 - this.padding || mousePosition.x > x2 + this.padding ||
+            mousePosition.y < y1 - this.padding || mousePosition.y > y2 + this.padding) {
+            this.lastMousePosition = PositionOnDrawable.NotOn;
+            return PositionOnDrawable.NotOn;
         }
         // Define helper functions for edge detection
-        const isNearLeft = x >= x1 - PADDING && x <= x1 + PADDING;
-        const isNearRight = x >= x2 - PADDING && x <= x2 + PADDING;
-        const isNearTop = y >= y1 - PADDING && y <= y1 + PADDING;
-        const isNearBottom = y >= y2 - PADDING && y <= y2 + PADDING;
+        const isNearLeft = mousePosition.x >= x1 - this.padding && mousePosition.x <= x1 + this.padding;
+        const isNearRight = mousePosition.x >= x2 - this.padding && mousePosition.x <= x2 + this.padding;
+        const isNearTop = mousePosition.y >= y1 - this.padding && mousePosition.y <= y1 + this.padding;
+        const isNearBottom = mousePosition.y >= y2 - this.padding && mousePosition.y <= y2 + this.padding;
         // Check corners first (corners have priority over edges)
         if (isNearLeft && isNearTop) {
-            return HoverStatusOptions.TopLeftCorner;
+            this.lastMousePosition = PositionOnDrawable.TopLeftCorner;
+            return PositionOnDrawable.TopLeftCorner;
         }
         if (isNearRight && isNearTop) {
-            return HoverStatusOptions.TopRightCorner;
+            this.lastMousePosition = PositionOnDrawable.TopRightCorner;
+            return PositionOnDrawable.TopRightCorner;
         }
         if (isNearLeft && isNearBottom) {
-            return HoverStatusOptions.BottomLeftCorner;
+            this.lastMousePosition = PositionOnDrawable.BottomLeftCorner;
+            return PositionOnDrawable.BottomLeftCorner;
         }
         if (isNearRight && isNearBottom) {
-            return HoverStatusOptions.BottomRightCorner;
+            this.lastMousePosition = PositionOnDrawable.BottomRightCorner;
+            return PositionOnDrawable.BottomRightCorner;
         }
         // Check edges
         if (isNearLeft) {
-            return HoverStatusOptions.LeftEdge;
+            this.lastMousePosition = PositionOnDrawable.LeftEdge;
+            return PositionOnDrawable.LeftEdge;
         }
         if (isNearRight) {
-            return HoverStatusOptions.RightEdge;
+            this.lastMousePosition = PositionOnDrawable.RightEdge;
+            return PositionOnDrawable.RightEdge;
         }
         if (isNearTop) {
-            return HoverStatusOptions.TopEdge;
+            this.lastMousePosition = PositionOnDrawable.TopEdge;
+            return PositionOnDrawable.TopEdge;
         }
         if (isNearBottom) {
-            return HoverStatusOptions.BottomEdge;
+            this.lastMousePosition = PositionOnDrawable.BottomEdge;
+            return PositionOnDrawable.BottomEdge;
         }
         // Mouse is inside the box but not near any edge
-        return HoverStatusOptions.Inside;
+        this.lastMousePosition = PositionOnDrawable.Inside;
+        return PositionOnDrawable.Inside;
     }
     draw(context, offsetX, offsetY) {
         // There is currently an error with rounding, so making it 0 for now.
@@ -88,10 +106,13 @@ export class Box {
             this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
         }
     }
-    isMouseOver(gridX, gridY) {
+    isMouseOver(mousePosition) {
+        this.hoveringMousePosition = this.getHoveringState(mousePosition);
         // Return whether the mouse is over the box
-        return (gridX > this.gridPosition.x && gridX < this.gridPosition.x + this.width &&
-            gridY > this.gridPosition.y && gridY < this.gridPosition.y + this.height);
+        if (this.hoveringMousePosition === PositionOnDrawable.NotOn) {
+            return false;
+        }
+        return true;
     }
     drawSelectionOutline(context, x1, y1, x2, y2, rounding) {
         context.save(); // Save current state

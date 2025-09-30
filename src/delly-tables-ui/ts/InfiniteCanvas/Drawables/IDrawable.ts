@@ -7,12 +7,17 @@ export interface IDrawable {
     screenPosition: Position;
 
     isSelected: boolean;
+    lastMousePosition: string;
+    hoveringMousePosition: string;
+
     draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
 
     // Takes in the cursor to set the pointer
-    isMouseOver(x: number, y: number): boolean;
+    isMouseOver(mousePosition : Position): boolean;
 
-    getHoveringState(x: number | null, y: number | null): string;
+    getHoveringState(mousePosition: Position): string;
 
     updateScreenPosition(screenPosition: Position): void;
+
+    resize(gridPosition: Position) : void;
 }

@@ -1,6 +1,6 @@
 import { IDrawable } from '../IDrawable.js';
 import { Position } from '../../Shared/Position.js';
-import { HoverStatusOptions } from '../HoverStatusOptions.js';
+import { PositionOnDrawable } from '../PositionOnDrawable.js';
 
 
 export class Box implements IDrawable {
@@ -8,7 +8,7 @@ export class Box implements IDrawable {
     // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
-
+    padding: number = 20;
     isSelected: boolean = false;
 
     // properties just in the Box class
@@ -21,6 +21,9 @@ export class Box implements IDrawable {
     x2: number = null!;
     y2: number = null!;
 
+    lastMousePosition: string = PositionOnDrawable.NotOn;
+    hoveringMousePosition: string = PositionOnDrawable.NotOn;
+
     constructor(id: string, width: number, height: number, color: string,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
         this.ID = id;
@@ -31,9 +34,14 @@ export class Box implements IDrawable {
         this.color = color;
         this.isSelected = isSelected;
     }
-    getHoveringState(x: number | null, y: number | null): string {
-        const PADDING = 20;
 
+    resize(gridPosition: Position): void {
+        // Update width and height of the box
+        this.width = gridPosition.x! - this.gridPosition.x!;
+        this.height = gridPosition.y! - this.gridPosition.y!;
+    }
+
+    getHoveringState(mousePosition : Position): string {
         // Calculate the bounds of the box
         const x1 = this.gridPosition.x!;
         const y1 = this.gridPosition.y!;
@@ -41,51 +49,62 @@ export class Box implements IDrawable {
         const y2 = this.gridPosition.y! + this.height;
 
         // Check if mouse is within the overall box bounds (with padding)
-        if (x === null || y === null) {
-            return HoverStatusOptions.NotHovering;
+        if (mousePosition.x === null || mousePosition.y === null) {
+            this.lastMousePosition = PositionOnDrawable.NotOn;
+            return PositionOnDrawable.NotOn;
         }
 
-        if (x < x1 - PADDING || x > x2 + PADDING ||
-            y < y1 - PADDING || y > y2 + PADDING) {
-            return HoverStatusOptions.NotHovering;
+        if (mousePosition.x < x1 - this.padding || mousePosition.x > x2 + this.padding ||
+            mousePosition.y < y1 - this.padding || mousePosition.y > y2 + this.padding) {
+            this.lastMousePosition = PositionOnDrawable.NotOn;
+            return PositionOnDrawable.NotOn;
         }
 
         // Define helper functions for edge detection
-        const isNearLeft = x >= x1 - PADDING && x <= x1 + PADDING;
-        const isNearRight = x >= x2 - PADDING && x <= x2 + PADDING;
-        const isNearTop = y >= y1 - PADDING && y <= y1 + PADDING;
-        const isNearBottom = y >= y2 - PADDING && y <= y2 + PADDING;
+        const isNearLeft = mousePosition.x >= x1 - this.padding && mousePosition.x <= x1 + this.padding;
+        const isNearRight = mousePosition.x >= x2 - this.padding && mousePosition.x <= x2 + this.padding;
+        const isNearTop = mousePosition.y >= y1 - this.padding && mousePosition.y <= y1 + this.padding;
+        const isNearBottom = mousePosition.y >= y2 - this.padding && mousePosition.y <= y2 + this.padding;
 
         // Check corners first (corners have priority over edges)
         if (isNearLeft && isNearTop) {
-            return HoverStatusOptions.TopLeftCorner;
+            this.lastMousePosition = PositionOnDrawable.TopLeftCorner;
+            return PositionOnDrawable.TopLeftCorner;
         }
         if (isNearRight && isNearTop) {
-            return HoverStatusOptions.TopRightCorner;
+            this.lastMousePosition = PositionOnDrawable.TopRightCorner;
+            return PositionOnDrawable.TopRightCorner;
         }
         if (isNearLeft && isNearBottom) {
-            return HoverStatusOptions.BottomLeftCorner;
+            this.lastMousePosition = PositionOnDrawable.BottomLeftCorner;
+            return PositionOnDrawable.BottomLeftCorner;
         }
         if (isNearRight && isNearBottom) {
-            return HoverStatusOptions.BottomRightCorner;
+            this.lastMousePosition = PositionOnDrawable.BottomRightCorner;
+            return PositionOnDrawable.BottomRightCorner;
         }
 
         // Check edges
         if (isNearLeft) {
-            return HoverStatusOptions.LeftEdge;
+            this.lastMousePosition = PositionOnDrawable.LeftEdge;
+            return PositionOnDrawable.LeftEdge;
         }
         if (isNearRight) {
-            return HoverStatusOptions.RightEdge;
+            this.lastMousePosition = PositionOnDrawable.RightEdge;
+            return PositionOnDrawable.RightEdge;
         }
         if (isNearTop) {
-            return HoverStatusOptions.TopEdge;
+            this.lastMousePosition = PositionOnDrawable.TopEdge;
+            return PositionOnDrawable.TopEdge;
         }
         if (isNearBottom) {
-            return HoverStatusOptions.BottomEdge;
+            this.lastMousePosition = PositionOnDrawable.BottomEdge;
+            return PositionOnDrawable.BottomEdge;
         }
 
         // Mouse is inside the box but not near any edge
-        return HoverStatusOptions.Inside;
+        this.lastMousePosition = PositionOnDrawable.Inside;
+        return PositionOnDrawable.Inside;
     }
 
     draw(context: CanvasRenderingContext2D, offsetX: number, offsetY: number): void {
@@ -113,10 +132,13 @@ export class Box implements IDrawable {
         }
     }
 
-    isMouseOver(gridX: number, gridY: number): boolean {
+    isMouseOver(mousePosition: Position): boolean {
+        this.hoveringMousePosition = this.getHoveringState(mousePosition);
         // Return whether the mouse is over the box
-        return (gridX > this.gridPosition.x! && gridX < this.gridPosition.x! + this.width &&
-            gridY > this.gridPosition.y! && gridY < this.gridPosition.y! + this.height);
+        if (this.hoveringMousePosition === PositionOnDrawable.NotOn) {
+            return false;
+        }
+        return true;
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {

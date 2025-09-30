@@ -1,9 +1,10 @@
 import { Camera } from './Camera/Camera.js';
+import { Mouse } from './Mouse/Mouse.js';
 import { InputManager } from './InputManager/InputManager.js';
 import { SelectionManager } from './SelectionManager/SelectionManager.js';
 import { Size } from './Shared/Size.js';
 import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
-import { HoverStatusOptions } from './Drawables/HoverStatusOptions.js';
+import { PositionOnDrawable } from './Drawables/PositionOnDrawable.js';
 import { Renderer } from './Renderer/Renderer.js';
 export class InfiniteCanvas {
     constructor(ID, width, height, canvasObjects) {
@@ -16,6 +17,7 @@ export class InfiniteCanvas {
         this.canvas = document.getElementById(ID);
         const ctx = this.canvas.getContext('2d');
         this.renderer = new Renderer(ctx);
+        this.mouse = new Mouse(this.canvas);
         this.updateSize(width, height);
         if (canvasObjects) {
             this.canvasObjects = canvasObjects;
@@ -40,17 +42,31 @@ export class InfiniteCanvas {
         if (e.button === 0) { // Left click
             const selected = this.selectionManager.trySelectAt(this.canvasObjects, this.inputManager.mouseGridPosition);
             if (selected) {
-                this.canvas.style.cursor = 'move';
+                this.mouse.setStyleMove();
             }
             else {
                 this.selectionManager.clearSelection(this.canvasObjects);
+            }
+            if (this.selectionManager.selected != null) {
+                let selectedDrawable = this.selectionManager.selected;
+                let mousePosition = this.inputManager.mouseGridPosition;
+                if (selectedDrawable === null || selectedDrawable === void 0 ? void 0 : selectedDrawable.isMouseOver(mousePosition)) {
+                    if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
+                        this.selectionManager.startDragging();
+                    }
+                    else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
+                    }
+                    else {
+                        this.selectionManager.startResizing();
+                    }
+                }
             }
             this.render();
             this.updateDebugValues();
         }
         if (e.button === 2) { // Right click
             this.inputManager.startPanning(e.clientX, e.clientY);
-            this.canvas.style.cursor = 'grab';
+            this.mouse.setStyleGrab();
         }
     }
     handleMouseMove(e) {
@@ -62,51 +78,32 @@ export class InfiniteCanvas {
             return;
         }
         if (this.inputManager.isPanningActive) {
-            this.canvas.style.cursor = 'grabbing';
+            this.mouse.setStyleGrabbing();
             const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
             this.camera.pan(deltaX, deltaY);
         }
-        if (this.selectionManager.selected != null) {
-            // TODO: Re-factor all this into a mouse object to control mouse style (in a set mouse hovering style method or something)
-            let hoveringStatus = this.selectionManager.selected.getHoveringState(this.inputManager.mouseGridPosition.x, this.inputManager.mouseGridPosition.y);
+        let selectedDrawable = this.selectionManager.selected;
+        let mousePosition = this.inputManager.mouseGridPosition;
+        if (selectedDrawable != null) {
+            let hoveringStatus = selectedDrawable.getHoveringState(this.inputManager.mouseGridPosition);
+            this.mouse.setStyleByHoveringStatus(hoveringStatus);
             console.log('The hovering status is: ', hoveringStatus);
-            // Set the mouse pointer to the correct cursor based on the hovering state
-            switch (hoveringStatus) {
-                case HoverStatusOptions.BottomEdge:
-                case HoverStatusOptions.TopEdge:
-                    this.canvas.style.cursor = 'n-resize';
-                    break;
-                case HoverStatusOptions.RightEdge:
-                case HoverStatusOptions.LeftEdge:
-                    this.canvas.style.cursor = 'w-resize';
-                    break;
-                case HoverStatusOptions.TopLeftCorner:
-                    this.canvas.style.cursor = 'nw-resize';
-                    break;
-                case HoverStatusOptions.TopRightCorner:
-                    this.canvas.style.cursor = 'ne-resize';
-                    break;
-                case HoverStatusOptions.BottomLeftCorner:
-                    this.canvas.style.cursor = 'sw-resize';
-                    break;
-                case HoverStatusOptions.BottomRightCorner:
-                    this.canvas.style.cursor = 'se-resize';
-                    break;
-                case HoverStatusOptions.Inside:
-                    this.canvas.style.cursor = 'move';
-                    break;
-                case HoverStatusOptions.NotHovering:
-                    this.canvas.style.cursor = 'default';
-                    break;
+            console.log('Last position is: ', hoveringStatus);
+            if (this.selectionManager.isResizingShape) {
+                selectedDrawable.resize(mousePosition);
+                this.render();
+                this.updateDebugValues();
             }
         }
         this.render();
         this.updateDebugValues();
     }
     handleMouseUp() {
-        this.canvas.style.cursor = 'default';
+        this.mouse.setStyleDefault();
+        ;
         this.selectionManager.stopDragging();
         this.inputManager.stopPanning();
+        this.selectionManager.stopResizing();
         this.updateDebugValues();
     }
     handleMouseLeave() {
@@ -129,7 +126,7 @@ export class InfiniteCanvas {
         this.canvas.height = this.size.height;
     }
     updateDebugValues() {
-        var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+        var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
         const element = document.getElementById('debuggingValues');
         if (!element)
             return;
@@ -143,6 +140,8 @@ export class InfiniteCanvas {
                 `| isPanning: ${this.inputManager.isPanningActive} ` +
                 `| mouseGrid: ${(_b = (_a = mouseGrid.x) === null || _a === void 0 ? void 0 : _a.toFixed(8)) !== null && _b !== void 0 ? _b : 'null'}, ${(_d = (_c = mouseGrid.y) === null || _c === void 0 ? void 0 : _c.toFixed(8)) !== null && _d !== void 0 ? _d : 'null'} ` +
                 `| mouseScreen: ${(_f = (_e = mouseScreen.x) === null || _e === void 0 ? void 0 : _e.toFixed(8)) !== null && _f !== void 0 ? _f : 'null'}, ${(_h = (_g = mouseScreen.y) === null || _g === void 0 ? void 0 : _g.toFixed(8)) !== null && _h !== void 0 ? _h : 'null'} ` +
-                `| selected: '${(_j = selected === null || selected === void 0 ? void 0 : selected.ID) !== null && _j !== void 0 ? _j : 'none'}.' |`;
+                `| selected: '${(_j = selected === null || selected === void 0 ? void 0 : selected.ID) !== null && _j !== void 0 ? _j : 'none'}.'` +
+                `| dragging: '${(_k = this.selectionManager.isDraggingShape) !== null && _k !== void 0 ? _k : 'none'}.'` +
+                `| resizing: ${this.selectionManager.isResizingShape} |`;
     }
 }

@@ -1,4 +1,4 @@
-export class HoverStatusOptions {
+export class PositionOnDrawable {
   static TopEdge: string = 'top-edge';
   static BottomEdge: string = 'bottom-edge';
   static RightEdge: string = 'right-edge';
@@ -8,6 +8,6 @@ export class HoverStatusOptions {
   static BottomLeftCorner: string = 'bottom-left-corner';
   static BottomRightCorner: string = 'bottom-right-corner';
   static Inside: string = 'inside';
-  static NotHovering: string = 'not-hovering';
+  static NotOn: string = 'not-on';
 
 }
