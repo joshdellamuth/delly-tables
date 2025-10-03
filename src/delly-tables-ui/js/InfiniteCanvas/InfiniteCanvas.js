@@ -1,7 +1,7 @@
 import { Camera } from './Camera/Camera.js';
 import { Mouse } from './Mouse/Mouse.js';
 import { InputManager } from './InputManager/InputManager.js';
-import { SelectionManager } from './SelectionManager/SelectionManager.js';
+import { DrawablesManager } from './DrawablesManager/DrawablesManager.js';
 import { Size } from './Shared/Size.js';
 import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
 import { PositionOnDrawable } from './Drawables/PositionOnDrawable.js';
@@ -10,7 +10,7 @@ export class InfiniteCanvas {
     constructor(ID, width, height, canvasObjects) {
         this.camera = new Camera();
         this.inputManager = new InputManager();
-        this.selectionManager = new SelectionManager();
+        this.drawablesManager = new DrawablesManager();
         this.canvasObjects = new CanvasDrawables();
         this.size = new Size(0, 0);
         this.ID = ID;
@@ -40,24 +40,24 @@ export class InfiniteCanvas {
     }
     handleMouseDown(e) {
         if (e.button === 0) { // Left click
-            const selected = this.selectionManager.trySelectAt(this.canvasObjects, this.inputManager.mouseGridPosition);
+            const selected = this.drawablesManager.trySelectAt(this.canvasObjects, this.inputManager.mouseGridPosition);
             if (selected) {
                 this.mouse.setStyleMove();
             }
             else {
-                this.selectionManager.clearSelection(this.canvasObjects);
+                this.drawablesManager.clearSelection(this.canvasObjects);
             }
-            if (this.selectionManager.selected != null) {
-                let selectedDrawable = this.selectionManager.selected;
+            if (this.drawablesManager.selected != null) {
+                let selectedDrawable = this.drawablesManager.selected;
                 let mousePosition = this.inputManager.mouseGridPosition;
                 if (selectedDrawable === null || selectedDrawable === void 0 ? void 0 : selectedDrawable.isMouseOver(mousePosition)) {
                     if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
-                        this.selectionManager.startDragging();
+                        this.drawablesManager.startDragging();
                     }
                     else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
                     }
                     else {
-                        this.selectionManager.startResizing();
+                        this.drawablesManager.startResizing();
                     }
                 }
             }
@@ -71,8 +71,8 @@ export class InfiniteCanvas {
     }
     handleMouseMove(e) {
         this.inputManager.updateMousePosition(this.canvas, e.clientX, e.clientY, this.camera);
-        if (this.selectionManager.isDraggingShape) {
-            this.selectionManager.updateDrag(this.inputManager.mouseGridPosition);
+        if (this.drawablesManager.isDraggingShape) {
+            this.drawablesManager.updateDrag(this.inputManager.mouseGridPosition);
             this.render();
             this.updateDebugValues();
             return;
@@ -82,14 +82,14 @@ export class InfiniteCanvas {
             const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
             this.camera.pan(deltaX, deltaY);
         }
-        let selectedDrawable = this.selectionManager.selected;
+        let selectedDrawable = this.drawablesManager.selected;
         let mousePosition = this.inputManager.mouseGridPosition;
         if (selectedDrawable != null) {
             let hoveringStatus = selectedDrawable.getHoveringState(this.inputManager.mouseGridPosition);
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
             console.log('The hovering status is: ', hoveringStatus);
             console.log('Last position is: ', hoveringStatus);
-            if (this.selectionManager.isResizingShape) {
+            if (this.drawablesManager.isResizingShape) {
                 selectedDrawable.resize(mousePosition);
                 this.render();
                 this.updateDebugValues();
@@ -101,14 +101,14 @@ export class InfiniteCanvas {
     handleMouseUp() {
         this.mouse.setStyleDefault();
         ;
-        this.selectionManager.stopDragging();
+        this.drawablesManager.stopDragging();
         this.inputManager.stopPanning();
-        this.selectionManager.stopResizing();
+        this.drawablesManager.stopResizing();
         this.updateDebugValues();
     }
     handleMouseLeave() {
         this.inputManager.stopPanning();
-        this.selectionManager.stopDragging();
+        this.drawablesManager.stopDragging();
         this.updateDebugValues();
     }
     handleWheel(e) {
@@ -132,7 +132,7 @@ export class InfiniteCanvas {
             return;
         const mouseGrid = this.inputManager.mouseGridPosition;
         const mouseScreen = this.inputManager.mouseScreenPosition;
-        const selected = this.selectionManager.selected;
+        const selected = this.drawablesManager.selected;
         element.innerText =
             `| scale: ${this.camera.scale.toFixed(8)} ` +
                 `| panX: ${this.camera.panX.toFixed(8)} ` +
@@ -141,7 +141,7 @@ export class InfiniteCanvas {
                 `| mouseGrid: ${(_b = (_a = mouseGrid.x) === null || _a === void 0 ? void 0 : _a.toFixed(8)) !== null && _b !== void 0 ? _b : 'null'}, ${(_d = (_c = mouseGrid.y) === null || _c === void 0 ? void 0 : _c.toFixed(8)) !== null && _d !== void 0 ? _d : 'null'} ` +
                 `| mouseScreen: ${(_f = (_e = mouseScreen.x) === null || _e === void 0 ? void 0 : _e.toFixed(8)) !== null && _f !== void 0 ? _f : 'null'}, ${(_h = (_g = mouseScreen.y) === null || _g === void 0 ? void 0 : _g.toFixed(8)) !== null && _h !== void 0 ? _h : 'null'} ` +
                 `| selected: '${(_j = selected === null || selected === void 0 ? void 0 : selected.ID) !== null && _j !== void 0 ? _j : 'none'}.'` +
-                `| dragging: '${(_k = this.selectionManager.isDraggingShape) !== null && _k !== void 0 ? _k : 'none'}.'` +
-                `| resizing: ${this.selectionManager.isResizingShape} |`;
+                `| dragging: '${(_k = this.drawablesManager.isDraggingShape) !== null && _k !== void 0 ? _k : 'none'}.'` +
+                `| resizing: ${this.drawablesManager.isResizingShape} |`;
     }
 }

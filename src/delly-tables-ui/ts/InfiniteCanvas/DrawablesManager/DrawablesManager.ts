@@ -3,7 +3,7 @@ import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.js';
 import { IDrawable } from '../Drawables/IDrawable.js';
 import { Position } from '../Shared/Position.js';
 
-export class SelectionManager {
+export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
