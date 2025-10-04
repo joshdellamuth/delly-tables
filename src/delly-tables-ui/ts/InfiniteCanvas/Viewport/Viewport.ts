@@ -1,6 +1,6 @@
 import { Position } from '../Shared/Position.js';
 
-export class Camera {
+export class Viewport {
     private _scale: number = 1;
     private _panX: number = 0;
     private _panY: number = 0;
@@ -24,10 +24,24 @@ export class Camera {
         this._panY += deltaY;
     }
 
-    screenToGrid(screenX: number, screenY: number): Position {
+    screenToGrid(screenPosition: Position): Position {
         return new Position(
-            (screenX - this._panX) / this._scale,
-            (screenY - this._panY) / this._scale
+            (screenPosition.x! - this._panX) / this._scale,
+            (screenPosition.y! - this._panY) / this._scale
         );
+    }
+
+    convertToScreenPos(gridPosition : Position, canvas: HTMLCanvasElement,
+        xDistanceFromOrigin: number, yDistanceFromOrigin: number,
+        scale: number): Position {
+        const rect = canvas.getBoundingClientRect();
+        const canvasX = gridPosition.x! - rect.left;
+        const canvasY = gridPosition.y! - rect.top;
+
+        // Transform canvas coordinates given to world coordinates
+        const xScreenPosition = (canvasX - xDistanceFromOrigin) / scale;
+        const yScreenPosition = (canvasY - yDistanceFromOrigin) / scale;
+
+        return new Position(xScreenPosition, yScreenPosition);
     }
 }

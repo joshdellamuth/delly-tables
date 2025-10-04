@@ -1,5 +1,5 @@
 import { Position } from '../Shared/Position.js';
-import { Camera } from '../Camera/Camera.js';
+import { Viewport } from '../Viewport/Viewport.js';
 
 
 export class InputManager {
@@ -9,15 +9,21 @@ export class InputManager {
     private panStart: Position = new Position(null, null);
 
     get mouseScreenPosition(): Position { return this.mouseScreenPos; }
-    get mouseGridPosition(): Position { return this.mouseGridPos; }
+    get mouseGridPosition(): Position { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
     get isPanningActive(): boolean { return this.isPanning; }
 
-    updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, camera: Camera): void {
+    updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: Viewport): void {
+        console.log(viewport);
+        
         const rect = canvas.getBoundingClientRect();
         this.mouseScreenPos.x = clientX - rect.left;
         this.mouseScreenPos.y = clientY - rect.top;
 
-        const gridPos = camera.screenToGrid(this.mouseScreenPos.x, this.mouseScreenPos.y);
+        console.log(this.mouseScreenPos);
+
+        const gridPos: Position = viewport.screenToGrid(
+            new Position(this.mouseScreenPos.x, this.mouseScreenPos.y));
+
         this.mouseGridPos.x = gridPos.x;
         this.mouseGridPos.y = gridPos.y;
     }

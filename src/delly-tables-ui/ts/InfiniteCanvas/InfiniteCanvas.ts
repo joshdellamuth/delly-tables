@@ -1,42 +1,41 @@
-import { Camera } from './Camera/Camera.js';
+import { Viewport } from './Viewport/Viewport.js';
 import { Mouse } from './Mouse/Mouse.js';
 import { InputManager } from './InputManager/InputManager.js';
 import { DrawablesManager } from './DrawablesManager/DrawablesManager.js';
 import { Size } from './Shared/Size.js';
-import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
+//import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
 import { PositionOnDrawable } from './Drawables/PositionOnDrawable.js';
-import { Renderer } from './Renderer/Renderer.js';
+import { IDrawable } from './Drawables/IDrawable.js';
 
 export class InfiniteCanvas {
     private readonly ID: string;
     private readonly canvas: HTMLCanvasElement;
-    private readonly renderer: Renderer;
-    private readonly camera: Camera = new Camera();
+    private readonly viewport: Viewport = new Viewport();
     private readonly mouse: Mouse;
     private readonly inputManager: InputManager = new InputManager();
-    private readonly drawablesManager: DrawablesManager = new DrawablesManager();
-    private readonly canvasObjects: CanvasDrawables = new CanvasDrawables();
+    private readonly drawablesManager: DrawablesManager;;
+    //private readonly canvasObjects: CanvasDrawables = new CanvasDrawables();
     private size: Size = new Size(0, 0);
 
-    constructor(ID: string, width: number, height: number, canvasObjects?: CanvasDrawables) {
+    constructor(ID: string, width: number, height: number, canvasDrawables?: IDrawable[]) {
         this.ID = ID;
         this.canvas = document.getElementById(ID) as HTMLCanvasElement;
-        const ctx = this.canvas.getContext('2d')!;
-        this.renderer = new Renderer(ctx);
+        const ctx : CanvasRenderingContext2D = this.canvas.getContext('2d')!;
+        this.drawablesManager = new DrawablesManager(this.canvas, ctx);
         this.mouse = new Mouse(this.canvas);
         this.updateSize(width, height);
 
-        if (canvasObjects) {
-            this.canvasObjects = canvasObjects;
+        if (canvasDrawables) {
+            this.drawablesManager.drawables = canvasDrawables;
         }
 
         this.setupEventListeners();
         this.render();
-        this.updateDebugValues();
+        this.updateDebugValues();1
     }
 
     private render(): void {
-        this.renderer.render(this.canvasObjects, this.camera, this.canvas);
+        this.drawablesManager.render(this.viewport, this.canvas);
     }
 
     private setupEventListeners(): void {
@@ -52,15 +51,19 @@ export class InfiniteCanvas {
 
     private handleMouseDown(e: MouseEvent): void {
         if (e.button === 0) { // Left click
+
+            console.log(`Mouse DOWN position: ${this.inputManager.mouseGridPosition}`);
+                        console.log(this.inputManager.mouseGridPosition);
+
+
             const selected = this.drawablesManager.trySelectAt(
-                this.canvasObjects,
                 this.inputManager.mouseGridPosition
             );
 
             if (selected) {
                 this.mouse.setStyleMove();
             } else {
-                this.drawablesManager.clearSelection(this.canvasObjects);
+                this.drawablesManager.clearSelection();
             }
 
             if (this.drawablesManager.selected != null) {
@@ -90,7 +93,13 @@ export class InfiniteCanvas {
     }
 
     private handleMouseMove(e: MouseEvent): void {
-        this.inputManager.updateMousePosition(this.canvas, e.clientX, e.clientY, this.camera);
+        this.inputManager.updateMousePosition(
+            this.canvas, 
+            e.clientX, 
+            e.clientY, 
+            this.viewport);
+
+        this.updateDebugValues();
 
         if (this.drawablesManager.isDraggingShape) {
             this.drawablesManager.updateDrag(this.inputManager.mouseGridPosition);
@@ -102,7 +111,7 @@ export class InfiniteCanvas {
         if (this.inputManager.isPanningActive) {
             this.mouse.setStyleGrabbing();
             const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
-            this.camera.pan(deltaX, deltaY);
+            this.viewport.pan(deltaX, deltaY);
         }
 
         let selectedDrawable = this.drawablesManager.selected;
@@ -144,7 +153,7 @@ export class InfiniteCanvas {
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        this.camera.zoom(e.deltaY, mouseX, mouseY);
+        this.viewport.zoom(e.deltaY, mouseX, mouseY);
         this.render();
         this.updateDebugValues();
     }
@@ -164,9 +173,9 @@ export class InfiniteCanvas {
         const mouseScreen = this.inputManager.mouseScreenPosition;
         const selected = this.drawablesManager.selected;
         element.innerText =
-            `| scale: ${this.camera.scale.toFixed(8)} ` +
-            `| panX: ${this.camera.panX.toFixed(8)} ` +
-            `| panY: ${this.camera.panY.toFixed(8)} ` +
+            `| scale: ${this.viewport.scale.toFixed(8)} ` +
+            `| panX: ${this.viewport.panX.toFixed(8)} ` +
+            `| panY: ${this.viewport.panY.toFixed(8)} ` +
             `| isPanning: ${this.inputManager.isPanningActive} ` +
             `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
             `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +

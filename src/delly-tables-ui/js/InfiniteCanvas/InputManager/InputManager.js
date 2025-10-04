@@ -7,13 +7,15 @@ export class InputManager {
         this.panStart = new Position(null, null);
     }
     get mouseScreenPosition() { return this.mouseScreenPos; }
-    get mouseGridPosition() { return this.mouseGridPos; }
+    get mouseGridPosition() { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
     get isPanningActive() { return this.isPanning; }
-    updateMousePosition(canvas, clientX, clientY, camera) {
+    updateMousePosition(canvas, clientX, clientY, viewport) {
+        console.log(viewport);
         const rect = canvas.getBoundingClientRect();
         this.mouseScreenPos.x = clientX - rect.left;
         this.mouseScreenPos.y = clientY - rect.top;
-        const gridPos = camera.screenToGrid(this.mouseScreenPos.x, this.mouseScreenPos.y);
+        console.log(this.mouseScreenPos);
+        const gridPos = viewport.screenToGrid(new Position(this.mouseScreenPos.x, this.mouseScreenPos.y));
         this.mouseGridPos.x = gridPos.x;
         this.mouseGridPos.y = gridPos.y;
     }

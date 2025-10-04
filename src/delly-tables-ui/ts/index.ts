@@ -1,5 +1,5 @@
 import { Box } from './InfiniteCanvas/Drawables/Box/Box.js';
-import { CanvasDrawables } from './InfiniteCanvas/Drawables/CanvasDrawables.js';
+import { IDrawable } from './InfiniteCanvas/Drawables/IDrawable.js';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
 
 // Get the correct URL based on the hostname 
@@ -25,20 +25,20 @@ console.log(`The base URL is ${baseURL}.`);
 // #region Add shapes to canvas
 
 // Represents the running list of canvas objects to be added to and deleted
-const canvasObjects: CanvasDrawables = new CanvasDrawables();
+const drawables: IDrawable[] = [];
 
 // Sample box to draw
 const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 100, 100);
-canvasObjects.addDrawable(box1);
+drawables.push(box1);
 
 const box2: Box = new Box('pink-box-1', 200, 200, '#aa269fff', 400, 500);
-canvasObjects.addDrawable(box2);
+drawables.push(box2);
 
 const box3: Box = new Box('teal-box-1', 200, 300, '#8ef7ffff', 750, 300);
-canvasObjects.addDrawable(box3);
+drawables.push(box3);
 
 const box4: Box = new Box('orange-box-1', 100, 300, '#ecaf2aff', 600, -300);
-canvasObjects.addDrawable(box4);
+drawables.push(box4);
 
 // #endregion Add shapes to canvas
 
@@ -119,7 +119,7 @@ const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;
 
 // create the canvas
-const infiniteCanvas: InfiniteCanvas = new InfiniteCanvas('canvas', canvasWidth, canvasHeight, canvasObjects);
+const infiniteCanvas: InfiniteCanvas = new InfiniteCanvas('canvas', canvasWidth, canvasHeight, drawables);
 
 // make the canvas size the same as the window
 window.addEventListener('resize', () => {
