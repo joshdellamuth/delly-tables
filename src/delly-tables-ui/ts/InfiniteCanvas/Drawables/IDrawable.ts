@@ -12,10 +12,7 @@ export interface IDrawable {
 
     draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
 
-    // Takes in the cursor to set the pointer
-    isMouseOver(mousePosition : Position): boolean;
-
-    getHoveringState(mousePosition: Position): string;
+    getMousePosOnDrawable(mousePosition: Position): string;
 
     updateScreenPosition(screenPosition: Position): void;
 

@@ -1,3 +1,4 @@
+import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.js';
 import { Position } from '../Shared/Position.js';
 export class DrawablesManager {
     constructor(canvas, ctx) {
@@ -52,13 +53,12 @@ export class DrawablesManager {
         }
     }
     trySelectAt(mouseGridPos) {
-        console.log('Trying to select at: ', mouseGridPos);
         for (let i = this.drawables.length - 1; i >= 0; i--) {
             const drawable = this.drawables[i];
-            if (drawable.isMouseOver(mouseGridPos)) {
+            let mousePosOnDrawable = drawable.getMousePosOnDrawable(mouseGridPos);
+            if (mousePosOnDrawable != PositionOnDrawable.NotOn) {
                 this.clearSelection();
                 this.selectDrawable(drawable, mouseGridPos);
-                console.log('The selected drawable is: ', this.selectedDrawable);
                 return true;
             }
         }

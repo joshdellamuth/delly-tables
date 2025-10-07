@@ -40,8 +40,6 @@ export class InfiniteCanvas {
     }
     handleMouseDown(e) {
         if (e.button === 0) { // Left click
-            console.log(`Mouse DOWN position: ${this.inputManager.mouseGridPosition}`);
-            console.log(this.inputManager.mouseGridPosition);
             const selected = this.drawablesManager.trySelectAt(this.inputManager.mouseGridPosition);
             if (selected) {
                 this.mouse.setStyleMove();
@@ -49,18 +47,16 @@ export class InfiniteCanvas {
             else {
                 this.drawablesManager.clearSelection();
             }
+            // If there is already a selected shape, see if you are over it and change the mouse accordingly.
             if (this.drawablesManager.selected != null) {
                 let selectedDrawable = this.drawablesManager.selected;
-                let mousePosition = this.inputManager.mouseGridPosition;
-                if (selectedDrawable === null || selectedDrawable === void 0 ? void 0 : selectedDrawable.isMouseOver(mousePosition)) {
-                    if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
-                        this.drawablesManager.startDragging();
-                    }
-                    else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
-                    }
-                    else {
-                        this.drawablesManager.startResizing();
-                    }
+                if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
+                    this.drawablesManager.startDragging();
+                }
+                else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
+                }
+                else {
+                    this.drawablesManager.startResizing();
                 }
             }
             this.render();
@@ -86,14 +82,14 @@ export class InfiniteCanvas {
             this.viewport.pan(deltaX, deltaY);
         }
         let selectedDrawable = this.drawablesManager.selected;
-        let mousePosition = this.inputManager.mouseGridPosition;
+        let mouseGridPosition = this.inputManager.mouseGridPosition;
+        // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
         if (selectedDrawable != null) {
-            let hoveringStatus = selectedDrawable.getHoveringState(this.inputManager.mouseGridPosition);
+            let hoveringStatus = selectedDrawable.hoveringMousePosition;
+            console.log(`Hovering status: ${hoveringStatus}`);
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
-            console.log('The hovering status is: ', hoveringStatus);
-            console.log('Last position is: ', hoveringStatus);
             if (this.drawablesManager.isResizingShape) {
-                selectedDrawable.resize(mousePosition);
+                selectedDrawable.resize(mouseGridPosition);
                 this.render();
                 this.updateDebugValues();
             }

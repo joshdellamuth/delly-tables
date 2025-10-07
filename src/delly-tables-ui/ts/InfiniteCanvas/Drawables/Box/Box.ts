@@ -8,7 +8,9 @@ export class Box implements IDrawable {
     // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
-    padding: number = 20;
+    padding: number = 10;
+    minimumWidth: number = 30;
+    minimumHeight: number = 30;
     isSelected: boolean = false;
 
     // properties just in the Box class
@@ -36,12 +38,77 @@ export class Box implements IDrawable {
     }
 
     resize(gridPosition: Position): void {
-        // Update width and height of the box
-        this.width = gridPosition.x! - this.gridPosition.x!;
-        this.height = gridPosition.y! - this.gridPosition.y!;
+        // Use lastMousePosition to determine HOW to resize
+        switch (this.lastMousePosition) {
+            case PositionOnDrawable.BottomRightCorner:
+                // Your current logic works here
+                let proposedWidth = gridPosition.x! - this.gridPosition.x!;
+                let proposedHeight = gridPosition.y! - this.gridPosition.y!;
+
+                if (proposedWidth > this.minimumWidth) {
+                    // Update width and height of the box
+                    this.width = proposedWidth;
+                }
+
+                if (proposedHeight > this.minimumHeight) {
+                    // Update width and height of the box
+                    this.height = proposedHeight;
+                }
+                break;
+                
+            case PositionOnDrawable.TopLeftCorner:
+                // Calculate how much the corner moved
+                const newX = gridPosition.x!;
+                const newY = gridPosition.y!;
+                const oldX = this.gridPosition.x!;
+                const oldY = this.gridPosition.y!;
+                
+                // Calculate new dimensions
+                const proposedWidth2 = (oldX + this.width) - newX;
+                const proposedHeight2 = (oldY + this.height) - newY;
+                
+                // Only resize if above minimum
+                if (proposedWidth2 > this.minimumWidth) {
+                    this.gridPosition.x = newX;  // Move the anchor point
+                    this.width = proposedWidth2;
+                }
+                if (proposedHeight2 > this.minimumHeight) {
+                    this.gridPosition.y = newY;  // Move the anchor point
+                    this.height = proposedHeight2;
+                }
+                break;
+                
+            // case PositionOnDrawable.RightEdge:
+            //     this.resizeRight(gridPosition);
+            //     break;
+                
+            case PositionOnDrawable.LeftEdge:
+                // const newX3 = gridPosition.x!;
+                // const oldX3 = this.gridPosition.x!;
+                // const proposedWidth3 = (oldX3 + this.width) - newX3;
+                
+                // if (proposedWidth3 > this.minimumWidth) {
+                //     this.gridPosition.x = newX3;
+                //     this.width = proposedWidth3;
+                // }
+                const newX3 = gridPosition.x!;
+                const oldX3 = this.gridPosition.x!;
+                const proposedWidth3 = (oldX3 + this.width) - newX3;
+            
+                if (proposedWidth3 >= this.minimumWidth) {
+                    this.gridPosition.x = newX3;
+                    this.width = proposedWidth3;
+                } else {
+                    // Clamp to minimum
+                    this.gridPosition.x = (oldX3 + this.width) - this.minimumWidth;
+                    this.width = this.minimumWidth;
+                }
+                1break;
+                
+        }
     }
 
-    getHoveringState(mousePosition : Position): string {
+    getMousePosOnDrawable(mousePosition : Position): string {
         // Calculate the bounds of the box
         const x1 = this.gridPosition.x!;
         const y1 = this.gridPosition.y!;
@@ -130,15 +197,6 @@ export class Box implements IDrawable {
         if (this.isSelected) {
             this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
         }
-    }
-
-    isMouseOver(mousePosition: Position): boolean {
-        this.hoveringMousePosition = this.getHoveringState(mousePosition);
-        // Return whether the mouse is over the box
-        if (this.hoveringMousePosition === PositionOnDrawable.NotOn) {
-            return false;
-        }
-        return true;
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {

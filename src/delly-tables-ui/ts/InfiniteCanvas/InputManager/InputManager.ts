@@ -13,13 +13,9 @@ export class InputManager {
     get isPanningActive(): boolean { return this.isPanning; }
 
     updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: Viewport): void {
-        console.log(viewport);
-        
         const rect = canvas.getBoundingClientRect();
         this.mouseScreenPos.x = clientX - rect.left;
         this.mouseScreenPos.y = clientY - rect.top;
-
-        console.log(this.mouseScreenPos);
 
         const gridPos: Position = viewport.screenToGrid(
             new Position(this.mouseScreenPos.x, this.mouseScreenPos.y));
