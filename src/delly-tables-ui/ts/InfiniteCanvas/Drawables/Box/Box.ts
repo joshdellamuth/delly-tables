@@ -103,7 +103,7 @@ export class Box implements IDrawable {
                     this.gridPosition.x = (oldX3 + this.width) - this.minimumWidth;
                     this.width = this.minimumWidth;
                 }
-                1break;
+                break;
                 
         }
     }
