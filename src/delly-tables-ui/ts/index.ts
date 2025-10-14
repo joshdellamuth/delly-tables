@@ -47,6 +47,11 @@ drawables.push(box4);
 
 const collapseButton: HTMLElement | null = document.getElementById("collapse-button");
 const uncollapseButton: HTMLElement | null = document.getElementById("uncollapse-button");
+const adminPageButton: HTMLElement | null = document.getElementById("admin-page");
+
+function goToAdmin() {
+    window.location.href = "admin.html"; // full redirect
+}
 
 const fileButton: HTMLElement | null = document.getElementById("file-button");
 const exportButton: HTMLElement | null = document.getElementById("export-button");
@@ -60,9 +65,9 @@ let collapsed: boolean = true;
 // initially toggle the menu
 updateMenuVisibility(collapsed);
 
-collapseButton?.addEventListener("click", () => {
-    console.log("Collapse button clicked.")
-    showUncollapsedMenu();
+adminPageButton?.addEventListener("click", () => {
+    console.log("Admin page button clicked.")
+    goToAdmin();
 }
 );
 

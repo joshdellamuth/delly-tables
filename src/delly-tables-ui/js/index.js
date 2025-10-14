@@ -34,6 +34,10 @@ drawables.push(box4);
 // #region Collapse button logic
 const collapseButton = document.getElementById("collapse-button");
 const uncollapseButton = document.getElementById("uncollapse-button");
+const adminPageButton = document.getElementById("admin-page");
+function goToAdmin() {
+    window.location.href = "admin.html"; // full redirect
+}
 const fileButton = document.getElementById("file-button");
 const exportButton = document.getElementById("export-button");
 const helpButton = document.getElementById("help-button");
@@ -43,9 +47,9 @@ const logoImage = document.getElementById("logo-image");
 let collapsed = true;
 // initially toggle the menu
 updateMenuVisibility(collapsed);
-collapseButton === null || collapseButton === void 0 ? void 0 : collapseButton.addEventListener("click", () => {
-    console.log("Collapse button clicked.");
-    showUncollapsedMenu();
+adminPageButton === null || adminPageButton === void 0 ? void 0 : adminPageButton.addEventListener("click", () => {
+    console.log("Admin page button clicked.");
+    goToAdmin();
 });
 uncollapseButton === null || uncollapseButton === void 0 ? void 0 : uncollapseButton.addEventListener("click", () => {
     console.log("Uncollapse button clicked.");
