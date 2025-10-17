@@ -77,6 +77,12 @@ uncollapseButton?.addEventListener("click", () => {
 }
 );
 
+collapseButton?.addEventListener("click", () => {
+    console.log("Collapse button clicked.")
+    showUncollapsedMenu();
+}
+);
+
 
 function updateMenuVisibility(collapsed: boolean): void {
     if (collapsed) {

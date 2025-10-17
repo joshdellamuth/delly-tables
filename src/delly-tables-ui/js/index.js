@@ -55,6 +55,10 @@ uncollapseButton === null || uncollapseButton === void 0 ? void 0 : uncollapseBu
     console.log("Uncollapse button clicked.");
     showCollapsedMenu();
 });
+collapseButton === null || collapseButton === void 0 ? void 0 : collapseButton.addEventListener("click", () => {
+    console.log("Collapse button clicked.");
+    showUncollapsedMenu();
+});
 function updateMenuVisibility(collapsed) {
     if (collapsed) {
         console.log("Collapsed");
