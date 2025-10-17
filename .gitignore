@@ -6,6 +6,9 @@
 # Self-excluded files (not from auto-generated gitignore)
 appsettings.Development.json
 appsettings.json
+node_modules/
+dist/
+
 
 # User-specific files
 *.rsuser
