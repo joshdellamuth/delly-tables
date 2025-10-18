@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 export default defineConfig({
-    base: ".",
+    base: "/delly-tables/",
     build: {
         outDir: 'dist',
         emptyOutDir: true
