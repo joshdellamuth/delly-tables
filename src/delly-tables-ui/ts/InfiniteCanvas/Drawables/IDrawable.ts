@@ -1,4 +1,4 @@
-import { Position } from '../Shared/Position.js';
+import { Position } from '../Shared/Position.ts';
 
 export interface IDrawable {
     ID: string;

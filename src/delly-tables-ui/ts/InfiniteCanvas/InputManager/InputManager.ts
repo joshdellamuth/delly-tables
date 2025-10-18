@@ -1,5 +1,5 @@
-import { Position } from '../Shared/Position.js';
-import { Viewport } from '../Viewport/Viewport.js';
+import { Position } from '../Shared/Position.ts';
+import { Viewport } from '../Viewport/Viewport.ts';
 
 
 export class InputManager {

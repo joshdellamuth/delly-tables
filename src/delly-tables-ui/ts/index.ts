@@ -1,6 +1,6 @@
-import { Box } from './InfiniteCanvas/Drawables/Box/Box.js';
-import { IDrawable } from './InfiniteCanvas/Drawables/IDrawable.js';
-import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas.js';
+import { Box } from './InfiniteCanvas/Drawables/Box/Box';
+import { IDrawable } from './InfiniteCanvas/Drawables/IDrawable';
+import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas';
 
 // Get the correct URL based on the hostname 
 function getBaseURL(): string {

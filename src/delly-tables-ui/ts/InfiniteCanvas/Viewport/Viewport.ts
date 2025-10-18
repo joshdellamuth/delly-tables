@@ -1,4 +1,4 @@
-import { Position } from '../Shared/Position.js';
+import { Position } from '../Shared/Position.ts';
 
 export class Viewport {
     private _scale: number = 1;

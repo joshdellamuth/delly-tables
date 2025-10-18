@@ -1,7 +1,7 @@
-import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.js';
-import { IDrawable } from '../Drawables/IDrawable.js';
-import { Viewport } from '../Viewport/Viewport.js';
-import { Position } from '../Shared/Position.js';
+import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.ts';
+import { IDrawable } from '../Drawables/IDrawable.ts';
+import { Viewport } from '../Viewport/Viewport.ts';
+import { Position } from '../Shared/Position.ts';
 
 export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;

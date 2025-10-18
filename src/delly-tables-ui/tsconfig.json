@@ -17,8 +17,9 @@
     /* Type Checking */
     "strict": true,                                      /* Enable all strict type-checking options. */
     "skipLibCheck": true,                                /* Skip type checking all .d.ts files. */
-    "allowImportingTsExtensions": false,
-
+    "noEmit": true,
+    "allowImportingTsExtensions": true                  /* Do not emit errors for .ts files that have no importable code. Used for when you are using bundlers like Vite. */
+    
   },
   "include": ["ts/**/*.ts"]
 }

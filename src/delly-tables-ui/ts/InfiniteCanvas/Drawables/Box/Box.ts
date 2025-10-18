@@ -1,6 +1,6 @@
-import { IDrawable } from '../IDrawable.js';
-import { Position } from '../../Shared/Position.js';
-import { PositionOnDrawable } from '../PositionOnDrawable.js';
+import { IDrawable } from '../IDrawable.ts';
+import { Position } from '../../Shared/Position.ts';
+import { PositionOnDrawable } from '../PositionOnDrawable.ts';
 
 
 export class Box implements IDrawable {

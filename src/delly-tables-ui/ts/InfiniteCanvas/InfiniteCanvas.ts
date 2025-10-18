@@ -1,11 +1,11 @@
-import { Viewport } from './Viewport/Viewport.js';
-import { Mouse } from './Mouse/Mouse.js';
-import { InputManager } from './InputManager/InputManager.js';
-import { DrawablesManager } from './DrawablesManager/DrawablesManager.js';
-import { Size } from './Shared/Size.js';
+import { Viewport } from './Viewport/Viewport.ts';
+import { Mouse } from './Mouse/Mouse.ts';
+import { InputManager } from './InputManager/InputManager.ts';
+import { DrawablesManager } from './DrawablesManager/DrawablesManager.ts';
+import { Size } from './Shared/Size.ts';
 //import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
-import { PositionOnDrawable } from './Drawables/PositionOnDrawable.js';
-import { IDrawable } from './Drawables/IDrawable.js';
+import { PositionOnDrawable } from './Drawables/PositionOnDrawable.ts';
+import { IDrawable } from './Drawables/IDrawable.ts';
 
 export class InfiniteCanvas {
     private readonly ID: string;
