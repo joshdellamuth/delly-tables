@@ -24,7 +24,6 @@ export class Box implements IDrawable {
     y2: number = null!;
 
     lastMousePosition: string = PositionOnDrawable.NotOn;
-    hoveringMousePosition: string = PositionOnDrawable.NotOn;
 
     constructor(id: string, width: number, height: number, color: string,
         xPosition: number, yPosition: number, isSelected: boolean = false) {

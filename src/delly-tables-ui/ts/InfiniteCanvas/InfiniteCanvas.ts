@@ -3,7 +3,6 @@ import { Mouse } from './Mouse/Mouse.ts';
 import { InputManager } from './InputManager/InputManager.ts';
 import { DrawablesManager } from './DrawablesManager/DrawablesManager.ts';
 import { Size } from './Shared/Size.ts';
-//import { CanvasDrawables } from './Drawables/CanvasDrawables.js';
 import { PositionOnDrawable } from './Drawables/PositionOnDrawable.ts';
 import { IDrawable } from './Drawables/IDrawable.ts';
 
@@ -14,7 +13,6 @@ export class InfiniteCanvas {
     private readonly mouse: Mouse;
     private readonly inputManager: InputManager = new InputManager();
     private readonly drawablesManager: DrawablesManager;;
-    //private readonly canvasObjects: CanvasDrawables = new CanvasDrawables();
     private size: Size = new Size(0, 0);
 
     constructor(ID: string, width: number, height: number, canvasDrawables?: IDrawable[]) {
@@ -112,9 +110,10 @@ export class InfiniteCanvas {
 
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
         if (selectedDrawable != null) {
-            let hoveringStatus = selectedDrawable.hoveringMousePosition;
-            console.log(`Hovering status: ${hoveringStatus}`);
+            let hoveringStatus = selectedDrawable.getMousePosOnDrawable(mouseGridPosition);
+            selectedDrawable.lastMousePosition = hoveringStatus; 
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
+            this.updateDebugValues();
 
             if (this.drawablesManager.isResizingShape) {
                 selectedDrawable.resize(mouseGridPosition);
@@ -174,6 +173,7 @@ export class InfiniteCanvas {
             `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +
             `| selected: '${selected?.ID ?? 'none'}.'` +
             `| dragging: '${this.drawablesManager.isDraggingShape ?? 'none'}.'` +
-            `| resizing: ${this.drawablesManager.isResizingShape} |`;
+            `| resizing: ${this.drawablesManager.isResizingShape} |` +
+            `| selectedDrawableHoveringMousePosition: ${selected?.lastMousePosition} |`;
     }
 }

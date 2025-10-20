@@ -8,7 +8,6 @@ export interface IDrawable {
 
     isSelected: boolean;
     lastMousePosition: string;
-    hoveringMousePosition: string;
 
     draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
 
