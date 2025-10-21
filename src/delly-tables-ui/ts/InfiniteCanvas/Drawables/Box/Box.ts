@@ -1,6 +1,7 @@
 import { IDrawable } from '../IDrawable.ts';
 import { Position } from '../../Shared/Position.ts';
 import { PositionOnDrawable } from '../PositionOnDrawable.ts';
+import { BoxResizing } from './BoxResizing.ts';
 
 
 export class Box implements IDrawable {
@@ -8,7 +9,7 @@ export class Box implements IDrawable {
     // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
-    padding: number = 10;
+    padding: number = 20;
     minimumWidth: number = 30;
     minimumHeight: number = 30;
     isSelected: boolean = false;
@@ -40,74 +41,42 @@ export class Box implements IDrawable {
         // Use lastMousePosition to determine HOW to resize
         switch (this.lastMousePosition) {
             case PositionOnDrawable.BottomRightCorner:
-                // Your current logic works here
-                let proposedWidth = gridPosition.x! - this.gridPosition.x!;
-                let proposedHeight = gridPosition.y! - this.gridPosition.y!;
-
-                if (proposedWidth > this.minimumWidth) {
-                    // Update width and height of the box
-                    this.width = proposedWidth;
-                }
-
-                if (proposedHeight > this.minimumHeight) {
-                    // Update width and height of the box
-                    this.height = proposedHeight;
-                }
+                BoxResizing.resizeFromBottomRightCorner(this, gridPosition);
                 break;
-                
+
             case PositionOnDrawable.TopLeftCorner:
-                // Calculate how much the corner moved
-                const newX = gridPosition.x!;
-                const newY = gridPosition.y!;
-                const oldX = this.gridPosition.x!;
-                const oldY = this.gridPosition.y!;
-                
-                // Calculate new dimensions
-                const proposedWidth2 = (oldX + this.width) - newX;
-                const proposedHeight2 = (oldY + this.height) - newY;
-                
-                // Only resize if above minimum
-                if (proposedWidth2 > this.minimumWidth) {
-                    this.gridPosition.x = newX;  // Move the anchor point
-                    this.width = proposedWidth2;
-                }
-                if (proposedHeight2 > this.minimumHeight) {
-                    this.gridPosition.y = newY;  // Move the anchor point
-                    this.height = proposedHeight2;
-                }
+                BoxResizing.resizeFromTopLeftCorner(this, gridPosition);
                 break;
-                
-            // case PositionOnDrawable.RightEdge:
-            //     this.resizeRight(gridPosition);
-            //     break;
-                
+
+            case PositionOnDrawable.TopRightCorner:
+                BoxResizing.resizeFromTopRightCorner(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.BottomLeftCorner:
+                BoxResizing.resizeFromBottomLeftCorner(this, gridPosition);
+                break;
+
+            // Edges
+            case PositionOnDrawable.RightEdge:
+                BoxResizing.resizeFromRightEdge(this, gridPosition);
+                break;
+
             case PositionOnDrawable.LeftEdge:
-                // const newX3 = gridPosition.x!;
-                // const oldX3 = this.gridPosition.x!;
-                // const proposedWidth3 = (oldX3 + this.width) - newX3;
-                
-                // if (proposedWidth3 > this.minimumWidth) {
-                //     this.gridPosition.x = newX3;
-                //     this.width = proposedWidth3;
-                // }
-                const newX3 = gridPosition.x!;
-                const oldX3 = this.gridPosition.x!;
-                const proposedWidth3 = (oldX3 + this.width) - newX3;
-            
-                if (proposedWidth3 >= this.minimumWidth) {
-                    this.gridPosition.x = newX3;
-                    this.width = proposedWidth3;
-                } else {
-                    // Clamp to minimum
-                    this.gridPosition.x = (oldX3 + this.width) - this.minimumWidth;
-                    this.width = this.minimumWidth;
-                }
+                BoxResizing.resizeFromLeftEdge(this, gridPosition);
                 break;
-                
+
+            case PositionOnDrawable.TopEdge:
+                BoxResizing.resizeFromTopEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.BottomEdge:
+                BoxResizing.resizeFromBottomEdge(this, gridPosition);
+                break;
+
         }
     }
 
-    getMousePosOnDrawable(mousePosition : Position): string {
+    getMousePosOnDrawable(mousePosition: Position): string {
         // Calculate the bounds of the box
         const x1 = this.gridPosition.x!;
         const y1 = this.gridPosition.y!;

@@ -45,6 +45,8 @@ export class DrawablesManager {
         this.drawables.forEach((drawable: IDrawable) => {
             drawable.isSelected = false;
         });
+
+        this.selectedDrawable = null;
     }
 
     startDragging(): void {

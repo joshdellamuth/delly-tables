@@ -54,7 +54,7 @@ export class InfiniteCanvas {
             );
 
             if (selected) {
-                this.mouse.setStyleMove();
+                //this.mouse.setStyleMove();
             } else {
                 this.drawablesManager.clearSelection();
             }
@@ -92,6 +92,17 @@ export class InfiniteCanvas {
 
         this.updateDebugValues();
 
+        let selectedDrawable = this.drawablesManager.selected;
+        let mouseGridPosition = this.inputManager.mouseGridPosition;
+
+        // If the shape is selected and we are resizing, do not get the new mouse position on the shape. Just keep resiziing it until mouse up. 
+        if (selectedDrawable != null && this.drawablesManager.isResizingShape) {
+            this.mouse.setStyleByHoveringStatus(selectedDrawable.lastMousePosition);
+            selectedDrawable.resize(mouseGridPosition);
+            this.render();
+            this.updateDebugValues();
+        }
+        
         if (this.drawablesManager.isDraggingShape) {
             this.drawablesManager.updateDrag(this.inputManager.mouseGridPosition);
             this.render();
@@ -105,21 +116,12 @@ export class InfiniteCanvas {
             this.viewport.pan(deltaX, deltaY);
         }
 
-        let selectedDrawable = this.drawablesManager.selected;
-        let mouseGridPosition = this.inputManager.mouseGridPosition;
-
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
-        if (selectedDrawable != null) {
+        if (selectedDrawable != null && !this.drawablesManager.isResizingShape) {
             let hoveringStatus = selectedDrawable.getMousePosOnDrawable(mouseGridPosition);
             selectedDrawable.lastMousePosition = hoveringStatus; 
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
             this.updateDebugValues();
-
-            if (this.drawablesManager.isResizingShape) {
-                selectedDrawable.resize(mouseGridPosition);
-                this.render();
-                this.updateDebugValues();
-            }
         }
 
         this.render();
@@ -135,8 +137,7 @@ export class InfiniteCanvas {
     }
 
     private handleMouseLeave(): void {
-        this.inputManager.stopPanning();
-        this.drawablesManager.stopDragging();
+        // Continue dragging even when the user's mouse leaves the canvas. 
         this.updateDebugValues();
     }
 
