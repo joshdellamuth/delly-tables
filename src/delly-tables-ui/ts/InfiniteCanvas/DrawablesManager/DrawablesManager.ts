@@ -22,8 +22,6 @@ export class DrawablesManager {
     get isResizingShape(): boolean { return this.isResizing; }
 
 
-
-
     selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
         this.selectedDrawable = drawable;
 
@@ -95,7 +93,7 @@ export class DrawablesManager {
                 canvas, viewport.panX, viewport.panY, viewport.scale);
 
             drawable.updateScreenPosition(screenPosition);
-            drawable.draw(ctx, viewport.panX, viewport.panY);
+            drawable.draw(ctx);
         });
     }
 

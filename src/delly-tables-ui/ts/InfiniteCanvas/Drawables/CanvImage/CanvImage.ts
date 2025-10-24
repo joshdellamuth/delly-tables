@@ -1,10 +1,9 @@
 import { IDrawable } from '../IDrawable.ts';
 import { Position } from '../../Shared/Position.ts';
 import { PositionOnDrawable } from '../PositionOnDrawable.ts';
-import { BoxResizing } from './BoxResizing.ts';
+import { CanvImageResizing } from './CanvImageResizing.ts';
 
-
-export class Box implements IDrawable {
+export class CanvImage implements IDrawable {
     ID: string;
     // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
@@ -14,10 +13,11 @@ export class Box implements IDrawable {
     minimumHeight: number = 30;
     isSelected: boolean = false;
 
+    src: string;
+
     // properties just in the Box class
     public width: number;
     public height: number;
-    public color: string;
 
     x1: number = null!;
     y1: number = null!;
@@ -26,53 +26,34 @@ export class Box implements IDrawable {
 
     lastMousePosition: string = PositionOnDrawable.NotOn;
 
-    constructor(id: string, width: number, height: number, color: string,
+    constructor(id: string, src: string, width: number, height: number,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
         this.ID = id;
+        this.src = src;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
         this.width = width;
         this.height = height;
-        this.color = color;
         this.isSelected = isSelected;
     }
 
-    resize(gridPosition: Position): void {
-        // Use lastMousePosition to determine HOW to resize
-        switch (this.lastMousePosition) {
-            case PositionOnDrawable.BottomRightCorner:
-                BoxResizing.resizeFromBottomRightCorner(this, gridPosition);
-                break;
+    draw(context: CanvasRenderingContext2D): void {
+        if (this.gridPosition.x === null || this.gridPosition.y === null) return;
 
-            case PositionOnDrawable.TopLeftCorner:
-                BoxResizing.resizeFromTopLeftCorner(this, gridPosition);
-                break;
+        var image = new Image();
+        image.src = this.src;
 
-            case PositionOnDrawable.TopRightCorner:
-                BoxResizing.resizeFromTopRightCorner(this, gridPosition);
-                break;
+        context.drawImage(image, this.gridPosition.x, this.gridPosition.y, this.width, this.height);
 
-            case PositionOnDrawable.BottomLeftCorner:
-                BoxResizing.resizeFromBottomLeftCorner(this, gridPosition);
-                break;
+        let rounding = 8;
 
-            // Edges
-            case PositionOnDrawable.RightEdge:
-                BoxResizing.resizeFromRightEdge(this, gridPosition);
-                break;
+        if (this.isSelected) {
+            this.x1 = this.gridPosition.x;
+            this.y1 = this.gridPosition.y;
+            this.x2 = this.gridPosition.x + this.width;
+            this.y2 = this.gridPosition.y + this.height;
 
-            case PositionOnDrawable.LeftEdge:
-                BoxResizing.resizeFromLeftEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopEdge:
-                BoxResizing.resizeFromTopEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.BottomEdge:
-                BoxResizing.resizeFromBottomEdge(this, gridPosition);
-                break;
-
+            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2);
         }
     }
 
@@ -142,51 +123,71 @@ export class Box implements IDrawable {
         return PositionOnDrawable.Inside;
     }
 
-    draw(context: CanvasRenderingContext2D): void {
-        // There is currently an error with rounding, so making it 0 for now.
-        let rounding = 8;
+    updateScreenPosition(screenPosition: Position): void {
+        this.screenPosition.x = screenPosition.x;
+        this.screenPosition.y = screenPosition.y;
+    }
+    resize(gridPosition: Position): void {
+        // Use lastMousePosition to determine HOW to resize
+        switch (this.lastMousePosition) {
+            case PositionOnDrawable.BottomRightCorner:
+                CanvImageResizing.resizeFromBottomRightCorner(this, gridPosition);
+                break;
 
-        this.x1 = this.gridPosition.x!;
-        this.y1 = this.gridPosition.y!;
-        this.x2 = this.gridPosition.x! + this.width;
-        this.y2 = this.gridPosition.y! + this.height;
+            case PositionOnDrawable.TopLeftCorner:
+                CanvImageResizing.resizeFromTopLeftCorner(this, gridPosition);
+                break;
 
-        context.fillStyle = this.color;
-        context.beginPath();
-        // go to the starting point
-        context.moveTo(this.x1, this.y1);
-        context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
-        context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
-        context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
-        context.arcTo(this.x1, this.y1, this.x2, this.y1, rounding);
-        context.closePath();
-        context.fill();
+            case PositionOnDrawable.TopRightCorner:
+                CanvImageResizing.resizeFromTopRightCorner(this, gridPosition);
+                break;
 
-        if (this.isSelected) {
-            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
+            case PositionOnDrawable.BottomLeftCorner:
+                CanvImageResizing.resizeFromBottomLeftCorner(this, gridPosition);
+                break;
+
+            // Edges
+            case PositionOnDrawable.RightEdge:
+                CanvImageResizing.resizeFromRightEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.LeftEdge:
+                CanvImageResizing.resizeFromLeftEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.TopEdge:
+                CanvImageResizing.resizeFromTopEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.BottomEdge:
+                CanvImageResizing.resizeFromBottomEdge(this, gridPosition);
+                break;
+
         }
     }
 
-    drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {
-        context.save(); // Save current state
+    drawSelectionOutline(
+        context: CanvasRenderingContext2D,
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+    ): void {
+        context.save();
         context.strokeStyle = "skyblue";
         context.lineWidth = 3;
-
-        context.setLineDash([14, 8]); // 14px dash, 8px gap
+        context.setLineDash([14, 8]);
 
         context.beginPath();
-
-        context.moveTo(x1 + this.width / 2, y1); // Start at the middle of the top of the box
-        context.arcTo(x2, y1, x2, y2, rounding);
-        context.arcTo(x2, y2, x1, y2, rounding);
-        context.arcTo(x1, y2, x1, y1, rounding);
-        context.arcTo(x1, y1, x2, y1, rounding);
-        context.closePath();
+        context.moveTo(x1, y1);       // Top-left
+        context.lineTo(x2, y1);       // Top-right
+        context.lineTo(x2, y2);       // Bottom-right
+        context.lineTo(x1, y2);       // Bottom-left
+        context.closePath();          // Back to top-left
         context.stroke();
 
         type Point = [number, number];
 
-        // Corner points
         const corners: Point[] = [
             [x1, y1],
             [x2, y1],
@@ -194,31 +195,22 @@ export class Box implements IDrawable {
             [x1, y2]
         ];
 
-        // Midpoints
         const midpoints: Point[] = [
-            [(x1 + x2) / 2, y1], // Top center
-            [x2, (y1 + y2) / 2], // Right center
-            [(x1 + x2) / 2, y2], // Bottom center
-            [x1, (y1 + y2) / 2]  // Left center
+            [(x1 + x2) / 2, y1],
+            [x2, (y1 + y2) / 2],
+            [(x1 + x2) / 2, y2],
+            [x1, (y1 + y2) / 2]
         ];
 
-        // Combine the corners list and midpoints list that was calucated. 
         const markerPoints = [...corners, ...midpoints];
 
-        // Draw all markers as small squares
         markerPoints.forEach(([cx, cy]: Point) => {
             context.beginPath();
-            context.arc(cx, cy, 4, 0, Math.PI * 2); // Full circle
+            context.arc(cx, cy, 4, 0, Math.PI * 2);
             context.fillStyle = "skyblue";
             context.fill();
         });
 
-        // Sets the canvas settings back to when context.save() was called.
         context.restore();
-    }
-
-    updateScreenPosition(screenPosition: Position): void {
-        this.screenPosition.x = screenPosition.x;
-        this.screenPosition.y = screenPosition.y;
     }
 }

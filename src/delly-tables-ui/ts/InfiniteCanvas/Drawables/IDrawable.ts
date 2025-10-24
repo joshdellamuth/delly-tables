@@ -9,7 +9,7 @@ export interface IDrawable {
     isSelected: boolean;
     lastMousePosition: string;
 
-    draw(context: CanvasRenderingContext2D, xOffset: number, yOffset: number): void;
+    draw(context: CanvasRenderingContext2D): void;
 
     getMousePosOnDrawable(mousePosition: Position): string;
 
