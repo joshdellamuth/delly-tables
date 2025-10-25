@@ -29,7 +29,7 @@ export class InfiniteCanvas {
 
         this.setupEventListeners();
         this.render();
-        this.updateDebugValues();1
+        this.updateDebugValues();
     }
 
     private render(): void {

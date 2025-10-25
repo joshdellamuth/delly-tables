@@ -37,6 +37,31 @@ export class Box implements IDrawable {
         this.isSelected = isSelected;
     }
 
+    draw(context: CanvasRenderingContext2D): void {
+        // There is currently an error with rounding, so making it 0 for now.
+        let rounding = 8;
+
+        this.x1 = this.gridPosition.x!;
+        this.y1 = this.gridPosition.y!;
+        this.x2 = this.gridPosition.x! + this.width;
+        this.y2 = this.gridPosition.y! + this.height;
+
+        context.fillStyle = this.color;
+        context.beginPath();
+        // go to the starting point
+        context.moveTo(this.x1, this.y1);
+        context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
+        context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
+        context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
+        context.arcTo(this.x1, this.y1, this.x2, this.y1, rounding);
+        context.closePath();
+        context.fill();
+
+        if (this.isSelected) {
+            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
+        }
+    }
+
     resize(gridPosition: Position): void {
         // Use lastMousePosition to determine HOW to resize
         switch (this.lastMousePosition) {
@@ -140,31 +165,6 @@ export class Box implements IDrawable {
         // Mouse is inside the box but not near any edge
         this.lastMousePosition = PositionOnDrawable.Inside;
         return PositionOnDrawable.Inside;
-    }
-
-    draw(context: CanvasRenderingContext2D): void {
-        // There is currently an error with rounding, so making it 0 for now.
-        let rounding = 8;
-
-        this.x1 = this.gridPosition.x!;
-        this.y1 = this.gridPosition.y!;
-        this.x2 = this.gridPosition.x! + this.width;
-        this.y2 = this.gridPosition.y! + this.height;
-
-        context.fillStyle = this.color;
-        context.beginPath();
-        // go to the starting point
-        context.moveTo(this.x1, this.y1);
-        context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
-        context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
-        context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
-        context.arcTo(this.x1, this.y1, this.x2, this.y1, rounding);
-        context.closePath();
-        context.fill();
-
-        if (this.isSelected) {
-            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
-        }
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {
