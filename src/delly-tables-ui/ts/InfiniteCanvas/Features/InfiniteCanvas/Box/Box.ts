@@ -41,7 +41,7 @@ export class Box extends RectangularDrawable implements IDrawable {
         context.fill();
 
         if (this.isSelected) {
-            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
+            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
         }
     }
 }

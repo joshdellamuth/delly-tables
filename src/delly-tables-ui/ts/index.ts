@@ -41,7 +41,7 @@ drawables.push(box3);
 const box4: Box = new Box('orange-box-1', 100, 300, '#ecaf2aff', 600, -300);
 drawables.push(box4);
 
-const image1: CanvImage = new CanvImage('radnom-image-1', 'https://picsum.photos/500/300', 500, 300, 0, 0);
+const image1: CanvImage = new CanvImage('radnom-image-1', 'images/delly-tables-logo.png', 500, 300, 0, 0);
 drawables.push(image1);
 
 // #endregion Add shapes to canvas
