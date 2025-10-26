@@ -1,6 +1,6 @@
-import { Box } from './InfiniteCanvas/Drawables/Box/Box';
-import { CanvImage } from './InfiniteCanvas/Drawables/CanvImage/CanvImage';
-import { IDrawable } from './InfiniteCanvas/Drawables/IDrawable';
+import { Box } from './InfiniteCanvas/Features/InfiniteCanvas/Box/Box';
+import { CanvImage } from './InfiniteCanvas/Features/InfiniteCanvas/CanvImage/CanvImage';
+import { IDrawable } from './InfiniteCanvas/Features/Base/Drawable/IDrawable';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas';
 
 // Get the correct URL based on the hostname 

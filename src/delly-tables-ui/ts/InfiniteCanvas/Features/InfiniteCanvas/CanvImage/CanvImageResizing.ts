@@ -1,5 +1,5 @@
 import { CanvImage } from './CanvImage.ts';
-import { Position } from '.././../Shared/Position.ts';
+import { Position } from '../../../Shared/Position.ts';
 
 export class CanvImageResizing {
     public static resizeFromBottomRightCorner(image: CanvImage, gridPosition: Position): void {

@@ -1,5 +1,5 @@
-import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.ts';
-import { IDrawable } from '../Drawables/IDrawable.ts';
+import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
+import { IDrawable } from '../Features/Base/Drawable/IDrawable.ts';
 import { Viewport } from '../Viewport/Viewport.ts';
 import { Position } from '../Shared/Position.ts';
 

@@ -1,104 +1,35 @@
-import { IDrawable } from '../IDrawable.ts';
-import { Position } from '../../Shared/Position.ts';
-import { PositionOnDrawable } from '../PositionOnDrawable.ts';
-import { BoxResizing } from './BoxResizing.ts';
+import { Position } from "../../../../Shared/Position";
+import { IDrawable } from "../IDrawable";
+import { PositionOnDrawable } from "../../../../Shared/PositionOnDrawable";
+import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
 
-
-export class Box implements IDrawable {
+export abstract class RectangularDrawable implements IDrawable {
     ID: string;
-    // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
-    padding: number = 20;
+    width: number;
+    height: number;
     minimumWidth: number = 30;
     minimumHeight: number = 30;
-    isSelected: boolean = false;
-
-    // properties just in the Box class
-    public width: number;
-    public height: number;
-    public color: string;
-
-    x1: number = null!;
-    y1: number = null!;
-    x2: number = null!;
-    y2: number = null!;
+    isSelected: boolean;
+    padding: number = 20;
+    rounding: number = 0;
 
     lastMousePosition: string = PositionOnDrawable.NotOn;
 
-    constructor(id: string, width: number, height: number, color: string,
+    constructor(id: string, width: number, height: number,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
         this.ID = id;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
         this.width = width;
         this.height = height;
-        this.color = color;
         this.isSelected = isSelected;
     }
 
+    // Overrid-able method for rectangluar drawables 
     draw(context: CanvasRenderingContext2D): void {
-        // There is currently an error with rounding, so making it 0 for now.
-        let rounding = 8;
-
-        this.x1 = this.gridPosition.x!;
-        this.y1 = this.gridPosition.y!;
-        this.x2 = this.gridPosition.x! + this.width;
-        this.y2 = this.gridPosition.y! + this.height;
-
-        context.fillStyle = this.color;
-        context.beginPath();
-        // go to the starting point
-        context.moveTo(this.x1, this.y1);
-        context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
-        context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
-        context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
-        context.arcTo(this.x1, this.y1, this.x2, this.y1, rounding);
-        context.closePath();
-        context.fill();
-
-        if (this.isSelected) {
-            this.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
-        }
-    }
-
-    resize(gridPosition: Position): void {
-        // Use lastMousePosition to determine HOW to resize
-        switch (this.lastMousePosition) {
-            case PositionOnDrawable.BottomRightCorner:
-                BoxResizing.resizeFromBottomRightCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopLeftCorner:
-                BoxResizing.resizeFromTopLeftCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopRightCorner:
-                BoxResizing.resizeFromTopRightCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.BottomLeftCorner:
-                BoxResizing.resizeFromBottomLeftCorner(this, gridPosition);
-                break;
-
-            // Edges
-            case PositionOnDrawable.RightEdge:
-                BoxResizing.resizeFromRightEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.LeftEdge:
-                BoxResizing.resizeFromLeftEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopEdge:
-                BoxResizing.resizeFromTopEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.BottomEdge:
-                BoxResizing.resizeFromBottomEdge(this, gridPosition);
-                break;
-
-        }
+        throw new Error("Method not implemented.");
     }
 
     getMousePosOnDrawable(mousePosition: Position): string {
@@ -167,6 +98,49 @@ export class Box implements IDrawable {
         return PositionOnDrawable.Inside;
     }
 
+    updateScreenPosition(screenPosition: Position): void {
+        this.screenPosition.x = screenPosition.x;
+        this.screenPosition.y = screenPosition.y;
+    }
+
+    resize(gridPosition: Position): void {
+        // Use lastMousePosition to determine HOW to resize
+        switch (this.lastMousePosition) {
+            case PositionOnDrawable.BottomRightCorner:
+                RectangularDrawableResizing.resizeFromBottomRightCorner(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.TopLeftCorner:
+                RectangularDrawableResizing.resizeFromTopLeftCorner(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.TopRightCorner:
+                RectangularDrawableResizing.resizeFromTopRightCorner(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.BottomLeftCorner:
+                RectangularDrawableResizing.resizeFromBottomLeftCorner(this, gridPosition);
+                break;
+
+            // Edges
+            case PositionOnDrawable.RightEdge:
+                RectangularDrawableResizing.resizeFromRightEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.LeftEdge:
+                RectangularDrawableResizing.resizeFromLeftEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.TopEdge:
+                RectangularDrawableResizing.resizeFromTopEdge(this, gridPosition);
+                break;
+
+            case PositionOnDrawable.BottomEdge:
+                RectangularDrawableResizing.resizeFromBottomEdge(this, gridPosition);
+                break;
+        }
+    }
+
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {
         context.save(); // Save current state
         context.strokeStyle = "skyblue";
@@ -215,10 +189,5 @@ export class Box implements IDrawable {
 
         // Sets the canvas settings back to when context.save() was called.
         context.restore();
-    }
-
-    updateScreenPosition(screenPosition: Position): void {
-        this.screenPosition.x = screenPosition.x;
-        this.screenPosition.y = screenPosition.y;
     }
 }

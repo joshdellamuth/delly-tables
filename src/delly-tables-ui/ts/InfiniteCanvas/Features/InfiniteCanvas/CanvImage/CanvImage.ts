@@ -1,10 +1,9 @@
-import { IDrawable } from '../IDrawable.ts';
-import { Position } from '../../Shared/Position.ts';
-import { PositionOnDrawable } from '../PositionOnDrawable.ts';
-import { CanvImageResizing } from './CanvImageResizing.ts';
+import { IDrawable } from '../../Base/Drawable/IDrawable.ts';
+import { Position } from '../../../Shared/Position.ts';
+import { PositionOnDrawable } from '../../../Shared/PositionOnDrawable.ts';
+import { RectangularDrawable } from '../../Base/Drawable/RectangularDrawable/RectangularDrawable.ts';
 
-export class CanvImage implements IDrawable {
-    ID: string;
+export class CanvImage extends RectangularDrawable implements IDrawable {
     // properties enforced by the interface
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
@@ -12,12 +11,9 @@ export class CanvImage implements IDrawable {
     minimumWidth: number = 30;
     minimumHeight: number = 30;
     isSelected: boolean = false;
+    rounding: number = 0;
 
     src: string;
-
-    // properties just in the Box class
-    public width: number;
-    public height: number;
 
     x1: number = null!;
     y1: number = null!;
@@ -28,24 +24,19 @@ export class CanvImage implements IDrawable {
 
     constructor(id: string, src: string, width: number, height: number,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
-        this.ID = id;
+
+        super(id, width, height, xPosition, yPosition, isSelected);
+
         this.src = src;
-        this.gridPosition.x = xPosition;
-        this.gridPosition.y = yPosition;
-        this.width = width;
-        this.height = height;
-        this.isSelected = isSelected;
     }
 
-    draw(context: CanvasRenderingContext2D): void {
+    override draw(context: CanvasRenderingContext2D): void {
         if (this.gridPosition.x === null || this.gridPosition.y === null) return;
 
         var image = new Image();
         image.src = this.src;
 
         context.drawImage(image, this.gridPosition.x, this.gridPosition.y, this.width, this.height);
-
-        let rounding = 8;
 
         if (this.isSelected) {
             this.x1 = this.gridPosition.x;
@@ -121,49 +112,6 @@ export class CanvImage implements IDrawable {
         // Mouse is inside the box but not near any edge
         this.lastMousePosition = PositionOnDrawable.Inside;
         return PositionOnDrawable.Inside;
-    }
-
-    updateScreenPosition(screenPosition: Position): void {
-        this.screenPosition.x = screenPosition.x;
-        this.screenPosition.y = screenPosition.y;
-    }
-    resize(gridPosition: Position): void {
-        // Use lastMousePosition to determine HOW to resize
-        switch (this.lastMousePosition) {
-            case PositionOnDrawable.BottomRightCorner:
-                CanvImageResizing.resizeFromBottomRightCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopLeftCorner:
-                CanvImageResizing.resizeFromTopLeftCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopRightCorner:
-                CanvImageResizing.resizeFromTopRightCorner(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.BottomLeftCorner:
-                CanvImageResizing.resizeFromBottomLeftCorner(this, gridPosition);
-                break;
-
-            // Edges
-            case PositionOnDrawable.RightEdge:
-                CanvImageResizing.resizeFromRightEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.LeftEdge:
-                CanvImageResizing.resizeFromLeftEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.TopEdge:
-                CanvImageResizing.resizeFromTopEdge(this, gridPosition);
-                break;
-
-            case PositionOnDrawable.BottomEdge:
-                CanvImageResizing.resizeFromBottomEdge(this, gridPosition);
-                break;
-
-        }
     }
 
     drawSelectionOutline(

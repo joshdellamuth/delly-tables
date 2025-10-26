@@ -1,4 +1,4 @@
-import { PositionOnDrawable } from '../Drawables/PositionOnDrawable.ts';
+import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
 
 
 export class Mouse {

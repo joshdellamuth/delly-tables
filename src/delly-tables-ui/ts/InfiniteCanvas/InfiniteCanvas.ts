@@ -3,8 +3,8 @@ import { Mouse } from './Mouse/Mouse.ts';
 import { InputManager } from './InputManager/InputManager.ts';
 import { DrawablesManager } from './DrawablesManager/DrawablesManager.ts';
 import { Size } from './Shared/Size.ts';
-import { PositionOnDrawable } from './Drawables/PositionOnDrawable.ts';
-import { IDrawable } from './Drawables/IDrawable.ts';
+import { PositionOnDrawable } from './Shared/PositionOnDrawable.ts';
+import { IDrawable } from './Features/Base/Drawable/IDrawable.ts';
 
 export class InfiniteCanvas {
     private readonly ID: string;
