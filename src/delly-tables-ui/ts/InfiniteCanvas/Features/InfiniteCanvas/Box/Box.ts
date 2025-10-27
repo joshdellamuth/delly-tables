@@ -1,8 +1,10 @@
 import { IDrawable } from '../../Base/Drawable/IDrawable.ts';
-import { PositionOnDrawable } from '../../../Shared/PositionOnDrawable.ts';
 import { RectangularDrawable } from '../../Base/Drawable/RectangularDrawable/RectangularDrawable.ts';
 
-export class Box extends RectangularDrawable implements IDrawable {
+export class Box 
+    extends RectangularDrawable 
+    implements IDrawable {
+    
     // properties just in the Box class
     public color: string;
 
@@ -10,8 +12,6 @@ export class Box extends RectangularDrawable implements IDrawable {
     y1: number = null!;
     x2: number = null!;
     y2: number = null!;
-
-    lastMousePosition: string = PositionOnDrawable.NotOn;
 
     constructor(id: string, width: number, height: number, color: string,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
@@ -23,6 +23,8 @@ export class Box extends RectangularDrawable implements IDrawable {
     override draw(context: CanvasRenderingContext2D): void {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 8;
+
+        console.log('Trying to draw box at ' + this.gridPosition.x + ', ' + this.gridPosition.y);
 
         this.x1 = this.gridPosition.x!;
         this.y1 = this.gridPosition.y!;

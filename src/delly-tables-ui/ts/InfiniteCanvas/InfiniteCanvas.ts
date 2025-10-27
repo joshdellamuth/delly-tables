@@ -6,6 +6,8 @@ import { Size } from './Shared/Size.ts';
 import { PositionOnDrawable } from './Shared/PositionOnDrawable.ts';
 import { IDrawable } from './Features/Base/Drawable/IDrawable.ts';
 
+// When the mouse is moved on the canvas, the image, redraws but it is not initially loaded. 
+
 export class InfiniteCanvas {
     private readonly ID: string;
     private readonly canvas: HTMLCanvasElement;
