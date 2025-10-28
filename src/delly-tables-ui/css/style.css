@@ -128,3 +128,24 @@ body {
     fill: black;
     overflow: visible;
 }
+
+.side-panel {
+  position: fixed;
+  right: 0;  /* ← Changed from 300px to 0 */
+  top: 0;
+  width: 400px;
+  height: 100%;
+  background: #f3f3f3;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.side-panel.hidden {
+  /* The padding plus the width of the side panel. */
+  right: -440px; 
+}
+
+.panel-title-text {
+    color: rgb(63, 63, 63);
+}

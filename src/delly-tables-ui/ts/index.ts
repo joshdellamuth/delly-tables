@@ -62,39 +62,46 @@ const exportButton: HTMLElement | null = document.getElementById("export-button"
 const helpButton: HTMLElement | null = document.getElementById("help-button");
 const logoText: HTMLElement | null = document.getElementById("logo-text");
 const logoImage: HTMLElement | null = document.getElementById("logo-image");
+const myObjectButton: HTMLElement | null = document.getElementById("my-objects-button");
+const myObjectsPanel: HTMLElement | null = document.getElementById("my-objects-panel");
 
 // Initially set to uncollapsed
-let collapsed: boolean = true;
+let topMenuCollapsed: boolean = true;
+let myObjectsPanelCollapsed: boolean = true;
 
 // initially toggle the menu
-updateMenuVisibility(collapsed);
+updateMenuVisibility(topMenuCollapsed);
 
 adminPageButton?.addEventListener("click", () => {
-    console.log("Admin page button clicked.")
     goToAdmin();
 }
 );
 
 uncollapseButton?.addEventListener("click", () => {
-    console.log("Uncollapse button clicked.")
     showCollapsedMenu();
 }
 );
 
 collapseButton?.addEventListener("click", () => {
-    console.log("Collapse button clicked.")
     showUncollapsedMenu();
+}
+);
+
+// Initially set the sidebar to open or not
+toggleMyObjectsPanel();
+
+myObjectButton?.addEventListener("click", () => {
+    myObjectsPanelCollapsed = !myObjectsPanelCollapsed;
+    toggleMyObjectsPanel();
 }
 );
 
 
 function updateMenuVisibility(collapsed: boolean): void {
     if (collapsed) {
-        console.log("Collapsed");
         showCollapsedMenu();
     }
     else {
-        console.log("Uncollapsed");
         showUncollapsedMenu();
     }
 }
@@ -110,7 +117,7 @@ function showUncollapsedMenu(): void {
     logoText?.classList.add("invisible");
     logoImage?.classList.remove("invisible");
 
-    collapsed = false;
+    topMenuCollapsed = false;
 }
 
 function showCollapsedMenu(): void {
@@ -123,8 +130,18 @@ function showCollapsedMenu(): void {
     logoText?.classList.remove("invisible");
     logoImage?.classList.add("invisible");
 
-    collapsed = true;
+    topMenuCollapsed = true;
 }
+
+function toggleMyObjectsPanel(): void {
+    if (myObjectsPanelCollapsed) {
+        myObjectsPanel?.classList.add("hidden");
+    }
+    else {
+        myObjectsPanel?.classList.remove("hidden");
+    }
+}
+
 
 // #endregion Collapse button logic
 
