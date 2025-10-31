@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Delly Tables</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="bootstrap/dist/css/bootstrap.min.css">
 
     <link rel="icon" href="/favicons/favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
@@ -105,8 +106,74 @@
     </div>
 
     <div id="my-objects-panel" class="side-panel">
-        <h1 class="panel-title-text">My Objects</h2>
-        <div id="my-objects"></div>
+        <h1 class="panel-title-text"><u>My Objects</u></h2>
+            <div class="accordion" id="myAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                            Pet
+                        </button>
+                    </h2>
+                    <div id="collapseOne" class="accordion-collapse collapsed" aria-labelledby="headingOne"
+                        data-bs-parent="#myAccordion">
+                        <div class="accordion-body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td><i class="bi bi-type"></i></td>
+                                        <td>Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-calendar"></i></td>
+                                        <td>Birthday</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-image"></i></td>
+                                        <td>Picture</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-arrows-angle-contract"></i></td>
+                                        <td>Owner</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Owner
+                        </button>
+                    </h2>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
+                        data-bs-parent="#myAccordion">
+                        <div class="accordion-body">
+                            <table class="table">
+                                <tbody>
+                                    <tr>
+                                        <td><i class="bi bi-type"></i></td>
+                                        <td>Name</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-123"></i></td>
+                                        <td>Age</td>
+                                    </tr>
+                                    <tr>
+                                        <td><i class="bi bi-arrows-angle-contract"></i></td>
+                                        <td>Pet(s)</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="my-objects"></div>
     </div>
 
     <!-- #endregion -->

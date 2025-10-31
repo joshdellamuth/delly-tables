@@ -2,6 +2,9 @@ import { Box } from './InfiniteCanvas/Features/InfiniteCanvas/Box/Box';
 import { CanvImage } from './InfiniteCanvas/Features/InfiniteCanvas/CanvImage/CanvImage';
 import { IDrawable } from './InfiniteCanvas/Features/Base/Drawable/IDrawable';
 import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
 // Get the correct URL based on the hostname 
 function getBaseURL(): string {
