@@ -29,7 +29,7 @@
 .collapse-icon{
     width: 1.2em;
     height: 1.2em;
-    padding: .1em;
+    padding: .05em;
     fill: black;
     overflow: visible;
 }
@@ -49,9 +49,9 @@ body {
 }
 
 #logo-image{
-    width: 1.5em;
-    height: 1.5em;
-    padding: .5em;
+    width: 2.3em;
+    height: 2.3em;
+    padding: .2em;
     transform: rotate(90deg);
 }
 
@@ -122,11 +122,7 @@ body {
 }
 
 .toolbar-icon{
-    width: 2em;
-    height: 2em;
     padding: .1em;
-    fill: black;
-    overflow: visible;
 }
 
 .side-panel {

@@ -70,7 +70,7 @@ const myObjectsPanel: HTMLElement | null = document.getElementById("my-objects-p
 
 // Initially set to uncollapsed
 let topMenuCollapsed: boolean = true;
-let myObjectsPanelCollapsed: boolean = true;
+let myObjectsPanelCollapsed: boolean = false;
 
 // initially toggle the menu
 updateMenuVisibility(topMenuCollapsed);

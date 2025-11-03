@@ -2,6 +2,7 @@ import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
 import { IDrawable } from '../Features/Base/Drawable/IDrawable.ts';
 import { Viewport } from '../Viewport/Viewport.ts';
 import { Position } from '../Shared/Position.ts';
+import { Box } from '../Features/InfiniteCanvas/Box/Box.ts';
 
 export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;
@@ -99,6 +100,15 @@ export class DrawablesManager {
 
     clear(width: number, height: number): void {
         this.ctx.clearRect(0, 0, width, height);
+    }
+
+    addDrawable(mouseGridPos: Position): void {
+        const boxSize = 200;
+        const sizeOffset = 200 / 2;
+        let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
+        createdDrawable.isSelected = true;
+        this.selectedDrawable = createdDrawable;
+        this.drawables.push(createdDrawable);
     }
 
     render(viewport: Viewport, canvas: HTMLCanvasElement): void {

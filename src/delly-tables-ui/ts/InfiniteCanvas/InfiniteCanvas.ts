@@ -47,6 +47,21 @@ export class InfiniteCanvas {
         this.canvas.addEventListener('mouseup', this.handleMouseUp.bind(this));
         this.canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
         this.canvas.addEventListener('wheel', this.handleWheel.bind(this));
+        this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+    }
+
+    private handleDoubleClick(e: MouseEvent): void {
+        this.drawablesManager.clearSelection();
+        const onObject = this.drawablesManager.trySelectAt(this.inputManager.mouseGridPosition);
+
+        if (onObject) {
+            return;
+        }
+
+        this.drawablesManager.addDrawable(this.inputManager.mouseGridPosition);
+        
+        this.render();
+        this.updateDebugValues();
     }
 
     private handleMouseDown(e: MouseEvent): void {
