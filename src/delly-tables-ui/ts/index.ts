@@ -1,7 +1,7 @@
-import { Box } from './InfiniteCanvas/Features/InfiniteCanvas/Box/Box';
-import { CanvImage } from './InfiniteCanvas/Features/InfiniteCanvas/CanvImage/CanvImage';
-import { IDrawable } from './InfiniteCanvas/Features/Base/Drawable/IDrawable';
-import { InfiniteCanvas } from './InfiniteCanvas/InfiniteCanvas';
+import { Box } from './Features/Canvas/Drawables/Box/Box';
+import { CanvImage } from './Features/Canvas/Drawables/CanvImage/CanvImage';
+import { IDrawable } from './Features/Canvas/Drawables/IDrawable';
+import { Canvas } from './Features/Canvas/Canvas';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -145,16 +145,14 @@ function toggleMyObjectsPanel(): void {
     }
 }
 
-
 // #endregion Collapse button logic
-
 
 // calculate the width and height of the screen
 const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;
 
 // create the canvas
-const infiniteCanvas: InfiniteCanvas = new InfiniteCanvas('canvas', canvasWidth, canvasHeight, drawables);
+const infiniteCanvas: Canvas = new Canvas('canvas', canvasWidth, canvasHeight, drawables);
 
 // make the canvas size the same as the window
 window.addEventListener('resize', () => {

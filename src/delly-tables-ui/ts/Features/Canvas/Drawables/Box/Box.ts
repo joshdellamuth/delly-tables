@@ -1,5 +1,5 @@
-import { IDrawable } from '../../Base/Drawable/IDrawable.ts';
-import { RectangularDrawable } from '../../Base/Drawable/RectangularDrawable/RectangularDrawable.ts';
+import { IDrawable } from '../IDrawable.ts';
+import { RectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
 
 export class Box 
     extends RectangularDrawable 

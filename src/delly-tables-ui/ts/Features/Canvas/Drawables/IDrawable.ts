@@ -1,5 +1,5 @@
-import { Position } from '../../../Shared/Position';
-import { ICanvObject } from "../CanvObject/ICanvObject";
+import { Position } from '../Shared/Position';
+import { ICanvObject } from "../Base/CanvObject/ICanvObject";
 
 export interface IDrawable extends ICanvObject {
     // Properties

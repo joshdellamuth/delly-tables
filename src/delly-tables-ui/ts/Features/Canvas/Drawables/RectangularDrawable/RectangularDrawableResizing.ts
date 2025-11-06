@@ -1,4 +1,4 @@
-import { Position } from '../../../../Shared/Position.ts';
+import { Position } from '../../Shared/Position.ts';
 import { IRectangularDrawable } from './IRectangularDrawable.ts';
 
 export class RectangularDrawableResizing {

@@ -1,8 +1,8 @@
-import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
-import { IDrawable } from '../Features/Base/Drawable/IDrawable.ts';
-import { Viewport } from '../Viewport/Viewport.ts';
-import { Position } from '../Shared/Position.ts';
-import { Box } from '../Features/InfiniteCanvas/Box/Box.ts';
+import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
+import { IDrawable } from '../IDrawable.ts';
+import { ViewportActions } from '../../InputManager/ViewportActions/ViewportActions.ts';
+import { Position } from '../../Shared/Position.ts';
+import { Box } from '../Box/Box.ts';
 
 export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;
@@ -23,7 +23,7 @@ export class DrawablesManager {
     get isResizingShape(): boolean { return this.isResizing; }
 
 
-    selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
+    public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
         this.selectedDrawable = drawable;
 
         drawable.isSelected = true;
@@ -32,7 +32,7 @@ export class DrawablesManager {
         this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
     }
 
-    updateDrag(mouseGridPos: Position): void {
+    public updateDrag(mouseGridPos: Position): void {
         if (this.isDragging && this.selectedDrawable &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
             this.selectedDrawable.gridPosition.x = mouseGridPos.x - this.dragOffset.x!;
@@ -40,7 +40,7 @@ export class DrawablesManager {
         }
     }
 
-    clearSelection(): void {
+    public clearSelection(): void {
         this.drawables.forEach((drawable: IDrawable) => {
             drawable.isSelected = false;
         });
@@ -48,25 +48,25 @@ export class DrawablesManager {
         this.selectedDrawable = null;
     }
 
-    startDragging(): void {
+    public startDragging(): void {
         this.isDragging = true;
         this.isResizing = false;
     }
 
-    stopDragging(): void {
+    public stopDragging(): void {
         this.isDragging = false;
     }
 
-    startResizing(): void {
+    public startResizing(): void {
         this.isResizing = true;
         this.isDragging = false;
     }
 
-    stopResizing(): void {
+    public stopResizing(): void {
         this.isResizing = false;
     }
 
-    updateResizing(mouseGridPos: Position): void {
+    public updateResizing(mouseGridPos: Position): void {
         if (this.isDragging && this.selectedDrawable &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
             this.selectedDrawable.gridPosition.x = mouseGridPos.x - this.dragOffset.x!;
@@ -74,7 +74,7 @@ export class DrawablesManager {
         }
     }
 
-    trySelectAt(mouseGridPos: Position): boolean {
+    public trySelectAt(mouseGridPos: Position): boolean {
 
         for (let i = this.drawables.length - 1; i >= 0; i--) {
             const drawable = this.drawables[i];
@@ -88,7 +88,11 @@ export class DrawablesManager {
         return false;
     }
 
-    drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement): void {
+    public addDrawables(drawables: IDrawable[]): void {
+        this.drawables = this.drawables.concat(drawables);
+    }
+
+    public drawObjects(ctx: CanvasRenderingContext2D, viewport: ViewportActions, canvas: HTMLCanvasElement): void {
         this.drawables.forEach((drawable: IDrawable) => {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition,
                 canvas, viewport.panX, viewport.panY, viewport.scale);
@@ -98,11 +102,11 @@ export class DrawablesManager {
         });
     }
 
-    clear(width: number, height: number): void {
+    public clear(width: number, height: number): void {
         this.ctx.clearRect(0, 0, width, height);
     }
 
-    addDrawable(mouseGridPos: Position): void {
+    public addDrawable(mouseGridPos: Position): void {
         const boxSize = 200;
         const sizeOffset = 200 / 2;
         let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
@@ -111,14 +115,14 @@ export class DrawablesManager {
         this.drawables.push(createdDrawable);
     }
 
-    render(viewport: Viewport, canvas: HTMLCanvasElement): void {
+    public render(viewportActions: ViewportActions, canvas: HTMLCanvasElement): void {
         this.clear(canvas.width, canvas.height);
 
         this.ctx.save();
-        this.ctx.translate(viewport.panX, viewport.panY);
-        this.ctx.scale(viewport.scale, viewport.scale);
+        this.ctx.translate(viewportActions.panX, viewportActions.panY);
+        this.ctx.scale(viewportActions.scale, viewportActions.scale);
 
-        this.drawObjects(this.ctx, viewport, this.canvas);
+        this.drawObjects(this.ctx, viewportActions, this.canvas);
 
         this.ctx.restore();
     }

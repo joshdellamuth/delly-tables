@@ -1,44 +1,43 @@
-import { Viewport } from './Viewport/Viewport.ts';
-import { Mouse } from './Mouse/Mouse.ts';
-import { InputManager } from './InputManager/InputManager.ts';
-import { DrawablesManager } from './DrawablesManager/DrawablesManager.ts';
-import { Size } from './Shared/Size.ts';
-import { PositionOnDrawable } from './Shared/PositionOnDrawable.ts';
-import { IDrawable } from './Features/Base/Drawable/IDrawable.ts';
+import { Position } from '../Shared/Position.ts';
+import { ViewportActions } from './ViewportActions/ViewportActions.ts';
+import { DrawablesManager } from '../Drawables/DrawablesManager/DrawablesManager.ts';
+import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
+import { Mouse } from '../InputManager/Mouse/Mouse.ts';
+import { IDrawable } from '../Drawables/IDrawable.ts';
 
-// When the mouse is moved on the canvas, the image, redraws but it is not initially loaded. 
 
-export class InfiniteCanvas {
-    private readonly ID: string;
-    private readonly canvas: HTMLCanvasElement;
-    private readonly viewport: Viewport = new Viewport();
-    private readonly mouse: Mouse;
-    private readonly inputManager: InputManager = new InputManager();
-    private readonly drawablesManager: DrawablesManager;;
-    private size: Size = new Size(0, 0);
+export class InputManager {
+    private mouseScreenPos: Position = new Position(null, null);
+    private mouseGridPos: Position = new Position(null, null);
+    private isPanning: boolean = false;
+    private panStart: Position = new Position(null, null);
+    private canvas: HTMLCanvasElement;
+    private drawablesManager: DrawablesManager;
+    private ctx : CanvasRenderingContext2D;
+    private viewport: ViewportActions = new ViewportActions();
+    private mouse: Mouse;
 
-    constructor(ID: string, width: number, height: number, canvasDrawables?: IDrawable[]) {
-        this.ID = ID;
-        this.canvas = document.getElementById(ID) as HTMLCanvasElement;
-        const ctx : CanvasRenderingContext2D = this.canvas.getContext('2d')!;
-        this.drawablesManager = new DrawablesManager(this.canvas, ctx);
+    get mouseScreenPosition(): Position { return this.mouseScreenPos; }
+    get mouseGridPosition(): Position { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
+    get isPanningActive(): boolean { return this.isPanning; }
+
+    public constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+        this.canvas = canvas;
+        this.ctx = ctx;
+        this.drawablesManager = new DrawablesManager(canvas, ctx);
         this.mouse = new Mouse(this.canvas);
-        this.updateSize(width, height);
-
-        if (canvasDrawables) {
-            this.drawablesManager.drawables = canvasDrawables;
-        }
 
         this.setupEventListeners();
+    }
+
+    public addDrawables(drawables: IDrawable[]): void {
+        this.drawablesManager.addDrawables(drawables);
         this.render();
         this.updateDebugValues();
     }
 
-    private render(): void {
-        this.drawablesManager.render(this.viewport, this.canvas);
-    }
-
-    private setupEventListeners(): void {
+    public setupEventListeners(): void {
+        // Put all of these into the input manager. 
         this.canvas.addEventListener('contextmenu', e => e.preventDefault());
 
         // .bind(this) locks the function’s this to your class instance
@@ -50,24 +49,10 @@ export class InfiniteCanvas {
         this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
     }
 
-    private handleDoubleClick(e: MouseEvent): void {
-        this.drawablesManager.clearSelection();
-        const onObject = this.drawablesManager.trySelectAt(this.inputManager.mouseGridPosition);
-
-        if (onObject) {
-            return;
-        }
-
-        this.drawablesManager.addDrawable(this.inputManager.mouseGridPosition);
-        
-        this.render();
-        this.updateDebugValues();
-    }
-
     private handleMouseDown(e: MouseEvent): void {
         if (e.button === 0) { // Left click
             const selected = this.drawablesManager.trySelectAt(
-                this.inputManager.mouseGridPosition
+                this.mouseGridPosition
             );
 
             if (selected) {
@@ -95,13 +80,27 @@ export class InfiniteCanvas {
         }
 
         if (e.button === 2) { // Right click
-            this.inputManager.startPanning(e.clientX, e.clientY);
+            this.startPanning(e.clientX, e.clientY);
             this.mouse.setStyleGrab();
         }
     }
 
+    private handleDoubleClick(e: MouseEvent): void {
+        this.drawablesManager.clearSelection();
+        const onObject = this.drawablesManager.trySelectAt(this.mouseGridPosition);
+
+        if (onObject) {
+            return;
+        }
+
+        this.drawablesManager.addDrawable(this.mouseGridPosition);
+        
+        this.render();
+        this.updateDebugValues();
+    }
+
     private handleMouseMove(e: MouseEvent): void {
-        this.inputManager.updateMousePosition(
+        this.updateMousePosition(
             this.canvas, 
             e.clientX, 
             e.clientY, 
@@ -110,8 +109,8 @@ export class InfiniteCanvas {
         this.updateDebugValues();
 
         let selectedDrawable = this.drawablesManager.selected;
-        let mouseGridPosition = this.inputManager.mouseGridPosition;
-
+        let mouseGridPosition = this.mouseGridPosition;
+        
         // If the shape is selected and we are resizing, do not get the new mouse position on the shape. Just keep resiziing it until mouse up. 
         if (selectedDrawable != null && this.drawablesManager.isResizingShape) {
             this.mouse.setStyleByHoveringStatus(selectedDrawable.lastMousePosition);
@@ -121,15 +120,15 @@ export class InfiniteCanvas {
         }
         
         if (this.drawablesManager.isDraggingShape) {
-            this.drawablesManager.updateDrag(this.inputManager.mouseGridPosition);
+            this.drawablesManager.updateDrag(this.mouseGridPosition);
             this.render();
             this.updateDebugValues();
             return;
         }
 
-        if (this.inputManager.isPanningActive) {
+        if (this.isPanningActive) {
             this.mouse.setStyleGrabbing();
-            const { deltaX, deltaY } = this.inputManager.updatePanning(e.clientX, e.clientY);
+            const { deltaX, deltaY } = this.updatePanning(e.clientX, e.clientY);
             this.viewport.pan(deltaX, deltaY);
         }
 
@@ -148,7 +147,7 @@ export class InfiniteCanvas {
     private handleMouseUp(): void {
         this.mouse.setStyleDefault();;
         this.drawablesManager.stopDragging();
-        this.inputManager.stopPanning();
+        this.stopPanning();
         this.drawablesManager.stopResizing();
         this.updateDebugValues();
     }
@@ -156,6 +155,24 @@ export class InfiniteCanvas {
     private handleMouseLeave(): void {
         // Continue dragging even when the user's mouse leaves the canvas. 
         this.updateDebugValues();
+    }
+
+    public updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: ViewportActions): void {
+        const rect = canvas.getBoundingClientRect();
+        this.mouseScreenPos.x = clientX - rect.left;
+        this.mouseScreenPos.y = clientY - rect.top;
+
+        const gridPos: Position = viewport.screenToGrid(
+            new Position(this.mouseScreenPos.x, this.mouseScreenPos.y));
+
+        this.mouseGridPos.x = gridPos.x;
+        this.mouseGridPos.y = gridPos.y;
+    }
+
+    public startPanning(clientX: number, clientY: number): void {
+        this.isPanning = true;
+        this.panStart.x = clientX;
+        this.panStart.y = clientY;
     }
 
     private handleWheel(e: WheelEvent): void {
@@ -168,25 +185,42 @@ export class InfiniteCanvas {
         this.updateDebugValues();
     }
 
-    updateSize(width: number, height: number): void {
-        this.size.width = width;
-        this.size.height = height;
-        this.canvas.width = this.size.width;
-        this.canvas.height = this.size.height;
+    public updatePanning(clientX: number, clientY: number): { deltaX: number, deltaY: number } {
+        if (!this.isPanning || this.panStart.x === null || this.panStart.y === null) {
+            return { deltaX: 0, deltaY: 0 };
+        }
+
+        const deltaX = clientX - this.panStart.x;
+        const deltaY = clientY - this.panStart.y;
+
+        this.panStart.x = clientX;
+        this.panStart.y = clientY;
+
+        return { deltaX, deltaY };
+    }
+
+    public render(): void {
+        this.drawablesManager.render(this.viewport, this.canvas);
+    }
+
+    public stopPanning(): void {
+        this.isPanning = false;
+        this.panStart.x = null;
+        this.panStart.y = null;
     }
 
     private updateDebugValues(): void {
         const element = document.getElementById('debuggingValues') as HTMLParagraphElement;
         if (!element) return;
 
-        const mouseGrid = this.inputManager.mouseGridPosition;
-        const mouseScreen = this.inputManager.mouseScreenPosition;
+        const mouseGrid = this.mouseGridPosition;
+        const mouseScreen = this.mouseScreenPosition;
         const selected = this.drawablesManager.selected;
         element.innerText =
             `| scale: ${this.viewport.scale.toFixed(8)} ` +
             `| panX: ${this.viewport.panX.toFixed(8)} ` +
             `| panY: ${this.viewport.panY.toFixed(8)} ` +
-            `| isPanning: ${this.inputManager.isPanningActive} ` +
+            `| isPanning: ${this.isPanningActive} ` +
             `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
             `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +
             `| selected: '${selected?.ID ?? 'none'}.'` +

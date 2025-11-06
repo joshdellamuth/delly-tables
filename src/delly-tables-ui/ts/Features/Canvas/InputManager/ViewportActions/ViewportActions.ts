@@ -1,6 +1,6 @@
-import { Position } from '../Shared/Position.ts';
+import { Position } from '../../Shared/Position.ts';
 
-export class Viewport {
+export class ViewportActions {
     private _scale: number = 1;
     private _panX: number = 0;
     private _panY: number = 0;

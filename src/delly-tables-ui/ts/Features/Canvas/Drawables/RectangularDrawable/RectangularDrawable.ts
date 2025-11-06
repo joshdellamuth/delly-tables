@@ -1,6 +1,6 @@
-import { Position } from "../../../../Shared/Position";
+import { Position } from "../../Shared/Position";
 import { IDrawable } from "../IDrawable";
-import { PositionOnDrawable } from "../../../../Shared/PositionOnDrawable";
+import { PositionOnDrawable } from "../../Shared/PositionOnDrawable";
 import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
 
 export abstract class RectangularDrawable implements IDrawable {
