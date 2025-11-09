@@ -4,7 +4,7 @@ import { PositionOnDrawable } from "../../Shared/PositionOnDrawable";
 import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
 
 export abstract class RectangularDrawable implements IDrawable {
-    ID: string;
+    ID: string = "";
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
     width: number;

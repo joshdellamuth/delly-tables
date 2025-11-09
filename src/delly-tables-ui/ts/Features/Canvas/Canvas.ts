@@ -44,6 +44,7 @@ export class Canvas {
     private addButtonListeners(): void {
         // Shapes button
         this.shapesButton.addEventListener('click', () => {
+            console.log('Shapes button clicked');
             this.inputManager.toggleShapesButton();
         });
     }

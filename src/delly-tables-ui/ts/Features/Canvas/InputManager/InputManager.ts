@@ -54,7 +54,7 @@ export class InputManager implements IInputManager {
     handleKeyDown(e: KeyboardEvent): void {
         if (e.key === 'Delete') {
             if (this.drawablesManager.selected != null) {
-                let drawables : IDrawable[] = [this.drawablesManager.selected];
+                let drawables: IDrawable[] = [this.drawablesManager.selected];
                 this.drawablesManager.removeDrawables(drawables);
             }
         }
@@ -68,7 +68,8 @@ export class InputManager implements IInputManager {
 
             // In here, check if the shapes button is activated. 
             if (this.drawablesManager.shapesButtonActivated) {
-                return;
+                this.mouse.setStyleCrosshair();
+                this.drawablesManager.startDrawing(this.mouseGridPosition);
             }
             else {
                 const selected = this.drawablesManager.trySelectAt(
@@ -125,16 +126,21 @@ export class InputManager implements IInputManager {
     }
 
     private handleMouseMove(e: MouseEvent): void {
-        this.updateMousePosition(
-            this.canvas,
-            e.clientX,
-            e.clientY,
-            this.viewport);
+
+        this.updateMousePosition(this.canvas, e.clientX,
+            e.clientY, this.viewport);
 
         this.updateDebugValues();
 
         let selectedDrawable = this.drawablesManager.selected;
         let mouseGridPosition = this.mouseGridPosition;
+
+        if (this.drawablesManager.isDrawingShape) {
+            this.drawablesManager.updateDrawing(this.mouseGridPosition);
+            this.render();
+            //this.updateDebugValues();
+            return;
+        }
 
         // If the shape is selected and we are resizing, do not get the new mouse position on the shape. Just keep resiziing it until mouse up. 
         if (selectedDrawable != null && this.drawablesManager.isResizingShape) {
@@ -170,11 +176,13 @@ export class InputManager implements IInputManager {
     }
 
     private handleMouseUp(): void {
-        this.mouse.setStyleDefault();;
+        this.mouse.setStyleDefault();
         this.drawablesManager.stopDragging();
         this.stopPanning();
         this.drawablesManager.stopResizing();
         this.updateDebugValues();
+
+        this.drawablesManager.stopDrawing();
     }
 
     private handleMouseLeave(): void {

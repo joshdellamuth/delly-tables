@@ -1,10 +1,11 @@
 import { IDrawable } from '../IDrawable.ts';
 import { RectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
 
-export class Box 
-    extends RectangularDrawable 
+export class Box
+    extends RectangularDrawable
     implements IDrawable {
-    
+
+
     // properties just in the Box class
     public color: string;
 
@@ -23,8 +24,6 @@ export class Box
     override draw(context: CanvasRenderingContext2D): void {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 8;
-
-        console.log('Trying to draw box at ' + this.gridPosition.x + ', ' + this.gridPosition.y);
 
         this.x1 = this.gridPosition.x!;
         this.y1 = this.gridPosition.y!;

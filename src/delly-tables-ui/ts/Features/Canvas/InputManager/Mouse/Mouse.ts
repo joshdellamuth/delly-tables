@@ -52,6 +52,10 @@ export class Mouse implements IMouse {
         this._canvas.style.cursor = 'grab';
     }
 
+    setStyleCrosshair(): void {
+        this._canvas.style.cursor = 'crosshair';
+    }
+
     setStyleDefault(): void {
         this._canvas.style.cursor = 'default';
     }

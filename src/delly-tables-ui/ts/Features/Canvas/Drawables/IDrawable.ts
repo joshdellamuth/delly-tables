@@ -3,6 +3,7 @@ import { ICanvObject } from "../Base/CanvObject/ICanvObject";
 
 export interface IDrawable extends ICanvObject {
     // Properties
+    ID: string;
     gridPosition: Position;
     screenPosition: Position;
     width: number;
@@ -20,5 +21,5 @@ export interface IDrawable extends ICanvObject {
     draw(context: CanvasRenderingContext2D): void;
     getMousePosOnDrawable(mousePosition: Position): string;
     updateScreenPosition(screenPosition: Position): void;
-    resize(gridPosition: Position) : void;
+    resize(gridPosition: Position): void;
 }

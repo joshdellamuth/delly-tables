@@ -1,12 +1,13 @@
 import { IDrawable } from '../IDrawable.ts';
 import { RectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
 
-export class CanvImage 
-    extends RectangularDrawable 
+export class CanvImage
+    extends RectangularDrawable
     implements IDrawable {
-    
-    src: string;
-    
+
+    private image: HTMLImageElement;
+    private imageLoaded: boolean = false;
+
     x1: number = null!;
     y1: number = null!;
     x2: number = null!;
@@ -17,18 +18,28 @@ export class CanvImage
 
         super(id, width, height, xPosition, yPosition, isSelected);
 
-        this.src = src;
+        this.image = new Image();
+        this.image.onload = () => {
+            this.imageLoaded = true;
+            // Trigger re-render if needed
+        };
+        this.image.src = src;
     }
 
     override draw(context: CanvasRenderingContext2D): void {
         if (this.gridPosition.x === null || this.gridPosition.y === null) return;
 
-        var image = new Image();
-        image.src = this.src;
+        if (!this.imageLoaded) {
+            // Draw placeholder
+            context.fillStyle = '#ddd';
+            context.fillRect(this.gridPosition.x, this.gridPosition.y, this.width, this.height);
+            context.fillStyle = '#727272ff';
+            context.font = '16px sans-serif';
+            context.fillText('Loading...', this.gridPosition.x + 10, this.gridPosition.y + 30);
+            return;
+        }
 
-        console.log('Trying to draw image at ' + this.gridPosition.x + ', ' + this.gridPosition.y);
-
-        context.drawImage(image, this.gridPosition.x, this.gridPosition.y, this.width, this.height);
+        context.drawImage(this.image, this.gridPosition.x, this.gridPosition.y, this.width, this.height);
 
         if (this.isSelected) {
             this.x1 = this.gridPosition.x;

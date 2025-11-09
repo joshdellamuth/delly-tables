@@ -3,12 +3,15 @@ import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
+import { v4 as uuidv4 } from 'uuid';
 
 export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
-    private isDrawing: boolean = false;
+    public isDrawingShape: boolean = false;
+    private addShapePosition: Position = new Position(null, null);
+    private shapeToAddId: string = "";
 
     private dragOffset: Position = new Position(null, null);
     public drawables: IDrawable[] = [];
@@ -35,6 +38,53 @@ export class DrawablesManager {
         this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
     }
 
+    public startDrawing(mouseGridPos: Position): void {
+        this.addShapePosition = mouseGridPos;
+        this.isDrawingShape = true;
+    }
+
+    public updateDrawing(mouseGridPos: Position): void {
+        if (this.isDrawingShape) {
+            // Calculate the different between the start position and the current mouse position to determine the width and height
+            const diffX = mouseGridPos.x! - this.addShapePosition.x!;
+            const diffY = mouseGridPos.y! - this.addShapePosition.y!;
+
+            // Calculate the width and height of the new shape
+            const width = Math.abs(diffX);
+            const height = Math.abs(diffY);
+
+            if (this.shapeToAddId == "") {
+                this.shapeToAddId = uuidv4();
+                let shapeToAdd = new Box(this.shapeToAddId, width, height, '#e4bf1aff', this.addShapePosition.x!, this.addShapePosition.y!, true);
+                shapeToAdd.draw(this.ctx);
+                this.drawables.push(shapeToAdd);
+                this.selectedDrawable = shapeToAdd;
+            }
+
+            const foundDrawable = this.drawables.find(d => d.ID === this.shapeToAddId);
+            if (foundDrawable) {
+                foundDrawable.lastMousePosition = PositionOnDrawable.BottomRightCorner;
+                foundDrawable!.resize(mouseGridPos);
+            }
+
+            console.log('The shape to add id is ' + this.shapeToAddId);
+            console.log('The found shape to add is ');
+            console.log(foundDrawable);
+            console.log('The drawables are ');
+            console.log(this.drawables);
+            console.log('The width of the found drawable is ' + foundDrawable!.width);
+            console.log('The height of the found drawable is ' + foundDrawable!.height);
+        }
+    }
+
+    public stopDrawing(): void {
+        if (this.isDrawingShape) {
+            this.shapesButtonActivated = false;
+            this.isDrawingShape = false;
+            this.shapeToAddId = "";
+        }
+    }
+
     public updateDrag(mouseGridPos: Position): void {
         if (this.isDragging && this.selectedDrawable &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
@@ -51,8 +101,9 @@ export class DrawablesManager {
         this.selectedDrawable = null;
     }
 
-    public toggleShapesButton(): void { 
+    public toggleShapesButton(): void {
         this.shapesButtonActivated = !this.shapesButtonActivated;
+        console.log('Shapes button activated is now set to ' + this.shapesButtonActivated);
     }
 
 
