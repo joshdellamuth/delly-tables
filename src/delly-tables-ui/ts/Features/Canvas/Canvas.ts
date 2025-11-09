@@ -8,6 +8,7 @@ export class Canvas {
     private readonly canvas: HTMLCanvasElement;
     private readonly inputManager: IInputManager;
     private size: Size = new Size(0, 0);
+    private shapesButton: HTMLButtonElement = document.getElementById('shapes-button') as HTMLButtonElement;
 
     constructor(ID: string, width: number, height: number, canvasDrawables?: IDrawable[]) {
         this.ID = ID;
@@ -19,6 +20,11 @@ export class Canvas {
         if (canvasDrawables) {
             this.inputManager.addDrawables(canvasDrawables);
         }
+
+        this.addButtonListeners();
+
+        console.log('This is the shapes button');
+        console.log(this.shapesButton);
 
         //this.setupEventListeners();
         this.render();
@@ -33,5 +39,12 @@ export class Canvas {
         this.size.height = height;
         this.canvas.width = this.size.width;
         this.canvas.height = this.size.height;
+    }
+
+    private addButtonListeners(): void {
+        // Shapes button
+        this.shapesButton.addEventListener('click', () => {
+            this.inputManager.toggleShapesButton();
+        });
     }
 }

@@ -1,20 +1,20 @@
 import { Position } from '../Shared/Position.ts';
-import { ViewportActions } from './ViewportActions/ViewportActions.ts';
+import { Viewport } from './Viewport/Viewport.ts';
 import { DrawablesManager } from '../Drawables/DrawablesManager/DrawablesManager.ts';
 import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
 import { Mouse } from '../InputManager/Mouse/Mouse.ts';
 import { IDrawable } from '../Drawables/IDrawable.ts';
+import { IInputManager } from './IInputManager.ts';
 
-
-export class InputManager {
+export class InputManager implements IInputManager {
     private mouseScreenPos: Position = new Position(null, null);
     private mouseGridPos: Position = new Position(null, null);
     private isPanning: boolean = false;
     private panStart: Position = new Position(null, null);
     private canvas: HTMLCanvasElement;
     private drawablesManager: DrawablesManager;
-    private ctx : CanvasRenderingContext2D;
-    private viewport: ViewportActions = new ViewportActions();
+    private ctx: CanvasRenderingContext2D;
+    private viewport: Viewport = new Viewport();
     private mouse: Mouse;
 
     get mouseScreenPosition(): Position { return this.mouseScreenPos; }
@@ -47,34 +47,55 @@ export class InputManager {
         this.canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
         this.canvas.addEventListener('wheel', this.handleWheel.bind(this));
         this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
+        // Must add the event on the window because canvas is not focusable bys default. 
+        window.addEventListener('keydown', this.handleKeyDown.bind(this));
+    }
+
+    handleKeyDown(e: KeyboardEvent): void {
+        if (e.key === 'Delete') {
+            if (this.drawablesManager.selected != null) {
+                let drawables : IDrawable[] = [this.drawablesManager.selected];
+                this.drawablesManager.removeDrawables(drawables);
+            }
+        }
+
+        this.render();
+        this.updateDebugValues();
     }
 
     private handleMouseDown(e: MouseEvent): void {
         if (e.button === 0) { // Left click
-            const selected = this.drawablesManager.trySelectAt(
-                this.mouseGridPosition
-            );
 
-            if (selected) {
-                //this.mouse.setStyleMove();
-            } else {
-                this.drawablesManager.clearSelection();
+            // In here, check if the shapes button is activated. 
+            if (this.drawablesManager.shapesButtonActivated) {
+                return;
+            }
+            else {
+                const selected = this.drawablesManager.trySelectAt(
+                    this.mouseGridPosition
+                );
+
+                if (selected) {
+                    //this.mouse.setStyleMove();
+                } else {
+                    this.drawablesManager.clearSelection();
+                }
+
+                // If there is already a selected shape, see if you are over it and change the mouse accordingly.
+                if (this.drawablesManager.selected != null) {
+                    let selectedDrawable = this.drawablesManager.selected;
+                    if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
+                        this.drawablesManager.startDragging();
+                    }
+                    else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
+
+                    }
+                    else {
+                        this.drawablesManager.startResizing();
+                    }
+                }
             }
 
-            // If there is already a selected shape, see if you are over it and change the mouse accordingly.
-            if (this.drawablesManager.selected != null) {
-                let selectedDrawable = this.drawablesManager.selected;
-                if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
-                    this.drawablesManager.startDragging();
-                }
-                else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
-                    
-                }
-                else {
-                    this.drawablesManager.startResizing();
-                }
-            }
-            
             this.render();
             this.updateDebugValues();
         }
@@ -83,6 +104,10 @@ export class InputManager {
             this.startPanning(e.clientX, e.clientY);
             this.mouse.setStyleGrab();
         }
+    }
+
+    public toggleShapesButton(): void {
+        this.drawablesManager.toggleShapesButton();
     }
 
     private handleDoubleClick(e: MouseEvent): void {
@@ -94,23 +119,23 @@ export class InputManager {
         }
 
         this.drawablesManager.addDrawable(this.mouseGridPosition);
-        
+
         this.render();
         this.updateDebugValues();
     }
 
     private handleMouseMove(e: MouseEvent): void {
         this.updateMousePosition(
-            this.canvas, 
-            e.clientX, 
-            e.clientY, 
+            this.canvas,
+            e.clientX,
+            e.clientY,
             this.viewport);
 
         this.updateDebugValues();
 
         let selectedDrawable = this.drawablesManager.selected;
         let mouseGridPosition = this.mouseGridPosition;
-        
+
         // If the shape is selected and we are resizing, do not get the new mouse position on the shape. Just keep resiziing it until mouse up. 
         if (selectedDrawable != null && this.drawablesManager.isResizingShape) {
             this.mouse.setStyleByHoveringStatus(selectedDrawable.lastMousePosition);
@@ -118,7 +143,7 @@ export class InputManager {
             this.render();
             this.updateDebugValues();
         }
-        
+
         if (this.drawablesManager.isDraggingShape) {
             this.drawablesManager.updateDrag(this.mouseGridPosition);
             this.render();
@@ -135,7 +160,7 @@ export class InputManager {
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
         if (selectedDrawable != null && !this.drawablesManager.isResizingShape) {
             let hoveringStatus = selectedDrawable.getMousePosOnDrawable(mouseGridPosition);
-            selectedDrawable.lastMousePosition = hoveringStatus; 
+            selectedDrawable.lastMousePosition = hoveringStatus;
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
             this.updateDebugValues();
         }
@@ -157,7 +182,7 @@ export class InputManager {
         this.updateDebugValues();
     }
 
-    public updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: ViewportActions): void {
+    public updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: Viewport): void {
         const rect = canvas.getBoundingClientRect();
         this.mouseScreenPos.x = clientX - rect.left;
         this.mouseScreenPos.y = clientY - rect.top;

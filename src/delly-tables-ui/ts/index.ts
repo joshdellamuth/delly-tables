@@ -11,7 +11,7 @@ function getBaseURL(): string {
     const hostname: string = window.location.hostname;
     // If running locally, use localhost URL and port.
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        return 'http://localhost:5500/src/delly-tables-ui/';
+        return 'http://localhost:5173/delly-tables/';
     }
     else if (hostname === 'joshdellamuth.github.io') {
         return 'https://joshdellamuth.github.io/delly-tables/';

@@ -1,6 +1,6 @@
 import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
 import { IDrawable } from '../IDrawable.ts';
-import { ViewportActions } from '../../InputManager/ViewportActions/ViewportActions.ts';
+import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
 
@@ -8,10 +8,13 @@ export class DrawablesManager {
     private selectedDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
+    private isDrawing: boolean = false;
+
     private dragOffset: Position = new Position(null, null);
     public drawables: IDrawable[] = [];
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
+    public shapesButtonActivated: boolean = false;
 
     constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
@@ -47,6 +50,11 @@ export class DrawablesManager {
 
         this.selectedDrawable = null;
     }
+
+    public toggleShapesButton(): void { 
+        this.shapesButtonActivated = !this.shapesButtonActivated;
+    }
+
 
     public startDragging(): void {
         this.isDragging = true;
@@ -92,7 +100,11 @@ export class DrawablesManager {
         this.drawables = this.drawables.concat(drawables);
     }
 
-    public drawObjects(ctx: CanvasRenderingContext2D, viewport: ViewportActions, canvas: HTMLCanvasElement): void {
+    public removeDrawables(drawables: IDrawable[]): void {
+        this.drawables = this.drawables.filter((drawable: IDrawable) => !drawables.includes(drawable));
+    }
+
+    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement): void {
         this.drawables.forEach((drawable: IDrawable) => {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition,
                 canvas, viewport.panX, viewport.panY, viewport.scale);
@@ -115,7 +127,7 @@ export class DrawablesManager {
         this.drawables.push(createdDrawable);
     }
 
-    public render(viewportActions: ViewportActions, canvas: HTMLCanvasElement): void {
+    public render(viewportActions: Viewport, canvas: HTMLCanvasElement): void {
         this.clear(canvas.width, canvas.height);
 
         this.ctx.save();

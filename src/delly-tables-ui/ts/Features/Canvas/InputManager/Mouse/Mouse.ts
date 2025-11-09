@@ -1,7 +1,7 @@
 import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
+import { IMouse } from './IMouse.ts';
 
-
-export class Mouse {
+export class Mouse implements IMouse {
     private _canvas: HTMLCanvasElement;
 
     constructor(canvas: HTMLCanvasElement) {
