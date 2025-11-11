@@ -5,6 +5,7 @@ import { PositionOnDrawable } from '../Shared/PositionOnDrawable.ts';
 import { Mouse } from '../InputManager/Mouse/Mouse.ts';
 import { IDrawable } from '../Drawables/IDrawable.ts';
 import { IInputManager } from './IInputManager.ts';
+import { SelectBoxManager } from './SelectBoxManager/SelectBoxManager.ts';
 
 export class InputManager implements IInputManager {
     private mouseScreenPos: Position = new Position(null, null);
@@ -13,6 +14,7 @@ export class InputManager implements IInputManager {
     private panStart: Position = new Position(null, null);
     private canvas: HTMLCanvasElement;
     private drawablesManager: DrawablesManager;
+    public selectBoxManager: SelectBoxManager;
     private ctx: CanvasRenderingContext2D;
     private viewport: Viewport = new Viewport();
     private mouse: Mouse;
@@ -25,6 +27,7 @@ export class InputManager implements IInputManager {
         this.canvas = canvas;
         this.ctx = ctx;
         this.drawablesManager = new DrawablesManager(canvas, ctx);
+        this.selectBoxManager = new SelectBoxManager(ctx, canvas);
         this.mouse = new Mouse(this.canvas);
 
         this.setupEventListeners();
@@ -66,19 +69,24 @@ export class InputManager implements IInputManager {
     private handleMouseDown(e: MouseEvent): void {
         if (e.button === 0) { // Left click
 
+            var isSelectionRect = true;
+
+            if (isSelectionRect) {
+                console.log('Starting select box');
+                this.selectBoxManager.startSelectBox(this.mouseGridPosition);
+            }
+
+
             // In here, check if the shapes button is activated. 
             if (this.drawablesManager.shapesButtonActivated) {
                 this.mouse.setStyleCrosshair();
                 this.drawablesManager.startDrawing(this.mouseGridPosition);
             }
-            else {
-                const selected = this.drawablesManager.trySelectAt(
-                    this.mouseGridPosition
-                );
 
-                if (selected) {
-                    //this.mouse.setStyleMove();
-                } else {
+            else {
+                const selected = this.drawablesManager.trySelectAt(this.mouseGridPosition);
+
+                if (!selected) {
                     this.drawablesManager.clearSelection();
                 }
 
@@ -130,7 +138,11 @@ export class InputManager implements IInputManager {
         this.updateMousePosition(this.canvas, e.clientX,
             e.clientY, this.viewport);
 
-        this.updateDebugValues();
+        if (this.selectBoxManager.isDrawing) {
+            this.render();
+            this.selectBoxManager.drawSelectBox(this.mouseGridPosition, this.viewport.panX, this.viewport.panY, this.viewport.scale);
+            // do not need to render as we are drawing right on the canvas. 
+        }
 
         let selectedDrawable = this.drawablesManager.selected;
         let mouseGridPosition = this.mouseGridPosition;
@@ -161,6 +173,8 @@ export class InputManager implements IInputManager {
             this.mouse.setStyleGrabbing();
             const { deltaX, deltaY } = this.updatePanning(e.clientX, e.clientY);
             this.viewport.pan(deltaX, deltaY);
+            this.render();
+
         }
 
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
@@ -168,10 +182,10 @@ export class InputManager implements IInputManager {
             let hoveringStatus = selectedDrawable.getMousePosOnDrawable(mouseGridPosition);
             selectedDrawable.lastMousePosition = hoveringStatus;
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
+            this.render();
             this.updateDebugValues();
         }
 
-        this.render();
         this.updateDebugValues();
     }
 
@@ -183,6 +197,11 @@ export class InputManager implements IInputManager {
         this.updateDebugValues();
 
         this.drawablesManager.stopDrawing();
+
+        if (this.selectBoxManager.isDrawing) {
+            this.selectBoxManager.stopSelectBox();
+            this.render();
+        }
     }
 
     private handleMouseLeave(): void {

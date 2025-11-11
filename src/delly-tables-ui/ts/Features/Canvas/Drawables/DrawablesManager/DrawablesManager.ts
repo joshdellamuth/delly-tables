@@ -77,6 +77,7 @@ export class DrawablesManager {
         }
     }
 
+
     public stopDrawing(): void {
         if (this.isDrawingShape) {
             this.shapesButtonActivated = false;

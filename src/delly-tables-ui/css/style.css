@@ -26,7 +26,7 @@
     padding: 0;
 }
 
-.collapse-icon{
+.collapse-icon {
     width: 1.2em;
     height: 1.2em;
     padding: .05em;
@@ -41,14 +41,14 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-#logo-text{
+#logo-text {
     font-family: 'Inter', sans-serif;
     font-size: x-large;
     font-weight: 750;
     padding: 4px;
 }
 
-#logo-image{
+#logo-image {
     width: 2.3em;
     height: 2.3em;
     padding: .2em;
@@ -64,8 +64,10 @@ body {
 
 .toolbar-row {
     display: flex;
-    justify-content: center; /* Centers horizontally */
-    align-items: center; /* Centers vertically */
+    justify-content: center;
+    /* Centers horizontally */
+    align-items: center;
+    /* Centers vertically */
 }
 
 .option-button-row {
@@ -81,7 +83,7 @@ body {
     align-items: center;
 }
 
-.option-button{
+.option-button {
     background-color: transparent;
     border: none;
     font-size: large;
@@ -90,7 +92,11 @@ body {
     padding: .3em;
 }
 
-.option-button:hover{
+.option-button:hover {
+    background: var(--active-button-color);
+}
+
+.toolbar-button.active {
     background: var(--active-button-color);
 }
 
@@ -106,40 +112,41 @@ body {
     border: 1px solid var(--active-button-color);
 }
 
-.toolbar-button{
+.toolbar-button {
     padding: .3em;
     border-radius: 5px;
     border: none;
     background: var(--toolbar-color);
 }
 
-.toolbar-button-selected{
+.toolbar-button-selected {
     background: var(--active-button-color);
 }
 
-.toolbar-button:hover{
+.toolbar-button:hover {
     background: var(--active-button-color);
 }
 
-.toolbar-icon{
+.toolbar-icon {
     padding: .1em;
 }
 
 .side-panel {
-  position: fixed;
-  right: 0;  /* ← Changed from 300px to 0 */
-  top: 0;
-  width: 500px;
-  height: 100%;
-  background: #f3f3f3;
-  transition: right 0.3s ease;
-  z-index: 1000;
-  padding: 20px;
+    position: fixed;
+    right: 0;
+    /* ← Changed from 300px to 0 */
+    top: 0;
+    width: 500px;
+    height: 100%;
+    background: #f3f3f3;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    padding: 20px;
 }
 
 .side-panel.hidden {
-  /* The padding plus the width of the side panel. */
-  right: -540px; 
+    /* The padding plus the width of the side panel. */
+    right: -540px;
 }
 
 .panel-title-text {

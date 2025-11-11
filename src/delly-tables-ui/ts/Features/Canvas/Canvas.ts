@@ -13,7 +13,7 @@ export class Canvas {
     constructor(ID: string, width: number, height: number, canvasDrawables?: IDrawable[]) {
         this.ID = ID;
         this.canvas = document.getElementById(ID) as HTMLCanvasElement;
-        const ctx : CanvasRenderingContext2D = this.canvas.getContext('2d')!;
+        const ctx: CanvasRenderingContext2D = this.canvas.getContext('2d')!;
         this.inputManager = new InputManager(this.canvas, ctx);
         this.updateSize(width, height);
 
@@ -45,7 +45,18 @@ export class Canvas {
         // Shapes button
         this.shapesButton.addEventListener('click', () => {
             console.log('Shapes button clicked');
-            this.inputManager.toggleShapesButton();
+            this.inputManager.toggleShapesButton(); // This will trigger the callback
+            this.shapesButton.classList.toggle('active');
         });
+    }
+
+    private onShapesButtonStateChanged(isActive: boolean): void {
+        console.log('Shapes button state changed to:', isActive);
+
+        if (isActive) {
+            this.shapesButton.classList.add('active');
+        } else {
+            this.shapesButton.classList.remove('active');
+        }
     }
 }
