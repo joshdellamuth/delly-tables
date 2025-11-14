@@ -3,6 +3,7 @@ import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
+import { SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DrawablesManager {
@@ -156,10 +157,14 @@ export class DrawablesManager {
         this.drawables = this.drawables.filter((drawable: IDrawable) => !drawables.includes(drawable));
     }
 
-    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement): void {
+    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement, selectBoxManager: SelectBoxManager, mouseGridPos: Position): void {
         this.drawables.forEach((drawable: IDrawable) => {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition,
                 canvas, viewport.panX, viewport.panY, viewport.scale);
+
+            if (selectBoxManager.isDrawing) {
+                selectBoxManager.drawSelectBox(mouseGridPos);
+            }
 
             drawable.updateScreenPosition(screenPosition);
             drawable.draw(ctx);
@@ -179,14 +184,14 @@ export class DrawablesManager {
         this.drawables.push(createdDrawable);
     }
 
-    public render(viewportActions: Viewport, canvas: HTMLCanvasElement): void {
+    public render(viewport: Viewport, canvas: HTMLCanvasElement, selectBoxManager: SelectBoxManager, mouseGridPos: Position): void {
         this.clear(canvas.width, canvas.height);
 
         this.ctx.save();
-        this.ctx.translate(viewportActions.panX, viewportActions.panY);
-        this.ctx.scale(viewportActions.scale, viewportActions.scale);
+        this.ctx.translate(viewport.panX, viewport.panY);
+        this.ctx.scale(viewport.scale, viewport.scale);
 
-        this.drawObjects(this.ctx, viewportActions, this.canvas);
+        this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos);
 
         this.ctx.restore();
     }

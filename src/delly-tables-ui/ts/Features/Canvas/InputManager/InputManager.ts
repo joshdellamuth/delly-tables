@@ -69,14 +69,6 @@ export class InputManager implements IInputManager {
     private handleMouseDown(e: MouseEvent): void {
         if (e.button === 0) { // Left click
 
-            var isSelectionRect = true;
-
-            if (isSelectionRect) {
-                console.log('Starting select box');
-                this.selectBoxManager.startSelectBox(this.mouseGridPosition);
-            }
-
-
             // In here, check if the shapes button is activated. 
             if (this.drawablesManager.shapesButtonActivated) {
                 this.mouse.setStyleCrosshair();
@@ -88,6 +80,7 @@ export class InputManager implements IInputManager {
 
                 if (!selected) {
                     this.drawablesManager.clearSelection();
+                    this.selectBoxManager.startSelectBox(this.mouseGridPosition);
                 }
 
                 // If there is already a selected shape, see if you are over it and change the mouse accordingly.
@@ -140,8 +133,6 @@ export class InputManager implements IInputManager {
 
         if (this.selectBoxManager.isDrawing) {
             this.render();
-            this.selectBoxManager.drawSelectBox(this.mouseGridPosition, this.viewport.panX, this.viewport.panY, this.viewport.scale);
-            // do not need to render as we are drawing right on the canvas. 
         }
 
         let selectedDrawable = this.drawablesManager.selected;
@@ -198,10 +189,8 @@ export class InputManager implements IInputManager {
 
         this.drawablesManager.stopDrawing();
 
-        if (this.selectBoxManager.isDrawing) {
-            this.selectBoxManager.stopSelectBox();
-            this.render();
-        }
+        this.selectBoxManager.stopSelectBox();
+        this.render();
     }
 
     private handleMouseLeave(): void {
@@ -252,7 +241,7 @@ export class InputManager implements IInputManager {
     }
 
     public render(): void {
-        this.drawablesManager.render(this.viewport, this.canvas);
+        this.drawablesManager.render(this.viewport, this.canvas, this.selectBoxManager, this.mouseGridPosition);
     }
 
     public stopPanning(): void {

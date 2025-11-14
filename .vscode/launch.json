@@ -1,0 +1,15 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "msedge", // or "chrome"
+            "request": "launch",
+            "name": "Launch Vite in Edge", // or Chrome
+            "url": "http://localhost:5173", // Adjust port if your Vite server runs on a different port
+            "webRoot": "${workspaceFolder}/src/delly-tables-ui",
+            "sourceMaps": true,
+            "trace": true, // Optional: for more detailed logging
+            "enableContentValidation": false // Useful for certain scenarios with Vite
+        }
+    ]
+}

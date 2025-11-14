@@ -1,15 +1,12 @@
-import { start } from 'repl';
 import { Position } from '../../Shared/Position.ts';
 import { Viewport } from '../Viewport/Viewport.ts';
 
 export class SelectBoxManager {
 
     private startCoordinates: Position = new Position(null, null);
-    private mousePosition: Position | null = null;
     public isDrawing: boolean = false;
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
-    private viewport: Viewport = new Viewport();
 
     constructor(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -29,20 +26,16 @@ export class SelectBoxManager {
     }
 
 
-    drawSelectBox(startPosition: Position,
-        xDistanceFromOrigin: number, yDistanceFromOrigin: number,
-        scale: number): void {
+    drawSelectBox(startPosition: Position): void {
 
-        let end = this.viewport.convertToScreenPos(this.startCoordinates, this.canvas, xDistanceFromOrigin, yDistanceFromOrigin, scale);
+        const x = Math.min(startPosition.x!, this.startCoordinates.x!);
+        const y = Math.min(startPosition.y!, this.startCoordinates.y!);
+        const w = Math.abs(this.startCoordinates.x! - startPosition.x!);
+        const h = Math.abs(this.startCoordinates.y! - startPosition.y!);
 
-        const x = Math.min(startPosition.x!, end.x!);
-        const y = Math.min(startPosition.y!, end.y!);
-        const w = Math.abs(end.x! - startPosition.x!);
-        const h = Math.abs(end.y! - startPosition.y!);
-
-        this.ctx.fillStyle = 'rgba(143, 176, 230, 0.2)';
+        this.ctx.fillStyle = 'rgba(129, 161, 212, 0.1)';
         this.ctx.fillRect(x, y, w, h);
-        this.ctx.strokeStyle = 'rgb(59, 130, 246)';
+        this.ctx.strokeStyle = 'rgba(114, 153, 214, 1)';
         this.ctx.lineWidth = 2;
         this.ctx.strokeRect(x, y, w, h);
     }

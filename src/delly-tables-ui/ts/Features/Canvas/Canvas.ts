@@ -49,14 +49,4 @@ export class Canvas {
             this.shapesButton.classList.toggle('active');
         });
     }
-
-    private onShapesButtonStateChanged(isActive: boolean): void {
-        console.log('Shapes button state changed to:', isActive);
-
-        if (isActive) {
-            this.shapesButton.classList.add('active');
-        } else {
-            this.shapesButton.classList.remove('active');
-        }
-    }
 }
