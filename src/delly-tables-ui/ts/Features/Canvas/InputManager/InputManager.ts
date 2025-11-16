@@ -57,7 +57,7 @@ export class InputManager implements IInputManager {
     handleKeyDown(e: KeyboardEvent): void {
         if (e.key === 'Delete') {
             if (this.drawablesManager.selected != null) {
-                let drawables: IDrawable[] = [this.drawablesManager.selected];
+                let drawables: IDrawable[] = this.drawablesManager.selected;
                 this.drawablesManager.removeDrawables(drawables);
             }
         }
@@ -83,18 +83,23 @@ export class InputManager implements IInputManager {
                     this.selectBoxManager.startSelectBox(this.mouseGridPosition);
                 }
 
-                // If there is already a selected shape, see if you are over it and change the mouse accordingly.
+                // If there is already a selected shapes, see which one you are hovering over.
                 if (this.drawablesManager.selected != null) {
-                    let selectedDrawable = this.drawablesManager.selected;
-                    if (selectedDrawable.lastMousePosition === PositionOnDrawable.Inside) {
-                        this.drawablesManager.startDragging();
-                    }
-                    else if (selectedDrawable.lastMousePosition === PositionOnDrawable.NotOn) {
+                    let selectedHoveredDrawable = this.drawablesManager.getSelectedHoveredDrawable();
 
+                    if (selectedHoveredDrawable != null) {
+                        // Insert logic to find the hovered drawable out of the selected drawables.
+                        if (selectedHoveredDrawable!.lastMousePosition === PositionOnDrawable.Inside) {
+                            this.drawablesManager.startDragging();
+                        }
+                        else if (selectedHoveredDrawable!.lastMousePosition === PositionOnDrawable.NotOn) {
+
+                        }
+                        else {
+                            this.drawablesManager.startResizing();
+                        }
                     }
-                    else {
-                        this.drawablesManager.startResizing();
-                    }
+
                 }
             }
 
@@ -135,7 +140,8 @@ export class InputManager implements IInputManager {
             this.render();
         }
 
-        let selectedDrawable = this.drawablesManager.selected;
+        this.drawablesManager.setSelectedHoveredDrawable(this.mouseGridPosition);
+        let selectedHoveredDrawable = this.drawablesManager.getSelectedHoveredDrawable();
         let mouseGridPosition = this.mouseGridPosition;
 
         if (this.drawablesManager.isDrawingShape) {
@@ -146,9 +152,9 @@ export class InputManager implements IInputManager {
         }
 
         // If the shape is selected and we are resizing, do not get the new mouse position on the shape. Just keep resiziing it until mouse up. 
-        if (selectedDrawable != null && this.drawablesManager.isResizingShape) {
-            this.mouse.setStyleByHoveringStatus(selectedDrawable.lastMousePosition);
-            selectedDrawable.resize(mouseGridPosition);
+        if (selectedHoveredDrawable != null && this.drawablesManager.isResizingShape) {
+            this.mouse.setStyleByHoveringStatus(selectedHoveredDrawable.lastMousePosition);
+            selectedHoveredDrawable.resize(mouseGridPosition);
             this.render();
             this.updateDebugValues();
         }
@@ -169,9 +175,9 @@ export class InputManager implements IInputManager {
         }
 
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
-        if (selectedDrawable != null && !this.drawablesManager.isResizingShape) {
-            let hoveringStatus = selectedDrawable.getMousePosOnDrawable(mouseGridPosition);
-            selectedDrawable.lastMousePosition = hoveringStatus;
+        if (selectedHoveredDrawable != null && !this.drawablesManager.isResizingShape) {
+            let hoveringStatus = selectedHoveredDrawable.getMousePosOnDrawable(mouseGridPosition);
+            selectedHoveredDrawable.lastMousePosition = hoveringStatus;
             this.mouse.setStyleByHoveringStatus(hoveringStatus);
             this.render();
             this.updateDebugValues();
@@ -181,16 +187,30 @@ export class InputManager implements IInputManager {
     }
 
     private handleMouseUp(): void {
-        this.mouse.setStyleDefault();
-        this.drawablesManager.stopDragging();
-        this.stopPanning();
-        this.drawablesManager.stopResizing();
-        this.updateDebugValues();
 
-        this.drawablesManager.stopDrawing();
+        if (this.selectBoxManager.isDrawing) {
 
-        this.selectBoxManager.stopSelectBox();
-        this.render();
+            let selectedDrawables = this.selectBoxManager.getDrawablesInSelectBox(this.drawablesManager.drawables);
+
+            this.drawablesManager.setSelectedDrawables(selectedDrawables);
+
+            this.selectBoxManager.stopSelectBox();
+
+            this.render();
+        }
+
+        else {
+            this.mouse.setStyleDefault();
+            this.drawablesManager.stopDragging();
+            this.stopPanning();
+            this.drawablesManager.stopResizing();
+            this.updateDebugValues();
+
+            this.drawablesManager.stopDrawing();
+
+            this.selectBoxManager.stopSelectBox();
+            this.render();
+        }
     }
 
     private handleMouseLeave(): void {
@@ -256,7 +276,7 @@ export class InputManager implements IInputManager {
 
         const mouseGrid = this.mouseGridPosition;
         const mouseScreen = this.mouseScreenPosition;
-        const selected = this.drawablesManager.selected;
+        const selectedHovered = this.drawablesManager.getSelectedHoveredDrawable();
         element.innerText =
             `| scale: ${this.viewport.scale.toFixed(8)} ` +
             `| panX: ${this.viewport.panX.toFixed(8)} ` +
@@ -264,9 +284,9 @@ export class InputManager implements IInputManager {
             `| isPanning: ${this.isPanningActive} ` +
             `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
             `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} ` +
-            `| selected: '${selected?.ID ?? 'none'}.'` +
+            `| selected: '${selectedHovered?.ID ?? 'none'}.'` +
             `| dragging: '${this.drawablesManager.isDraggingShape ?? 'none'}.'` +
             `| resizing: ${this.drawablesManager.isResizingShape} |` +
-            `| selectedDrawableHoveringMousePosition: ${selected?.lastMousePosition} |`;
+            `| selectedHoveredDrawableHoveringMousePosition: ${selectedHovered} |`;
     }
 }

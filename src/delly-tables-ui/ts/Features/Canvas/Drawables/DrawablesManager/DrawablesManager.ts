@@ -7,7 +7,9 @@ import { SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxM
 import { v4 as uuidv4 } from 'uuid';
 
 export class DrawablesManager {
-    private selectedDrawable: IDrawable | null = null;
+    // This will store UUIDs for selected drawables.
+    private selectedDrawables: IDrawable[] | null = null;
+    private selectedHoveredDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
     public isDrawingShape: boolean = false;
@@ -25,18 +27,55 @@ export class DrawablesManager {
         this.canvas = canvas;
     }
 
-    get selected(): IDrawable | null { return this.selectedDrawable; }
+    get selected(): IDrawable[] | null {
+        return this.selectedDrawables;
+    }
+
     get isDraggingShape(): boolean { return this.isDragging; }
     get isResizingShape(): boolean { return this.isResizing; }
 
 
     public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
-        this.selectedDrawable = drawable;
+        this.selectedDrawables = [drawable];
 
         drawable.isSelected = true;
 
         this.dragOffset.x = mouseGridPos.x! - drawable.gridPosition.x!;
         this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
+    }
+
+    public setSelectedDrawables(selectedDrawables: IDrawable[]): void {
+        this.selectedDrawables = selectedDrawables;
+
+        if (this.selectedDrawables == null) {
+            return;
+        }
+
+        this.selectedDrawables.forEach(drawable => {
+            drawable.isSelected = true;
+        });
+
+    }
+
+    public setSelectedHoveredDrawable(mouseGridPosition: Position): void {
+        if (this.selectedDrawables == null) {
+            return;
+        }
+
+        this.selectedDrawables!.forEach(drawable => {
+            let position = drawable.getMousePosOnDrawable(mouseGridPosition);
+            if (position != PositionOnDrawable.NotOn) {
+                this.selectedHoveredDrawable = drawable;
+                return;
+            }
+            else {
+                this.selectedHoveredDrawable = null;
+            }
+        });
+    }
+
+    public getSelectedHoveredDrawable(): IDrawable | null {
+        return this.selectedHoveredDrawable;
     }
 
     public startDrawing(mouseGridPos: Position): void {
@@ -59,7 +98,8 @@ export class DrawablesManager {
                 let shapeToAdd = new Box(this.shapeToAddId, width, height, '#e4bf1aff', this.addShapePosition.x!, this.addShapePosition.y!, true);
                 shapeToAdd.draw(this.ctx);
                 this.drawables.push(shapeToAdd);
-                this.selectedDrawable = shapeToAdd;
+
+                this.selectedDrawables = [shapeToAdd];
             }
 
             const foundDrawable = this.drawables.find(d => d.ID === this.shapeToAddId);
@@ -68,13 +108,6 @@ export class DrawablesManager {
                 foundDrawable!.resize(mouseGridPos);
             }
 
-            console.log('The shape to add id is ' + this.shapeToAddId);
-            console.log('The found shape to add is ');
-            console.log(foundDrawable);
-            console.log('The drawables are ');
-            console.log(this.drawables);
-            console.log('The width of the found drawable is ' + foundDrawable!.width);
-            console.log('The height of the found drawable is ' + foundDrawable!.height);
         }
     }
 
@@ -88,10 +121,13 @@ export class DrawablesManager {
     }
 
     public updateDrag(mouseGridPos: Position): void {
-        if (this.isDragging && this.selectedDrawable &&
+        if (this.isDragging && this.selectedDrawables &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
-            this.selectedDrawable.gridPosition.x = mouseGridPos.x - this.dragOffset.x!;
-            this.selectedDrawable.gridPosition.y = mouseGridPos.y - this.dragOffset.y!;
+
+            this.selectedDrawables.forEach((drawable: IDrawable) => {
+                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
+                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
+            });
         }
     }
 
@@ -100,7 +136,7 @@ export class DrawablesManager {
             drawable.isSelected = false;
         });
 
-        this.selectedDrawable = null;
+        this.selectedDrawables = null;
     }
 
     public toggleShapesButton(): void {
@@ -128,10 +164,13 @@ export class DrawablesManager {
     }
 
     public updateResizing(mouseGridPos: Position): void {
-        if (this.isDragging && this.selectedDrawable &&
+        if (this.isDragging && this.selectedDrawables &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
-            this.selectedDrawable.gridPosition.x = mouseGridPos.x - this.dragOffset.x!;
-            this.selectedDrawable.gridPosition.y = mouseGridPos.y - this.dragOffset.y!;
+            this.selectedDrawables.forEach(drawable => {
+                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
+                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
+            });
+
         }
     }
 
@@ -180,7 +219,7 @@ export class DrawablesManager {
         const sizeOffset = 200 / 2;
         let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
         createdDrawable.isSelected = true;
-        this.selectedDrawable = createdDrawable;
+        this.selectedDrawables = [createdDrawable];
         this.drawables.push(createdDrawable);
     }
 
@@ -194,5 +233,9 @@ export class DrawablesManager {
         this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos);
 
         this.ctx.restore();
+    }
+
+    public getDrawableById(id: string): IDrawable | null {
+        return this.drawables.find((drawable: IDrawable) => drawable.ID === id) || null;
     }
 }
