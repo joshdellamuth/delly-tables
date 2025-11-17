@@ -40,9 +40,6 @@ export class SelectBoxManager {
             x, y, w, h
         );
 
-        console.log('Select box is');
-        console.log(this.selectBox);
-
         this.ctx.fillStyle = 'rgba(129, 161, 212, 0.1)';
         this.ctx.fillRect(x, y, w, h);
         this.ctx.strokeStyle = 'rgba(114, 153, 214, 1)';
@@ -54,8 +51,6 @@ export class SelectBoxManager {
         console.log('getDrawablesInSelectBox');
         let drawablesInBox = drawables.filter(d => this.isInside(d));
 
-        console.log('the drawables are');
-        console.log(drawablesInBox);
         return drawablesInBox;
     }
 
@@ -67,17 +62,10 @@ export class SelectBoxManager {
         const dx2 = drawable.gridPosition.x! + drawable.width;
         const dy2 = drawable.gridPosition.y! + drawable.height;
 
-        console.log('dx1: ' + dx1 + ' dx2: ' + dx2);
-        console.log('dy1: ' + dy1 + ' dy2: ' + dy2);
-
         const rx1 = this.selectBox!.x1;
         const ry1 = this.selectBox!.y1;
         const rx2 = this.selectBox!.x1! + this.selectBox!.w!;
         const ry2 = this.selectBox!.y1! + this.selectBox!.h!;
-
-        console.log('rx1: ' + rx1 + ' rx2: ' + rx2);
-        console.log('ry1: ' + ry1 + ' ry2: ' + ry2);
-
 
         return dx1! >= rx1! &&
             dy1! >= ry1! &&

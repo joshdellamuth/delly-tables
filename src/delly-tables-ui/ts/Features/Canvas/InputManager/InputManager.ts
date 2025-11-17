@@ -99,7 +99,6 @@ export class InputManager implements IInputManager {
                             this.drawablesManager.startResizing();
                         }
                     }
-
                 }
             }
 
@@ -142,6 +141,14 @@ export class InputManager implements IInputManager {
 
         this.drawablesManager.setSelectedHoveredDrawable(this.mouseGridPosition);
         let selectedHoveredDrawable = this.drawablesManager.getSelectedHoveredDrawable();
+
+        if (selectedHoveredDrawable == null) {
+            this.mouse.setStyleByHoveringStatus(PositionOnDrawable.NotOn);
+        }
+        else {
+            this.mouse.setStyleByHoveringStatus(selectedHoveredDrawable!.lastMousePosition);
+        }
+
         let mouseGridPosition = this.mouseGridPosition;
 
         if (this.drawablesManager.isDrawingShape) {
@@ -159,6 +166,7 @@ export class InputManager implements IInputManager {
             this.updateDebugValues();
         }
 
+
         if (this.drawablesManager.isDraggingShape) {
             this.drawablesManager.updateDrag(this.mouseGridPosition);
             this.render();
@@ -171,7 +179,6 @@ export class InputManager implements IInputManager {
             const { deltaX, deltaY } = this.updatePanning(e.clientX, e.clientY);
             this.viewport.pan(deltaX, deltaY);
             this.render();
-
         }
 
         // If a shape is already selected, change the mouse accordingly, and resize it if it is being resized
