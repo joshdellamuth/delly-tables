@@ -1,4 +1,4 @@
-import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
+import { CanvasPosition } from '../../Shared/CanvasPosition.ts';
 import { IMouse } from './IMouse.ts';
 
 export class Mouse implements IMouse {
@@ -8,33 +8,33 @@ export class Mouse implements IMouse {
         this._canvas = canvas;
     }
 
-    setStyleByHoveringStatus(hoveringStatus: string): void {
+    setStyleByHoveringStatus(hoveringStatus: number): void {
 
         switch (hoveringStatus) {
-            case PositionOnDrawable.BottomEdge:
-            case PositionOnDrawable.TopEdge:
+            case CanvasPosition.BottomEdge:
+            case CanvasPosition.TopEdge:
                 this._canvas.style.cursor = 'n-resize';
                 break;
-            case PositionOnDrawable.RightEdge:
-            case PositionOnDrawable.LeftEdge:
+            case CanvasPosition.RightEdge:
+            case CanvasPosition.LeftEdge:
                 this._canvas.style.cursor = 'w-resize';
                 break;
-            case PositionOnDrawable.TopLeftCorner:
+            case CanvasPosition.TopLeftCorner:
                 this._canvas.style.cursor = 'nw-resize';
                 break;
-            case PositionOnDrawable.TopRightCorner:
+            case CanvasPosition.TopRightCorner:
                 this._canvas.style.cursor = 'ne-resize';
                 break;
-            case PositionOnDrawable.BottomLeftCorner:
+            case CanvasPosition.BottomLeftCorner:
                 this._canvas.style.cursor = 'sw-resize';
                 break;
-            case PositionOnDrawable.BottomRightCorner:
+            case CanvasPosition.BottomRightCorner:
                 this._canvas.style.cursor = 'se-resize';
                 break;
-            case PositionOnDrawable.Inside:
+            case CanvasPosition.Inside:
                 this._canvas.style.cursor = 'move';
                 break;
-            case PositionOnDrawable.NotOn:
+            case CanvasPosition.NotOn:
                 this._canvas.style.cursor = 'default';
                 break;
         }

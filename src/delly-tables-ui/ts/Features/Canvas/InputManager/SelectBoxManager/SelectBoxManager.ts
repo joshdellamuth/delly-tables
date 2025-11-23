@@ -30,7 +30,6 @@ export class SelectBoxManager {
 
 
     public drawSelectBox(startPosition: Position): void {
-        console.log('drawSelectBox');
         const x = Math.min(startPosition.x!, this.startCoordinates.x!);
         const y = Math.min(startPosition.y!, this.startCoordinates.y!);
         const w = Math.abs(this.startCoordinates.x! - startPosition.x!);
@@ -48,7 +47,6 @@ export class SelectBoxManager {
     }
 
     public getDrawablesInSelectBox(drawables: IDrawable[]): IDrawable[] {
-        console.log('getDrawablesInSelectBox');
         let drawablesInBox = drawables.filter(d => this.isInside(d));
 
         return drawablesInBox;

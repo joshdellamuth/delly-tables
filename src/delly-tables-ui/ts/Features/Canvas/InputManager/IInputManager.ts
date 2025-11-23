@@ -6,7 +6,7 @@ export interface IInputManager {
   readonly mouseGridPosition: Position;
   readonly isPanningActive: boolean;
 
-  toggleShapesButton(): void;
+  toggleShapesButton(shapesButton: HTMLButtonElement): void;
   addDrawables(drawables: IDrawable[]): void;
   setupEventListeners(): void;
   render(): void;

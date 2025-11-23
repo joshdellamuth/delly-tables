@@ -1,4 +1,4 @@
-import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
+import { PositionOnDrawable } from '../../Shared/CanvasPosition.ts';
 
 export interface IMouse {
     setStyleByHoveringStatus(hoveringStatus: PositionOnDrawable | string): void;

@@ -1,6 +1,6 @@
 import { Position } from "../../Shared/Position";
 import { IDrawable } from "../IDrawable";
-import { PositionOnDrawable } from "../../Shared/PositionOnDrawable";
+import { CanvasPosition } from "../../Shared/CanvasPosition";
 import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
 
 export abstract class RectangularDrawable implements IDrawable {
@@ -15,7 +15,7 @@ export abstract class RectangularDrawable implements IDrawable {
     padding: number = 20;
     rounding: number = 0;
 
-    lastMousePosition: string = PositionOnDrawable.NotOn;
+    lastMousePosition: number = CanvasPosition.NotOn;
 
     constructor(id: string, width: number, height: number,
         xPosition: number, yPosition: number, isSelected: boolean = false) {
@@ -32,7 +32,7 @@ export abstract class RectangularDrawable implements IDrawable {
         throw new Error("Method not implemented.");
     }
 
-    getMousePosOnDrawable(mousePosition: Position): string {
+    getMousePosOnDrawable(mousePosition: Position): number {
         // Calculate the bounds of the box
         const x1 = this.gridPosition.x!;
         const y1 = this.gridPosition.y!;
@@ -41,14 +41,14 @@ export abstract class RectangularDrawable implements IDrawable {
 
         // Check if mouse is within the overall box bounds (with padding)
         if (mousePosition.x === null || mousePosition.y === null) {
-            this.lastMousePosition = PositionOnDrawable.NotOn;
-            return PositionOnDrawable.NotOn;
+            this.lastMousePosition = CanvasPosition.NotOn;
+            return CanvasPosition.NotOn;
         }
 
         if (mousePosition.x < x1 - this.padding || mousePosition.x > x2 + this.padding ||
             mousePosition.y < y1 - this.padding || mousePosition.y > y2 + this.padding) {
-            this.lastMousePosition = PositionOnDrawable.NotOn;
-            return PositionOnDrawable.NotOn;
+            this.lastMousePosition = CanvasPosition.NotOn;
+            return CanvasPosition.NotOn;
         }
 
         // Define helper functions for edge detection
@@ -59,43 +59,43 @@ export abstract class RectangularDrawable implements IDrawable {
 
         // Check corners first (corners have priority over edges)
         if (isNearLeft && isNearTop) {
-            this.lastMousePosition = PositionOnDrawable.TopLeftCorner;
-            return PositionOnDrawable.TopLeftCorner;
+            this.lastMousePosition = CanvasPosition.TopLeftCorner;
+            return CanvasPosition.TopLeftCorner;
         }
         if (isNearRight && isNearTop) {
-            this.lastMousePosition = PositionOnDrawable.TopRightCorner;
-            return PositionOnDrawable.TopRightCorner;
+            this.lastMousePosition = CanvasPosition.TopRightCorner;
+            return CanvasPosition.TopRightCorner;
         }
         if (isNearLeft && isNearBottom) {
-            this.lastMousePosition = PositionOnDrawable.BottomLeftCorner;
-            return PositionOnDrawable.BottomLeftCorner;
+            this.lastMousePosition = CanvasPosition.BottomLeftCorner;
+            return CanvasPosition.BottomLeftCorner;
         }
         if (isNearRight && isNearBottom) {
-            this.lastMousePosition = PositionOnDrawable.BottomRightCorner;
-            return PositionOnDrawable.BottomRightCorner;
+            this.lastMousePosition = CanvasPosition.BottomRightCorner;
+            return CanvasPosition.BottomRightCorner;
         }
 
         // Check edges
         if (isNearLeft) {
-            this.lastMousePosition = PositionOnDrawable.LeftEdge;
-            return PositionOnDrawable.LeftEdge;
+            this.lastMousePosition = CanvasPosition.LeftEdge;
+            return CanvasPosition.LeftEdge;
         }
         if (isNearRight) {
-            this.lastMousePosition = PositionOnDrawable.RightEdge;
-            return PositionOnDrawable.RightEdge;
+            this.lastMousePosition = CanvasPosition.RightEdge;
+            return CanvasPosition.RightEdge;
         }
         if (isNearTop) {
-            this.lastMousePosition = PositionOnDrawable.TopEdge;
-            return PositionOnDrawable.TopEdge;
+            this.lastMousePosition = CanvasPosition.TopEdge;
+            return CanvasPosition.TopEdge;
         }
         if (isNearBottom) {
-            this.lastMousePosition = PositionOnDrawable.BottomEdge;
-            return PositionOnDrawable.BottomEdge;
+            this.lastMousePosition = CanvasPosition.BottomEdge;
+            return CanvasPosition.BottomEdge;
         }
 
         // Mouse is inside the box but not near any edge
-        this.lastMousePosition = PositionOnDrawable.Inside;
-        return PositionOnDrawable.Inside;
+        this.lastMousePosition = CanvasPosition.Inside;
+        return CanvasPosition.Inside;
     }
 
     updateScreenPosition(screenPosition: Position): void {
@@ -103,39 +103,38 @@ export abstract class RectangularDrawable implements IDrawable {
         this.screenPosition.y = screenPosition.y;
     }
 
-    resize(gridPosition: Position): void {
-        // Use lastMousePosition to determine HOW to resize
-        switch (this.lastMousePosition) {
-            case PositionOnDrawable.BottomRightCorner:
+    resize(gridPosition: Position, mousePosition: number): void {
+        switch (mousePosition) {
+            case CanvasPosition.BottomRightCorner:
                 RectangularDrawableResizing.resizeFromBottomRightCorner(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.TopLeftCorner:
+            case CanvasPosition.TopLeftCorner:
                 RectangularDrawableResizing.resizeFromTopLeftCorner(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.TopRightCorner:
+            case CanvasPosition.TopRightCorner:
                 RectangularDrawableResizing.resizeFromTopRightCorner(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.BottomLeftCorner:
+            case CanvasPosition.BottomLeftCorner:
                 RectangularDrawableResizing.resizeFromBottomLeftCorner(this, gridPosition);
                 break;
 
             // Edges
-            case PositionOnDrawable.RightEdge:
+            case CanvasPosition.RightEdge:
                 RectangularDrawableResizing.resizeFromRightEdge(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.LeftEdge:
+            case CanvasPosition.LeftEdge:
                 RectangularDrawableResizing.resizeFromLeftEdge(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.TopEdge:
+            case CanvasPosition.TopEdge:
                 RectangularDrawableResizing.resizeFromTopEdge(this, gridPosition);
                 break;
 
-            case PositionOnDrawable.BottomEdge:
+            case CanvasPosition.BottomEdge:
                 RectangularDrawableResizing.resizeFromBottomEdge(this, gridPosition);
                 break;
         }

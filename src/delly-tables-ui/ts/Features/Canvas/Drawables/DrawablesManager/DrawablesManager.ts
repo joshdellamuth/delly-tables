@@ -1,4 +1,4 @@
-import { PositionOnDrawable } from '../../Shared/PositionOnDrawable.ts';
+import { CanvasPosition } from '../../Shared/CanvasPosition.ts';
 import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 export class DrawablesManager {
     // This will store UUIDs for selected drawables.
     private selectedDrawables: IDrawable[] | null = null;
+    private hoveredDrawable: IDrawable | null = null;
     private selectedHoveredDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
@@ -54,7 +55,22 @@ export class DrawablesManager {
         this.selectedDrawables.forEach(drawable => {
             drawable.isSelected = true;
         });
+    }
 
+    public resizeSelected(mouseGridPosition: Position, mouseCanvasPosition: number): void {
+
+        if (this.selectedDrawables == null) {
+            return;
+        }
+
+        // If there is only one selected, use the resize method on it. 
+        if (this.selectedDrawables!.length == 1) {
+            this.selectedDrawables![0].resize(mouseGridPosition, mouseCanvasPosition);
+        }
+        else {
+            // TODO: Implement logic for resizing when there are multiple drawables selected. 
+            throw new Error("Resizing logic not implemented for multiple selected drawables.");
+        }
     }
 
     public setSelectedHoveredDrawable(mouseGridPosition: Position): void {
@@ -64,7 +80,7 @@ export class DrawablesManager {
 
         this.selectedDrawables!.forEach(drawable => {
             let position = drawable.getMousePosOnDrawable(mouseGridPosition);
-            if (position != PositionOnDrawable.NotOn) {
+            if (position != CanvasPosition.NotOn) {
                 this.selectedHoveredDrawable = drawable;
                 return;
             }
@@ -104,8 +120,8 @@ export class DrawablesManager {
 
             const foundDrawable = this.drawables.find(d => d.ID === this.shapeToAddId);
             if (foundDrawable) {
-                foundDrawable.lastMousePosition = PositionOnDrawable.BottomRightCorner;
-                foundDrawable!.resize(mouseGridPos);
+                foundDrawable.lastMousePosition = CanvasPosition.BottomRightCorner;
+                foundDrawable!.resize(mouseGridPos, foundDrawable.lastMousePosition);
             }
 
         }
@@ -139,9 +155,8 @@ export class DrawablesManager {
         this.selectedDrawables = null;
     }
 
-    public toggleShapesButton(): void {
-        this.shapesButtonActivated = !this.shapesButtonActivated;
-        console.log('Shapes button activated is now set to ' + this.shapesButtonActivated);
+    public setShapesButton(state: boolean): void {
+        this.shapesButtonActivated = state;
     }
 
 
@@ -179,7 +194,7 @@ export class DrawablesManager {
         for (let i = this.drawables.length - 1; i >= 0; i--) {
             const drawable = this.drawables[i];
             let mousePosOnDrawable = drawable.getMousePosOnDrawable(mouseGridPos);
-            if (mousePosOnDrawable != PositionOnDrawable.NotOn) {
+            if (mousePosOnDrawable != CanvasPosition.NotOn) {
                 this.clearSelection();
                 this.selectDrawable(drawable, mouseGridPos);
                 return true;
@@ -188,11 +203,34 @@ export class DrawablesManager {
         return false;
     }
 
+    public getMouseCanvasPosition(gridPos: Position): number {
+        // If there is one drawable in the selected drawables
+        if (this.selectedDrawables == null) {
+            return CanvasPosition.NotOn;
+        }
+
+        if (this.selectedDrawables!.length === 1) {
+            return this.selectedDrawables[0].getMousePosOnDrawable(gridPos);
+        }
+        else {
+            console.log("Logic for getting canvas postion not implemented for multiple selected drawables.");
+            return CanvasPosition.NotOn;
+        }
+    }
+
     public addDrawables(drawables: IDrawable[]): void {
         this.drawables = this.drawables.concat(drawables);
     }
 
-    public removeDrawables(drawables: IDrawable[]): void {
+    public deleteSelected(): void {
+        if (this.selectedDrawables == null) {
+            return;
+        }
+
+        this.removeDrawables(this.selectedDrawables!);
+    }
+
+    private removeDrawables(drawables: IDrawable[]): void {
         this.drawables = this.drawables.filter((drawable: IDrawable) => !drawables.includes(drawable));
     }
 

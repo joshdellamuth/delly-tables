@@ -1,5 +1,6 @@
 import { Position } from '../Shared/Position';
 import { ICanvObject } from "../Base/CanvObject/ICanvObject";
+import { CanvasPosition } from '../Shared/CanvasPosition';
 
 export interface IDrawable extends ICanvObject {
     // Properties
@@ -12,14 +13,14 @@ export interface IDrawable extends ICanvObject {
     minimumHeight: number;
     isSelected: boolean;
 
-    lastMousePosition: string;
+    lastMousePosition: number;
 
     padding: number;
     rounding: number;
 
     // Methods
     draw(context: CanvasRenderingContext2D): void;
-    getMousePosOnDrawable(mousePosition: Position): string;
+    getMousePosOnDrawable(mousePosition: Position): number;
     updateScreenPosition(screenPosition: Position): void;
-    resize(gridPosition: Position): void;
+    resize(gridPosition: Position, mousePosition: number): void;
 }
