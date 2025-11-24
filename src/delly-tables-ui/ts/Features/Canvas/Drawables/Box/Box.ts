@@ -21,7 +21,7 @@ export class Box
         this.color = color;
     }
 
-    override draw(context: CanvasRenderingContext2D): void {
+    override draw(context: CanvasRenderingContext2D, scale: number): void {
         // There is currently an error with rounding, so making it 0 for now.
         let rounding = 8;
 
@@ -42,7 +42,7 @@ export class Box
         context.fill();
 
         if (this.isSelected) {
-            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding);
+            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding, scale);
         }
     }
 }

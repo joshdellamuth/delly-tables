@@ -12,10 +12,24 @@ export class Viewport {
     zoom(delta: number, mouseX: number, mouseY: number): void {
         const zoomFactor = 1.18;
         const scaleFactor = delta < 0 ? zoomFactor : 1 / zoomFactor;
-        const newScale = this._scale * scaleFactor;
+        let newScale = this._scale * scaleFactor;
+
+
+
+        if (newScale > 5) {
+            newScale = 5;
+            console.log("Zoom in limit reached.");
+        }
+
+        if (newScale < 0.08) {
+            newScale = 0.08;
+            console.log("Zoom out limit reached.");
+        }
 
         this._panX = mouseX - (mouseX - this._panX) * (newScale / this._scale);
         this._panY = mouseY - (mouseY - this._panY) * (newScale / this._scale);
+
+        console.log(`Zooming from ${this._scale} to ${newScale}`);
         this._scale = newScale;
     }
 
@@ -31,7 +45,7 @@ export class Viewport {
         );
     }
 
-    convertToScreenPos(gridPosition : Position, canvas: HTMLCanvasElement,
+    convertToScreenPos(gridPosition: Position, canvas: HTMLCanvasElement,
         xDistanceFromOrigin: number, yDistanceFromOrigin: number,
         scale: number): Position {
         const rect = canvas.getBoundingClientRect();

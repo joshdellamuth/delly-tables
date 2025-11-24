@@ -22,7 +22,6 @@ export class InputManager implements IInputManager {
     private mouseCanvasPosition: number = CanvasPosition.NotOn;
     private inputState: number = InputStates.Idle;
 
-
     // Buttons
     private shapesButton: HTMLButtonElement;
 
@@ -62,6 +61,7 @@ export class InputManager implements IInputManager {
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
+    // #region Event handlers
     handleKeyDown(e: KeyboardEvent): void {
         if (e.key === 'Delete') {
             this.drawablesManager.deleteSelected();
@@ -106,16 +106,18 @@ export class InputManager implements IInputManager {
                     }
 
                     break;
+                case InputStates.Panning:
+                    break;
                 case InputStates.Selecting:
                     break;
-                case InputStates.Panning:
+                case InputStates.Dragging:
+                    break;
+                case InputStates.Resizing:
                     break;
                 case InputStates.Drawing:
                     this.drawablesManager.startDrawing(this.mouseGridPosition);
                     // Clear the currently selected shapes. (the one that is being drawn will be selected.)
                     this.drawablesManager.clearSelection();
-                    break;
-                case InputStates.Resizing:
                     break;
                 default:
                     break;
@@ -131,7 +133,6 @@ export class InputManager implements IInputManager {
             this.inputState = InputStates.Panning;
         }
     }
-
 
     private handleDoubleClick(e: MouseEvent): void {
         this.drawablesManager.clearSelection();
@@ -158,12 +159,12 @@ export class InputManager implements IInputManager {
                 this.mouseCanvasPosition = this.drawablesManager.getMouseCanvasPosition(this.mouseGridPos);
                 this.mouse.setStyleByHoveringStatus(this.mouseCanvasPosition);
                 break;
-            case InputStates.Selecting:
-                break;
             case InputStates.Panning:
                 this.mouse.setStyleGrabbing();
                 const { deltaX, deltaY } = this.updatePanning(e.clientX, e.clientY);
                 this.viewport.pan(deltaX, deltaY);
+                break;
+            case InputStates.Selecting:
                 break;
             case InputStates.Dragging:
                 this.drawablesManager.updateDrag(this.mouseGridPosition);
@@ -172,7 +173,7 @@ export class InputManager implements IInputManager {
                 this.drawablesManager.resizeSelected(this.mouseGridPosition, this.mouseCanvasPosition);
                 break;
             case InputStates.Drawing:
-                this.drawablesManager.updateDrawing(this.mouseGridPosition);
+                this.drawablesManager.updateDrawing(this.mouseGridPosition, this.viewport.scale);
                 break;
             default:
                 break;
@@ -185,6 +186,10 @@ export class InputManager implements IInputManager {
         switch (this.inputState) {
             case InputStates.Idle:
                 break;
+            case InputStates.Panning:
+                this.stopPanning();
+                this.cancel();
+                break;
             case InputStates.Selecting:
                 // Set the selected drawables to the drawables in the select box.             
                 let selectedDrawables = this.selectBoxManager.getDrawablesInSelectBox(this.drawablesManager.drawables);
@@ -193,10 +198,7 @@ export class InputManager implements IInputManager {
                 this.selectBoxManager.stopSelectBox();
                 this.cancel();
                 break;
-            case InputStates.Panning:
-                this.stopPanning();
-                this.cancel();
-                break;
+
             case InputStates.Dragging:
                 this.drawablesManager.stopDragging();
                 this.cancel();
@@ -224,7 +226,19 @@ export class InputManager implements IInputManager {
         // Continue dragging even when the user's mouse leaves the canvas. 
     }
 
-    public updateMousePosition(canvas: HTMLCanvasElement, clientX: number, clientY: number, viewport: Viewport): void {
+    private handleWheel(e: WheelEvent): void {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        this.viewport.zoom(e.deltaY, mouseX, mouseY);
+        this.render();
+    }
+
+    // #endregion
+
+    public updateMousePosition(canvas: HTMLCanvasElement, clientX: number,
+        clientY: number, viewport: Viewport): void {
         const rect = canvas.getBoundingClientRect();
         this.mouseScreenPos.x = clientX - rect.left;
         this.mouseScreenPos.y = clientY - rect.top;
@@ -236,20 +250,9 @@ export class InputManager implements IInputManager {
         this.mouseGridPos.y = gridPos.y;
     }
 
-    public startPanning(clientX: number, clientY: number): void {
-        this.isPanning = true;
-        this.panStart.x = clientX;
-        this.panStart.y = clientY;
-    }
 
-    private handleWheel(e: WheelEvent): void {
-        const rect = this.canvas.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
 
-        this.viewport.zoom(e.deltaY, mouseX, mouseY);
-        this.render();
-    }
+
 
 
     private cancel(): void {
@@ -258,10 +261,10 @@ export class InputManager implements IInputManager {
     }
 
     // #region Panning methods
-    public stopPanning(): void {
-        this.isPanning = false;
-        this.panStart.x = null;
-        this.panStart.y = null;
+    public startPanning(clientX: number, clientY: number): void {
+        this.isPanning = true;
+        this.panStart.x = clientX;
+        this.panStart.y = clientY;
     }
 
     public updatePanning(clientX: number, clientY: number): { deltaX: number, deltaY: number } {
@@ -278,11 +281,19 @@ export class InputManager implements IInputManager {
         return { deltaX, deltaY };
     }
 
+    public stopPanning(): void {
+        this.isPanning = false;
+        this.panStart.x = null;
+        this.panStart.y = null;
+    }
+
     // #endregion
 
     // Rendering all of the drawables. 
     public render(): void {
-        this.drawablesManager.render(this.viewport, this.canvas, this.selectBoxManager, this.mouseGridPosition);
+        this.drawablesManager.render(this.viewport, this.canvas,
+            this.selectBoxManager, this.mouseGridPosition,
+            this.viewport.scale);
     }
 
 

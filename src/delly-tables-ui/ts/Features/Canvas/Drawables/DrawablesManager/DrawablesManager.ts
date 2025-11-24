@@ -10,7 +10,6 @@ export class DrawablesManager {
     // This will store UUIDs for selected drawables.
     private selectedDrawables: IDrawable[] | null = null;
     private hoveredDrawable: IDrawable | null = null;
-    private selectedHoveredDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
     public isDrawingShape: boolean = false;
@@ -28,21 +27,88 @@ export class DrawablesManager {
         this.canvas = canvas;
     }
 
-    get selected(): IDrawable[] | null {
-        return this.selectedDrawables;
+    //#region Drawing methods
+    public startDrawing(mouseGridPos: Position): void {
+        this.addShapePosition = mouseGridPos;
+        this.isDrawingShape = true;
     }
 
-    get isDraggingShape(): boolean { return this.isDragging; }
-    get isResizingShape(): boolean { return this.isResizing; }
+    public updateDrawing(mouseGridPos: Position, scale: number): void {
+        if (this.isDrawingShape) {
+            // Calculate the different between the start position and the current mouse position to determine the width and height
+            const diffX = mouseGridPos.x! - this.addShapePosition.x!;
+            const diffY = mouseGridPos.y! - this.addShapePosition.y!;
+
+            // Calculate the width and height of the new shape
+            const width = Math.abs(diffX);
+            const height = Math.abs(diffY);
+
+            if (this.shapeToAddId == "") {
+                this.shapeToAddId = uuidv4();
+                let shapeToAdd = new Box(this.shapeToAddId, width, height, '#e4bf1aff', this.addShapePosition.x!, this.addShapePosition.y!, true);
+                shapeToAdd.draw(this.ctx, scale);
+                this.drawables.push(shapeToAdd);
+
+                this.selectedDrawables = [shapeToAdd];
+            }
+
+            const foundDrawable = this.drawables.find(d => d.ID === this.shapeToAddId);
+            if (foundDrawable) {
+                foundDrawable.lastMousePosition = CanvasPosition.BottomRightCorner;
+                foundDrawable!.resize(mouseGridPos, foundDrawable.lastMousePosition);
+            }
+
+        }
+    }
+
+    public stopDrawing(): void {
+        if (this.isDrawingShape) {
+            this.shapesButtonActivated = false;
+            this.isDrawingShape = false;
+            this.shapeToAddId = "";
+        }
+    }
+
+    // #endregion
 
 
-    public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
-        this.selectedDrawables = [drawable];
+    // #region Dragging methods
+    public startDragging(): void {
+        this.isDragging = true;
+        this.isResizing = false;
+    }
 
-        drawable.isSelected = true;
+    public updateDrag(mouseGridPos: Position): void {
+        if (this.isDragging && this.selectedDrawables &&
+            mouseGridPos.x !== null && mouseGridPos.y !== null) {
 
-        this.dragOffset.x = mouseGridPos.x! - drawable.gridPosition.x!;
-        this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
+            this.selectedDrawables.forEach((drawable: IDrawable) => {
+                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
+                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
+            });
+        }
+    }
+
+    public stopDragging(): void {
+        this.isDragging = false;
+    }
+
+    //#endregion
+
+
+    // #region Selction methods
+    public trySelectAt(mouseGridPos: Position): boolean {
+
+        for (let i = this.drawables.length - 1; i >= 0; i--) {
+            const drawable = this.drawables[i];
+            let mousePosOnDrawable = drawable.getMousePosOnDrawable(mouseGridPos);
+            if (mousePosOnDrawable != CanvasPosition.NotOn) {
+                this.clearSelection();
+                this.selectDrawable(drawable, mouseGridPos);
+                return true;
+            }
+        }
+        return false;
     }
 
     public setSelectedDrawables(selectedDrawables: IDrawable[]): void {
@@ -55,6 +121,62 @@ export class DrawablesManager {
         this.selectedDrawables.forEach(drawable => {
             drawable.isSelected = true;
         });
+    }
+
+    public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
+        this.selectedDrawables = [drawable];
+
+        drawable.isSelected = true;
+
+        this.dragOffset.x = mouseGridPos.x! - drawable.gridPosition.x!;
+        this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
+    }
+
+    public clearSelection(): void {
+        this.drawables.forEach((drawable: IDrawable) => {
+            drawable.isSelected = false;
+        });
+
+        this.selectedDrawables = null;
+    }
+
+    public getMouseCanvasPosition(gridPos: Position): number {
+        // If there is one drawable in the selected drawables
+        if (this.selectedDrawables == null) {
+            return CanvasPosition.NotOn;
+        }
+
+        if (this.selectedDrawables!.length === 1) {
+            return this.selectedDrawables[0].getMousePosOnDrawable(gridPos);
+        }
+        else {
+            console.log("Logic for getting canvas postion not implemented for multiple selected drawables.");
+            return CanvasPosition.NotOn;
+        }
+    }
+
+    // #endregion
+
+
+    // #region Resizing methods
+    public startResizing(): void {
+        this.isResizing = true;
+        this.isDragging = false;
+    }
+
+    public updateResizing(mouseGridPos: Position): void {
+        if (this.isResizing && this.selectedDrawables &&
+            mouseGridPos.x !== null && mouseGridPos.y !== null) {
+            this.selectedDrawables.forEach(drawable => {
+                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
+                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
+            });
+
+        }
+    }
+
+    public stopResizing(): void {
+        this.isResizing = false;
     }
 
     public resizeSelected(mouseGridPosition: Position, mouseCanvasPosition: number): void {
@@ -73,154 +195,28 @@ export class DrawablesManager {
         }
     }
 
-    public setSelectedHoveredDrawable(mouseGridPosition: Position): void {
-        if (this.selectedDrawables == null) {
-            return;
-        }
-
-        this.selectedDrawables!.forEach(drawable => {
-            let position = drawable.getMousePosOnDrawable(mouseGridPosition);
-            if (position != CanvasPosition.NotOn) {
-                this.selectedHoveredDrawable = drawable;
-                return;
-            }
-            else {
-                this.selectedHoveredDrawable = null;
-            }
-        });
-    }
-
-    public getSelectedHoveredDrawable(): IDrawable | null {
-        return this.selectedHoveredDrawable;
-    }
-
-    public startDrawing(mouseGridPos: Position): void {
-        this.addShapePosition = mouseGridPos;
-        this.isDrawingShape = true;
-    }
-
-    public updateDrawing(mouseGridPos: Position): void {
-        if (this.isDrawingShape) {
-            // Calculate the different between the start position and the current mouse position to determine the width and height
-            const diffX = mouseGridPos.x! - this.addShapePosition.x!;
-            const diffY = mouseGridPos.y! - this.addShapePosition.y!;
-
-            // Calculate the width and height of the new shape
-            const width = Math.abs(diffX);
-            const height = Math.abs(diffY);
-
-            if (this.shapeToAddId == "") {
-                this.shapeToAddId = uuidv4();
-                let shapeToAdd = new Box(this.shapeToAddId, width, height, '#e4bf1aff', this.addShapePosition.x!, this.addShapePosition.y!, true);
-                shapeToAdd.draw(this.ctx);
-                this.drawables.push(shapeToAdd);
-
-                this.selectedDrawables = [shapeToAdd];
-            }
-
-            const foundDrawable = this.drawables.find(d => d.ID === this.shapeToAddId);
-            if (foundDrawable) {
-                foundDrawable.lastMousePosition = CanvasPosition.BottomRightCorner;
-                foundDrawable!.resize(mouseGridPos, foundDrawable.lastMousePosition);
-            }
-
-        }
-    }
+    // #endregion
 
 
-    public stopDrawing(): void {
-        if (this.isDrawingShape) {
-            this.shapesButtonActivated = false;
-            this.isDrawingShape = false;
-            this.shapeToAddId = "";
-        }
-    }
-
-    public updateDrag(mouseGridPos: Position): void {
-        if (this.isDragging && this.selectedDrawables &&
-            mouseGridPos.x !== null && mouseGridPos.y !== null) {
-
-            this.selectedDrawables.forEach((drawable: IDrawable) => {
-                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
-                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
-            });
-        }
-    }
-
-    public clearSelection(): void {
-        this.drawables.forEach((drawable: IDrawable) => {
-            drawable.isSelected = false;
-        });
-
-        this.selectedDrawables = null;
-    }
-
-    public setShapesButton(state: boolean): void {
-        this.shapesButtonActivated = state;
-    }
-
-
-    public startDragging(): void {
-        this.isDragging = true;
-        this.isResizing = false;
-    }
-
-    public stopDragging(): void {
-        this.isDragging = false;
-    }
-
-    public startResizing(): void {
-        this.isResizing = true;
-        this.isDragging = false;
-    }
-
-    public stopResizing(): void {
-        this.isResizing = false;
-    }
-
-    public updateResizing(mouseGridPos: Position): void {
-        if (this.isDragging && this.selectedDrawables &&
-            mouseGridPos.x !== null && mouseGridPos.y !== null) {
-            this.selectedDrawables.forEach(drawable => {
-                drawable.gridPosition.x = mouseGridPos.x! - this.dragOffset.x!;
-                drawable.gridPosition.y = mouseGridPos.y! - this.dragOffset.y!;
-            });
-
-        }
-    }
-
-    public trySelectAt(mouseGridPos: Position): boolean {
-
-        for (let i = this.drawables.length - 1; i >= 0; i--) {
-            const drawable = this.drawables[i];
-            let mousePosOnDrawable = drawable.getMousePosOnDrawable(mouseGridPos);
-            if (mousePosOnDrawable != CanvasPosition.NotOn) {
-                this.clearSelection();
-                this.selectDrawable(drawable, mouseGridPos);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public getMouseCanvasPosition(gridPos: Position): number {
-        // If there is one drawable in the selected drawables
-        if (this.selectedDrawables == null) {
-            return CanvasPosition.NotOn;
-        }
-
-        if (this.selectedDrawables!.length === 1) {
-            return this.selectedDrawables[0].getMousePosOnDrawable(gridPos);
-        }
-        else {
-            console.log("Logic for getting canvas postion not implemented for multiple selected drawables.");
-            return CanvasPosition.NotOn;
-        }
-    }
+    // #region Adding methods
 
     public addDrawables(drawables: IDrawable[]): void {
         this.drawables = this.drawables.concat(drawables);
     }
+
+    public addDrawable(mouseGridPos: Position): void {
+        const boxSize = 200;
+        const sizeOffset = 200 / 2;
+        let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
+        createdDrawable.isSelected = true;
+        this.selectedDrawables = [createdDrawable];
+        this.drawables.push(createdDrawable);
+    }
+
+    //#endregion
+
+
+    // #region Deleting methods
 
     public deleteSelected(): void {
         if (this.selectedDrawables == null) {
@@ -234,7 +230,35 @@ export class DrawablesManager {
         this.drawables = this.drawables.filter((drawable: IDrawable) => !drawables.includes(drawable));
     }
 
-    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement, selectBoxManager: SelectBoxManager, mouseGridPos: Position): void {
+    //#endregion
+
+
+    // #region Rendering methods
+
+    public render(viewport: Viewport, canvas: HTMLCanvasElement,
+        selectBoxManager: SelectBoxManager, mouseGridPos: Position,
+        zoom: number): void {
+        this.clear(canvas.width, canvas.height);
+
+        this.ctx.save();
+        this.ctx.translate(viewport.panX, viewport.panY);
+        this.ctx.scale(viewport.scale, viewport.scale);
+
+        // draw the background pattern
+        this.drawBackground(this.ctx, canvas);
+
+        this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos, zoom);
+
+        this.ctx.restore();
+    }
+
+    public clear(width: number, height: number): void {
+        this.ctx.clearRect(0, 0, width, height);
+    }
+
+    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement,
+        selectBoxManager: SelectBoxManager, mouseGridPos: Position,
+        zoom: number): void {
         this.drawables.forEach((drawable: IDrawable) => {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition,
                 canvas, viewport.panX, viewport.panY, viewport.scale);
@@ -244,36 +268,49 @@ export class DrawablesManager {
             }
 
             drawable.updateScreenPosition(screenPosition);
-            drawable.draw(ctx);
+            drawable.draw(ctx, zoom);
         });
     }
 
-    public clear(width: number, height: number): void {
-        this.ctx.clearRect(0, 0, width, height);
+    private drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
+        const gridSize = 30; // Distance between dots in grid units
+        const dotRadius = 1.5; // Dot size in grid units
+
+        // Calculate visible area in grid coordinates
+        console.log(ctx.getTransform());
+
+        const startX = Math.floor(-ctx.getTransform().e / ctx.getTransform().a / gridSize) * gridSize;
+        const startY = Math.floor(-ctx.getTransform().f / ctx.getTransform().d / gridSize) * gridSize;
+        const endX = startX + (canvas.width / ctx.getTransform().a) + gridSize;
+        const endY = startY + (canvas.height / ctx.getTransform().d) + gridSize;
+
+        ctx.fillStyle = '#d8d8d8ff';
+
+        // Draw dots in a grid
+        for (let x = startX; x <= endX; x += gridSize) {
+            for (let y = startY; y <= endY; y += gridSize) {
+                ctx.beginPath();
+                ctx.arc(x, y, dotRadius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
     }
 
-    public addDrawable(mouseGridPos: Position): void {
-        const boxSize = 200;
-        const sizeOffset = 200 / 2;
-        let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
-        createdDrawable.isSelected = true;
-        this.selectedDrawables = [createdDrawable];
-        this.drawables.push(createdDrawable);
+    //#endregion
+
+
+    // #region Button methods
+    public setShapesButton(state: boolean): void {
+        this.shapesButtonActivated = state;
     }
 
-    public render(viewport: Viewport, canvas: HTMLCanvasElement, selectBoxManager: SelectBoxManager, mouseGridPos: Position): void {
-        this.clear(canvas.width, canvas.height);
+    // #endregion
 
-        this.ctx.save();
-        this.ctx.translate(viewport.panX, viewport.panY);
-        this.ctx.scale(viewport.scale, viewport.scale);
 
-        this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos);
-
-        this.ctx.restore();
-    }
-
+    // #region Utility methods
     public getDrawableById(id: string): IDrawable | null {
         return this.drawables.find((drawable: IDrawable) => drawable.ID === id) || null;
     }
+
+    // #endregion
 }

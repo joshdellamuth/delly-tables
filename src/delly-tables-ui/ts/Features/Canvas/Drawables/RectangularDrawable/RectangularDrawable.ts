@@ -28,7 +28,7 @@ export abstract class RectangularDrawable implements IDrawable {
     }
 
     // Overrid-able method for rectangluar drawables 
-    draw(context: CanvasRenderingContext2D): void {
+    draw(context: CanvasRenderingContext2D, zoom: number): void {
         throw new Error("Method not implemented.");
     }
 
@@ -140,12 +140,17 @@ export abstract class RectangularDrawable implements IDrawable {
         }
     }
 
-    drawSelectionOutline(context: CanvasRenderingContext2D, x1: number, y1: number, x2: number, y2: number, rounding: number): void {
+    drawSelectionOutline(context: CanvasRenderingContext2D, x1: number,
+        y1: number, x2: number, y2: number,
+        rounding: number, scale: number): void {
+
         context.save(); // Save current state
         context.strokeStyle = "skyblue";
+
         context.lineWidth = 3;
 
-        context.setLineDash([14, 8]); // 14px dash, 8px gap
+
+        context.setLineDash([20, 16]); // 14px dash, 8px gap
 
         context.beginPath();
 

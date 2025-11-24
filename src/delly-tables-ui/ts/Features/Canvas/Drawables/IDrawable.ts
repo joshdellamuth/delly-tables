@@ -19,7 +19,7 @@ export interface IDrawable extends ICanvObject {
     rounding: number;
 
     // Methods
-    draw(context: CanvasRenderingContext2D): void;
+    draw(context: CanvasRenderingContext2D, zoom: number): void;
     getMousePosOnDrawable(mousePosition: Position): number;
     updateScreenPosition(screenPosition: Position): void;
     resize(gridPosition: Position, mousePosition: number): void;
