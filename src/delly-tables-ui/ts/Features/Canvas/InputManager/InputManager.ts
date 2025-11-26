@@ -179,6 +179,7 @@ export class InputManager implements IInputManager {
                 break;
         }
 
+        this.updateDebugValues();
         this.render();
     }
 
@@ -193,7 +194,7 @@ export class InputManager implements IInputManager {
             case InputStates.Selecting:
                 // Set the selected drawables to the drawables in the select box.             
                 let selectedDrawables = this.selectBoxManager.getDrawablesInSelectBox(this.drawablesManager.drawables);
-                this.drawablesManager.setSelectedDrawables(selectedDrawables);
+                this.drawablesManager.setMassSelectedDrawables(selectedDrawables);
 
                 this.selectBoxManager.stopSelectBox();
                 this.cancel();
@@ -249,11 +250,6 @@ export class InputManager implements IInputManager {
         this.mouseGridPos.x = gridPos.x;
         this.mouseGridPos.y = gridPos.y;
     }
-
-
-
-
-
 
     private cancel(): void {
         this.inputState = InputStates.Idle;
@@ -333,4 +329,19 @@ export class InputManager implements IInputManager {
     }
 
     // #endregion
+
+    private updateDebugValues(): void {
+        const element = document.getElementById('debuggingValues') as HTMLParagraphElement;
+        if (!element) return;
+
+        const mouseGrid = this.mouseGridPosition;
+        const mouseScreen = this.mouseScreenPosition;
+        element.innerText =
+            `| scale: ${this.viewport.scale.toFixed(8)} ` +
+            `| panX: ${this.viewport.panX.toFixed(8)} ` +
+            `| panY: ${this.viewport.panY.toFixed(8)} ` +
+            `| isPanning: ${this.isPanningActive} ` +
+            `| mouseGrid: ${mouseGrid.x?.toFixed(8) ?? 'null'}, ${mouseGrid.y?.toFixed(8) ?? 'null'} ` +
+            `| mouseScreen: ${mouseScreen.x?.toFixed(8) ?? 'null'}, ${mouseScreen.y?.toFixed(8) ?? 'null'} `;
+    }
 }

@@ -14,6 +14,7 @@ export abstract class RectangularDrawable implements IDrawable {
     isSelected: boolean;
     padding: number = 20;
     rounding: number = 0;
+    points: Position[] = [];
 
     lastMousePosition: number = CanvasPosition.NotOn;
 
@@ -25,10 +26,31 @@ export abstract class RectangularDrawable implements IDrawable {
         this.width = width;
         this.height = height;
         this.isSelected = isSelected;
+
+        this.updatePoints();
+    }
+
+    public updatePoints(): void {
+        let x1 = this.gridPosition.x!;
+        let y1 = this.gridPosition.y!;
+        let x2 = this.gridPosition.x! + this.width;
+        let y2 = this.gridPosition.y! + this.height;
+
+        this.points = [
+            { x: x1, y: y1 },
+            { x: x2, y: y1 },
+            { x: x2, y: y2 },
+            { x: x1, y: y2 }
+        ];
+
     }
 
     // Overrid-able method for rectangluar drawables 
-    draw(context: CanvasRenderingContext2D, zoom: number): void {
+    draw(context: CanvasRenderingContext2D, zoom: number, rounding: number | null): void {
+        if (rounding == null) {
+            rounding = 8;
+        }
+
         throw new Error("Method not implemented.");
     }
 
@@ -142,15 +164,15 @@ export abstract class RectangularDrawable implements IDrawable {
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number,
         y1: number, x2: number, y2: number,
-        rounding: number, scale: number): void {
+        rounding: number, scale: number, color: string = "skyblue"): void {
 
         context.save(); // Save current state
-        context.strokeStyle = "skyblue";
+        context.strokeStyle = color;
 
         context.lineWidth = 3;
 
 
-        context.setLineDash([20, 16]); // 14px dash, 8px gap
+        context.setLineDash([20, 16]); // 20px dash, 16px gap
 
         context.beginPath();
 

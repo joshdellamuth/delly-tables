@@ -1,5 +1,6 @@
 import { IDrawable } from '../IDrawable.ts';
 import { RectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
+import { Position } from '../../Shared/Position.ts';
 
 export class CanvImage
     extends RectangularDrawable
@@ -8,6 +9,7 @@ export class CanvImage
     private image: HTMLImageElement;
     private imageLoaded: boolean = false;
 
+    points: Position[] = [];
     x1: number = null!;
     y1: number = null!;
     x2: number = null!;
@@ -26,7 +28,9 @@ export class CanvImage
         this.image.src = src;
     }
 
-    override draw(context: CanvasRenderingContext2D): void {
+    override draw(context: CanvasRenderingContext2D, zoom: number, rounding: number): void {
+        this.updatePoints();
+
         if (this.gridPosition.x === null || this.gridPosition.y === null) return;
 
         if (!this.imageLoaded) {
@@ -47,7 +51,7 @@ export class CanvImage
             this.x2 = this.gridPosition.x + this.width;
             this.y2 = this.gridPosition.y + this.height;
 
-            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, this.rounding);
+            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, this.rounding, zoom);
         }
     }
 

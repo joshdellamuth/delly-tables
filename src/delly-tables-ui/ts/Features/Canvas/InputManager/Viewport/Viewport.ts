@@ -14,8 +14,6 @@ export class Viewport {
         const scaleFactor = delta < 0 ? zoomFactor : 1 / zoomFactor;
         let newScale = this._scale * scaleFactor;
 
-
-
         if (newScale > 5) {
             newScale = 5;
             console.log("Zoom in limit reached.");

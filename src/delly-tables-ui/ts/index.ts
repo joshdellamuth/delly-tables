@@ -38,6 +38,9 @@ drawables.push(box1);
 const box2: Box = new Box('pink-box-1', 200, 200, '#aa269fff', 400, 500);
 drawables.push(box2);
 
+// const outline: Box = new Box('outline-box-1', 500, 600, 'hsla(240, 100%, 50%, 0.3)', 100, 100);
+// drawables.push(outline);
+
 const box3: Box = new Box('teal-box-1', 200, 300, '#8ef7ffff', 750, 300);
 drawables.push(box3);
 

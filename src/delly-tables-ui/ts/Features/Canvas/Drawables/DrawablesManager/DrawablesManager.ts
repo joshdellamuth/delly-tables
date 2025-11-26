@@ -4,6 +4,7 @@ import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
 import { SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
+import { MassSelectionBox } from '../MassSelectionBox/MassSelectionBox.ts';
 import { v4 as uuidv4 } from 'uuid';
 
 export class DrawablesManager {
@@ -46,7 +47,7 @@ export class DrawablesManager {
             if (this.shapeToAddId == "") {
                 this.shapeToAddId = uuidv4();
                 let shapeToAdd = new Box(this.shapeToAddId, width, height, '#e4bf1aff', this.addShapePosition.x!, this.addShapePosition.y!, true);
-                shapeToAdd.draw(this.ctx, scale);
+                shapeToAdd.draw(this.ctx, scale, null);
                 this.drawables.push(shapeToAdd);
 
                 this.selectedDrawables = [shapeToAdd];
@@ -79,6 +80,7 @@ export class DrawablesManager {
     }
 
     public updateDrag(mouseGridPos: Position): void {
+        console.log(this.selectedDrawables);
         if (this.isDragging && this.selectedDrawables &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
 
@@ -155,6 +157,40 @@ export class DrawablesManager {
         }
     }
 
+    public setMassSelectedDrawables(drawables: IDrawable[]): void {
+        this.selectedDrawables = drawables;
+    }
+
+    public drawMassSelectionBoxAround(scale: number): void {
+        if (this.selectedDrawables == null) {
+            return;
+        }
+
+        let massSelectionBox = this.createMassSelectionBox(this.selectedDrawables!);
+        massSelectionBox.draw(this.ctx, scale, null);
+    }
+
+    private createMassSelectionBox(drawables: IDrawable[]): IDrawable {
+        const allPoints = drawables.flatMap(d => d.points);
+
+        const minX = Math.min(...allPoints.map(p => p.x!));
+        const maxX = Math.max(...allPoints.map(p => p.x!));
+        const minY = Math.min(...allPoints.map(p => p.y!));
+        const maxY = Math.max(...allPoints.map(p => p.y!));
+
+        console.log(`minX: ${minX}, maxX: ${maxX}, minY: ${minY}, maxY: ${maxY}`);
+
+        // Width/height calculation
+        const width = maxX - minX;
+        const height = maxY - minY;
+
+        let massSelectionBox = new MassSelectionBox(uuidv4(), width, height, 'rgba(0, 0, 255, 0.05)', minX, minY, true);
+
+        console.log('The mass selection box is:');
+        console.log(massSelectionBox);
+
+        return massSelectionBox;
+    }
     // #endregion
 
 
@@ -267,17 +303,18 @@ export class DrawablesManager {
                 selectBoxManager.drawSelectBox(mouseGridPos);
             }
 
+            if (this.selectedDrawables != null) {
+                this.drawMassSelectionBoxAround(viewport.scale);
+            }
+
             drawable.updateScreenPosition(screenPosition);
-            drawable.draw(ctx, zoom);
+            drawable.draw(ctx, zoom, null);
         });
     }
 
     private drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {
         const gridSize = 30; // Distance between dots in grid units
         const dotRadius = 1.5; // Dot size in grid units
-
-        // Calculate visible area in grid coordinates
-        console.log(ctx.getTransform());
 
         const startX = Math.floor(-ctx.getTransform().e / ctx.getTransform().a / gridSize) * gridSize;
         const startY = Math.floor(-ctx.getTransform().f / ctx.getTransform().d / gridSize) * gridSize;
@@ -313,4 +350,5 @@ export class DrawablesManager {
     }
 
     // #endregion
+
 }
