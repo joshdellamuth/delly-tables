@@ -50,7 +50,7 @@ export class Box
             let x2 = this.gridPosition.x! + this.width;
             let y2 = this.gridPosition.y! + this.height;
 
-            super.drawSelectionOutline(context, x1, y1, x2, y2, rounding, scale);
+            //super.drawSelectionOutline(context, x1, y1, x2, y2, rounding, scale);
         }
     }
 }

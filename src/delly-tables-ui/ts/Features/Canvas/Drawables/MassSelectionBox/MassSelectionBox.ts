@@ -6,7 +6,6 @@ export class MassSelectionBox
     extends RectangularDrawable
     implements IDrawable {
 
-
     // properties just in the Box class
     public color: string;
 
@@ -49,6 +48,5 @@ export class MassSelectionBox
 
 
         super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, rounding, scale);
-
     }
 }

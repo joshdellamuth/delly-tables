@@ -10,7 +10,6 @@ export interface IDrawable extends ICanvObject {
     height: number;
     minimumWidth: number;
     minimumHeight: number;
-    isSelected: boolean;
 
     points: Position[];
 

@@ -9,13 +9,14 @@ import { v4 as uuidv4 } from 'uuid';
 
 export class DrawablesManager {
     // This will store UUIDs for selected drawables.
-    private selectedDrawables: IDrawable[] | null = null;
+    public selectedDrawables: IDrawable[] | null = null;
     private hoveredDrawable: IDrawable | null = null;
     private isDragging: boolean = false;
     private isResizing: boolean = false;
     public isDrawingShape: boolean = false;
     private addShapePosition: Position = new Position(null, null);
     private shapeToAddId: string = "";
+    private selectionBox: MassSelectionBox | null = null;
 
     private dragOffset: Position = new Position(null, null);
     public drawables: IDrawable[] = [];
@@ -80,7 +81,7 @@ export class DrawablesManager {
     }
 
     public updateDrag(mouseGridPos: Position): void {
-        console.log(this.selectedDrawables);
+
         if (this.isDragging && this.selectedDrawables &&
             mouseGridPos.x !== null && mouseGridPos.y !== null) {
 
@@ -101,6 +102,15 @@ export class DrawablesManager {
     // #region Selction methods
     public trySelectAt(mouseGridPos: Position): boolean {
 
+        // First, look to see if you are on the select box.
+        if (this.selectionBox) {
+            let mousePosOnDrawable = this.selectionBox.getMousePosOnDrawable(mouseGridPos);
+            if (mousePosOnDrawable != CanvasPosition.NotOn) {
+                return true;
+            }
+        }
+
+        // If you are not on the select box, check to see if you are on any of the drawables.
         for (let i = this.drawables.length - 1; i >= 0; i--) {
             const drawable = this.drawables[i];
             let mousePosOnDrawable = drawable.getMousePosOnDrawable(mouseGridPos);
@@ -110,67 +120,64 @@ export class DrawablesManager {
                 return true;
             }
         }
+
+
         return false;
     }
 
     public setSelectedDrawables(selectedDrawables: IDrawable[]): void {
         this.selectedDrawables = selectedDrawables;
-
-        if (this.selectedDrawables == null) {
-            return;
-        }
-
-        this.selectedDrawables.forEach(drawable => {
-            drawable.isSelected = true;
-        });
     }
 
     public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
         this.selectedDrawables = [drawable];
-
-        drawable.isSelected = true;
 
         this.dragOffset.x = mouseGridPos.x! - drawable.gridPosition.x!;
         this.dragOffset.y = mouseGridPos.y! - drawable.gridPosition.y!;
     }
 
     public clearSelection(): void {
-        this.drawables.forEach((drawable: IDrawable) => {
-            drawable.isSelected = false;
-        });
-
         this.selectedDrawables = null;
     }
 
     public getMouseCanvasPosition(gridPos: Position): number {
-        // If there is one drawable in the selected drawables
-        if (this.selectedDrawables == null) {
-            return CanvasPosition.NotOn;
+
+        // First see if you are on the select box.
+        if (this.selectionBox) {
+            let position = this.selectionBox.getMousePosOnDrawable(gridPos);
+
+            if (position != CanvasPosition.NotOn) {
+                console.log("Position is: " + position);
+                return position;
+            }
         }
 
-        if (this.selectedDrawables!.length === 1) {
-            return this.selectedDrawables[0].getMousePosOnDrawable(gridPos);
+        if (this.selectedDrawables != null) {
+            if (this.selectedDrawables!.length === 1) {
+                return this.selectedDrawables[0].getMousePosOnDrawable(gridPos);
+            }
         }
-        else {
-            console.log("Logic for getting canvas postion not implemented for multiple selected drawables.");
-            return CanvasPosition.NotOn;
-        }
+
+        return CanvasPosition.NotOn;
+
     }
 
     public setMassSelectedDrawables(drawables: IDrawable[]): void {
         this.selectedDrawables = drawables;
+
+        this.selectionBox = null;
     }
 
-    public drawMassSelectionBoxAround(scale: number): void {
+    private drawMassSelectionBoxAround(scale: number): void {
         if (this.selectedDrawables == null) {
             return;
         }
 
-        let massSelectionBox = this.createMassSelectionBox(this.selectedDrawables!);
-        massSelectionBox.draw(this.ctx, scale, null);
+        this.selectionBox = this.createMassSelectionBox(this.selectedDrawables!);
+        this.selectionBox.draw(this.ctx, scale, null);
     }
 
-    private createMassSelectionBox(drawables: IDrawable[]): IDrawable {
+    private createMassSelectionBox(drawables: IDrawable[]): MassSelectionBox {
         const allPoints = drawables.flatMap(d => d.points);
 
         const minX = Math.min(...allPoints.map(p => p.x!));
@@ -178,16 +185,13 @@ export class DrawablesManager {
         const minY = Math.min(...allPoints.map(p => p.y!));
         const maxY = Math.max(...allPoints.map(p => p.y!));
 
-        console.log(`minX: ${minX}, maxX: ${maxX}, minY: ${minY}, maxY: ${maxY}`);
+        //console.log(`minX: ${minX}, maxX: ${maxX}, minY: ${minY}, maxY: ${maxY}`);
 
         // Width/height calculation
         const width = maxX - minX;
         const height = maxY - minY;
 
         let massSelectionBox = new MassSelectionBox(uuidv4(), width, height, 'rgba(0, 0, 255, 0.05)', minX, minY, true);
-
-        console.log('The mass selection box is:');
-        console.log(massSelectionBox);
 
         return massSelectionBox;
     }
@@ -260,6 +264,7 @@ export class DrawablesManager {
         }
 
         this.removeDrawables(this.selectedDrawables!);
+        this.selectedDrawables = null;
     }
 
     private removeDrawables(drawables: IDrawable[]): void {
@@ -299,17 +304,22 @@ export class DrawablesManager {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition,
                 canvas, viewport.panX, viewport.panY, viewport.scale);
 
+            // If we are drawing the select box, draw it.
             if (selectBoxManager.isDrawing) {
                 selectBoxManager.drawSelectBox(mouseGridPos);
             }
 
-            if (this.selectedDrawables != null) {
-                this.drawMassSelectionBoxAround(viewport.scale);
-            }
+            // console.log('The drawables selected are:');
+            // console.log(this.selectedDrawables);
 
             drawable.updateScreenPosition(screenPosition);
             drawable.draw(ctx, zoom, null);
         });
+
+        // Draw the boxes around the selected drawables.
+        if (this.selectedDrawables != null) {
+            this.drawMassSelectionBoxAround(viewport.scale);
+        }
     }
 
     private drawBackground(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement): void {

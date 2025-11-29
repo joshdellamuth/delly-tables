@@ -45,14 +45,14 @@ export class CanvImage
 
         context.drawImage(this.image, this.gridPosition.x, this.gridPosition.y, this.width, this.height);
 
-        if (this.isSelected) {
-            this.x1 = this.gridPosition.x;
-            this.y1 = this.gridPosition.y;
-            this.x2 = this.gridPosition.x + this.width;
-            this.y2 = this.gridPosition.y + this.height;
+        // if (this.isSelected) {
+        //     this.x1 = this.gridPosition.x;
+        //     this.y1 = this.gridPosition.y;
+        //     this.x2 = this.gridPosition.x + this.width;
+        //     this.y2 = this.gridPosition.y + this.height;
 
-            super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, this.rounding, zoom);
-        }
+        //     //super.drawSelectionOutline(context, this.x1, this.y1, this.x2, this.y2, this.rounding, zoom);
+        // }
     }
 
 }

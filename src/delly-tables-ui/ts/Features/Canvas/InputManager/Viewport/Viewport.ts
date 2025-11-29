@@ -16,18 +16,18 @@ export class Viewport {
 
         if (newScale > 5) {
             newScale = 5;
-            console.log("Zoom in limit reached.");
+            //console.log("Zoom in limit reached.");
         }
 
         if (newScale < 0.08) {
             newScale = 0.08;
-            console.log("Zoom out limit reached.");
+            //console.log("Zoom out limit reached.");
         }
 
         this._panX = mouseX - (mouseX - this._panX) * (newScale / this._scale);
         this._panY = mouseY - (mouseY - this._panY) * (newScale / this._scale);
 
-        console.log(`Zooming from ${this._scale} to ${newScale}`);
+        //console.log(`Zooming from ${this._scale} to ${newScale}`);
         this._scale = newScale;
     }
 

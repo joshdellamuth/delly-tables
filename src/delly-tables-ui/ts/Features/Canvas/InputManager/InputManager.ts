@@ -77,11 +77,11 @@ export class InputManager implements IInputManager {
             // switch case for state here
             switch (this.inputState) {
                 case InputStates.Idle:
+                    //console.log('idle and going to select.');
                     let isSelected = this.drawablesManager.trySelectAt(this.mouseGridPosition);
 
                     // If anything was selected using "trySelectAt"
                     if (isSelected) {
-
                         this.mouseCanvasPosition = this.drawablesManager.getMouseCanvasPosition(this.mouseGridPos);
 
                         if (this.mouseCanvasPosition === CanvasPosition.Inside) {
@@ -158,6 +158,7 @@ export class InputManager implements IInputManager {
             case InputStates.Idle:
                 this.mouseCanvasPosition = this.drawablesManager.getMouseCanvasPosition(this.mouseGridPos);
                 this.mouse.setStyleByHoveringStatus(this.mouseCanvasPosition);
+
                 break;
             case InputStates.Panning:
                 this.mouse.setStyleGrabbing();
@@ -167,7 +168,10 @@ export class InputManager implements IInputManager {
             case InputStates.Selecting:
                 break;
             case InputStates.Dragging:
-                this.drawablesManager.updateDrag(this.mouseGridPosition);
+                if (this.mouseCanvasPosition == CanvasPosition.Inside) {
+                    this.drawablesManager.updateDrag(this.mouseGridPosition);
+                }
+
                 break;
             case InputStates.Resizing:
                 this.drawablesManager.resizeSelected(this.mouseGridPosition, this.mouseCanvasPosition);
