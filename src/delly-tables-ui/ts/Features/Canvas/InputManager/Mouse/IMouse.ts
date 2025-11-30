@@ -1,9 +1,11 @@
-import { PositionOnDrawable } from '../../Shared/CanvasPosition.ts';
+import { CanvasPosition } from '../../Shared/CanvasPosition.ts';
 
 export interface IMouse {
-    setStyleByHoveringStatus(hoveringStatus: PositionOnDrawable | string): void;
+    setStyleByHoveringStatus(hoveringStatus: CanvasPosition | string): void;
     setStyleMove(): void;
     setStyleGrabbing(): void;
     setStyleGrab(): void;
+    setStyleCrosshair(): void;
+    setStyleCrosshair(): void;
     setStyleDefault(): void;
 }

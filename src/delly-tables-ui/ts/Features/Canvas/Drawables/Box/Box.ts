@@ -43,14 +43,5 @@ export class Box
         context.closePath();
         context.fill();
 
-        if (this.isSelected) {
-
-            let x1 = this.gridPosition.x!;
-            let y1 = this.gridPosition.y!;
-            let x2 = this.gridPosition.x! + this.width;
-            let y2 = this.gridPosition.y! + this.height;
-
-            //super.drawSelectionOutline(context, x1, y1, x2, y2, rounding, scale);
-        }
     }
 }

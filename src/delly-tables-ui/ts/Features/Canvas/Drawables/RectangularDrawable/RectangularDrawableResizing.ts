@@ -35,20 +35,40 @@ export class RectangularDrawableResizing {
     }
 
 
-    public static resizeFromTopRightCorner(rectangularDrawable: IRectangularDrawable, gridPosition: Position): void {
-        const fixedX = rectangularDrawable.gridPosition.x!;
-        const fixedY = rectangularDrawable.gridPosition.y! + rectangularDrawable.height;
+    public static resizeFromTopRightCorner(rectangularDrawable: IRectangularDrawable,
+        currentGridPosition: Position, isMassResize: boolean = false,
+        delta: Position | null = null
+        , originalDimensions: { x: number; y: number; width: number; height: number; } | null): void {
 
-        const newX = gridPosition.x!;
-        const newY = gridPosition.y!;
+        if (isMassResize) {
+            console.log('Mass resize');
 
-        const proposedWidth = newX - fixedX;
-        const proposedHeight = fixedY - newY;
+            //rectangularDrawable.gridPosition.x = rectangularDrawable.width + delta!.x!;
 
-        rectangularDrawable.width = Math.max(proposedWidth, rectangularDrawable.minimumWidth);
-        rectangularDrawable.height = Math.max(proposedHeight, rectangularDrawable.minimumHeight);
 
-        rectangularDrawable.gridPosition.y = fixedY - rectangularDrawable.height;
+            rectangularDrawable.width = originalDimensions!.width + delta!.x!;
+            rectangularDrawable.height = originalDimensions!.height - delta!.y!; // minus for top
+            rectangularDrawable.gridPosition.y = originalDimensions!.y + delta!.y!;
+
+            //rectangularDrawable.gridPosition.x! = rectangularDrawable.gridPosition.x! + delta!.x!;
+            //rectangularDrawable.gridPosition.y! = rectangularDrawable.gridPosition.y! + delta!.y!;
+        }
+
+        else {
+            const fixedX = rectangularDrawable.gridPosition.x!;
+            const fixedY = rectangularDrawable.gridPosition.y! + rectangularDrawable.height;
+
+            const newX = currentGridPosition.x!;
+            const newY = currentGridPosition.y!;
+
+            const proposedWidth = newX - fixedX;
+            const proposedHeight = fixedY - newY;
+
+            rectangularDrawable.width = Math.max(proposedWidth, rectangularDrawable.minimumWidth);
+            rectangularDrawable.height = Math.max(proposedHeight, rectangularDrawable.minimumHeight);
+
+            rectangularDrawable.gridPosition.y = fixedY - rectangularDrawable.height;
+        }
     }
 
     public static resizeFromBottomLeftCorner(rectangularDrawable: IRectangularDrawable, gridPosition: Position): void {

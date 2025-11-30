@@ -17,25 +17,34 @@ export class InputManager implements IInputManager {
     private drawablesManager: DrawablesManager;
     public selectBoxManager: SelectBoxManager;
     private ctx: CanvasRenderingContext2D;
-    private viewport: Viewport = new Viewport();
+    private viewport: Viewport;
     private mouse: Mouse;
     private mouseCanvasPosition: number = CanvasPosition.NotOn;
     private inputState: number = InputStates.Idle;
 
     // Buttons
     private shapesButton: HTMLButtonElement;
+    private textButton: HTMLButtonElement;
 
     get mouseScreenPosition(): Position { return this.mouseScreenPos; }
     get mouseGridPosition(): Position { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
     get isPanningActive(): boolean { return this.isPanning; }
 
-    public constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, shapesButton: HTMLButtonElement) {
+    public constructor(canvas: HTMLCanvasElement,
+        ctx: CanvasRenderingContext2D,
+        shapesButton: HTMLButtonElement,
+        textButton: HTMLButtonElement) {
         this.canvas = canvas;
         this.ctx = ctx;
+
         this.shapesButton = shapesButton;
-        this.drawablesManager = new DrawablesManager(canvas, ctx);
+        this.textButton = textButton;
+
         this.selectBoxManager = new SelectBoxManager(ctx, canvas);
         this.mouse = new Mouse(this.canvas);
+        this.viewport = new Viewport(this.canvas);
+
+        this.drawablesManager = new DrawablesManager(canvas, ctx, this.viewport);
 
         this.setupEventListeners();
         this.addButtonListeners();
@@ -83,16 +92,16 @@ export class InputManager implements IInputManager {
                     // If anything was selected using "trySelectAt"
                     if (isSelected) {
                         this.mouseCanvasPosition = this.drawablesManager.getMouseCanvasPosition(this.mouseGridPos);
-
+                        console.log(this.drawablesManager.selectedDrawables);
                         if (this.mouseCanvasPosition === CanvasPosition.Inside) {
                             this.mouse.setStyleByHoveringStatus(this.mouseCanvasPosition);
                             this.inputState = InputStates.Dragging;
-                            this.drawablesManager.startDragging();
+                            this.drawablesManager.startDragging(this.mouseGridPosition);
                         }
                         else {
                             if (this.mouseCanvasPosition! != CanvasPosition.NotOn) {
                                 this.inputState = InputStates.Resizing;
-                                this.drawablesManager.startResizing();
+                                this.drawablesManager.startResizing(this.mouseGridPosition);
                             }
 
                         }
@@ -310,6 +319,17 @@ export class InputManager implements IInputManager {
             this.toggleShapesButton();
             this.mouse.setStyleCrosshair();
         });
+
+        // Guard clause for text button
+        if (!this.textButton) {
+            console.error("Text button not found in DOM");
+            return;
+        }
+
+        this.textButton.addEventListener('click', () => {
+            this.toggleTextButton();
+            this.mouse.setStyleCursor();
+        });
     }
 
     // #endregion
@@ -329,7 +349,20 @@ export class InputManager implements IInputManager {
             this.inputState = InputStates.Drawing;
             this.shapesButton.classList.add('active');
         }
+    }
 
+    public toggleTextButton(): void {
+        // If the state was drawing, toggle the shapes button.
+        if (this.inputState === InputStates.Typing) {
+            this.drawablesManager.setTextButton(false);
+            this.textButton.classList.remove('active');
+        }
+        else {
+            // Otherwise, toggle the shapes button to true and set the input state. 
+            this.drawablesManager.setTextButton(true);
+            this.inputState = InputStates.Typing;
+            this.textButton.classList.add('active');
+        }
     }
 
     // #endregion

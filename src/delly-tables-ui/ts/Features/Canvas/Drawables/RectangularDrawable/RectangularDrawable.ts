@@ -16,6 +16,7 @@ export abstract class RectangularDrawable implements IDrawable {
     rounding: number = 0;
     points: Position[] = [];
 
+    originalDimensions: { x: number; y: number; width: number; height: number; } | null;
     lastMousePosition: number = CanvasPosition.NotOn;
 
     constructor(id: string, width: number, height: number,
@@ -26,6 +27,7 @@ export abstract class RectangularDrawable implements IDrawable {
         this.width = width;
         this.height = height;
         this.isSelected = isSelected;
+        this.originalDimensions = null;
 
         this.updatePoints();
     }
@@ -125,41 +127,54 @@ export abstract class RectangularDrawable implements IDrawable {
         this.screenPosition.y = screenPosition.y;
     }
 
-    resize(gridPosition: Position, mousePosition: number): void {
-        switch (mousePosition) {
-            case CanvasPosition.BottomRightCorner:
-                RectangularDrawableResizing.resizeFromBottomRightCorner(this, gridPosition);
-                break;
+    resize(gridPosition: Position, mousePosition: number,
+        isMassResize: boolean = false,
+        delta: Position | null = null): void {
 
-            case CanvasPosition.TopLeftCorner:
-                RectangularDrawableResizing.resizeFromTopLeftCorner(this, gridPosition);
-                break;
-
-            case CanvasPosition.TopRightCorner:
-                RectangularDrawableResizing.resizeFromTopRightCorner(this, gridPosition);
-                break;
-
-            case CanvasPosition.BottomLeftCorner:
-                RectangularDrawableResizing.resizeFromBottomLeftCorner(this, gridPosition);
-                break;
-
-            // Edges
-            case CanvasPosition.RightEdge:
-                RectangularDrawableResizing.resizeFromRightEdge(this, gridPosition);
-                break;
-
-            case CanvasPosition.LeftEdge:
-                RectangularDrawableResizing.resizeFromLeftEdge(this, gridPosition);
-                break;
-
-            case CanvasPosition.TopEdge:
-                RectangularDrawableResizing.resizeFromTopEdge(this, gridPosition);
-                break;
-
-            case CanvasPosition.BottomEdge:
-                RectangularDrawableResizing.resizeFromBottomEdge(this, gridPosition);
-                break;
+        if (isMassResize) {
+            if (delta != null) {
+                console.log('Resizing from top right corner');
+                RectangularDrawableResizing.resizeFromTopRightCorner(this, gridPosition, true, delta, this.originalDimensions);
+            }
         }
+
+        else {
+            switch (mousePosition) {
+                case CanvasPosition.BottomRightCorner:
+                    RectangularDrawableResizing.resizeFromBottomRightCorner(this, gridPosition);
+                    break;
+
+                case CanvasPosition.TopLeftCorner:
+                    RectangularDrawableResizing.resizeFromTopLeftCorner(this, gridPosition);
+                    break;
+
+                case CanvasPosition.TopRightCorner:
+                    RectangularDrawableResizing.resizeFromTopRightCorner(this, gridPosition, false, delta, this.originalDimensions);
+                    break;
+
+                case CanvasPosition.BottomLeftCorner:
+                    RectangularDrawableResizing.resizeFromBottomLeftCorner(this, gridPosition);
+                    break;
+
+                // Edges
+                case CanvasPosition.RightEdge:
+                    RectangularDrawableResizing.resizeFromRightEdge(this, gridPosition);
+                    break;
+
+                case CanvasPosition.LeftEdge:
+                    RectangularDrawableResizing.resizeFromLeftEdge(this, gridPosition);
+                    break;
+
+                case CanvasPosition.TopEdge:
+                    RectangularDrawableResizing.resizeFromTopEdge(this, gridPosition);
+                    break;
+
+                case CanvasPosition.BottomEdge:
+                    RectangularDrawableResizing.resizeFromBottomEdge(this, gridPosition);
+                    break;
+            }
+        }
+
     }
 
     drawSelectionOutline(context: CanvasRenderingContext2D, x1: number,

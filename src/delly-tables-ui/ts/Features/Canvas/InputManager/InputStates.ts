@@ -10,4 +10,6 @@ export class InputStates {
     public static readonly Resizing = 4;
     // Drawing a shape
     public static readonly Drawing = 6;
+    // Typing text
+    public static readonly Typing = 7;
 }

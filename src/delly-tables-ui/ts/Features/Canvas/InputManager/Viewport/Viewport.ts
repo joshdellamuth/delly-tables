@@ -4,6 +4,12 @@ export class Viewport {
     private _scale: number = 1;
     private _panX: number = 0;
     private _panY: number = 0;
+    private _canvas: HTMLCanvasElement;
+
+
+    constructor(canvas: HTMLCanvasElement) {
+        this._canvas = canvas;
+    }
 
     get scale(): number { return this._scale; }
     get panX(): number { return this._panX; }
@@ -43,16 +49,14 @@ export class Viewport {
         );
     }
 
-    convertToScreenPos(gridPosition: Position, canvas: HTMLCanvasElement,
-        xDistanceFromOrigin: number, yDistanceFromOrigin: number,
-        scale: number): Position {
-        const rect = canvas.getBoundingClientRect();
+    convertToScreenPos(gridPosition: Position): Position {
+        const rect = this._canvas.getBoundingClientRect();
         const canvasX = gridPosition.x! - rect.left;
         const canvasY = gridPosition.y! - rect.top;
 
         // Transform canvas coordinates given to world coordinates
-        const xScreenPosition = (canvasX - xDistanceFromOrigin) / scale;
-        const yScreenPosition = (canvasY - yDistanceFromOrigin) / scale;
+        const xScreenPosition = (canvasX - this.panX) / this._scale;
+        const yScreenPosition = (canvasY - this.panY) / this._scale;
 
         return new Position(xScreenPosition, yScreenPosition);
     }

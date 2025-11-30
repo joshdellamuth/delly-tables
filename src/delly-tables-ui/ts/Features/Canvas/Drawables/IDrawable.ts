@@ -14,6 +14,7 @@ export interface IDrawable extends ICanvObject {
     points: Position[];
 
     lastMousePosition: number;
+    originalDimensions: { x: number; y: number; width: number; height: number } | null;
 
     padding: number;
     rounding: number;
@@ -22,5 +23,7 @@ export interface IDrawable extends ICanvObject {
     draw(context: CanvasRenderingContext2D, zoom: number, rounding: number | null): void;
     getMousePosOnDrawable(mousePosition: Position): number;
     updateScreenPosition(screenPosition: Position): void;
-    resize(gridPosition: Position, mousePosition: number): void;
+    resize(gridPosition: Position, mousePosition: number,
+        isMassResize: boolean, delta: Position | null,
+        originalDimensions: { x: number; y: number; width: number; height: number; } | null): void;
 }
