@@ -2,6 +2,17 @@ import { IDrawable } from '../../Drawables/IDrawable.ts';
 import { Position } from '../../Shared/Position.ts';
 import { SelectBox } from './SelectBox.ts';
 
+// #region Interface
+export interface ISelectBoxManager {
+    isDrawing: boolean;
+
+    startSelectBox(mouseGridPos: Position): void;
+    stopSelectBox(): void;
+    drawSelectBox(startPosition: Position): void;
+    getDrawablesInSelectBox(drawables: IDrawable[]): IDrawable[]
+}
+// #endregion
+
 export class SelectBoxManager {
 
     private startCoordinates: Position = new Position(null, null);

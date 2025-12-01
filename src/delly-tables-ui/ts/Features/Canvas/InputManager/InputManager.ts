@@ -1,12 +1,25 @@
 import { Position } from '../Shared/Position.ts';
 import { Viewport } from './Viewport/Viewport.ts';
-import { DrawablesManager } from '../Drawables/DrawablesManager/DrawablesManager.ts';
+import { IDrawablesManager, DrawablesManager } from '../Drawables/DrawablesManager/DrawablesManager.ts';
 import { CanvasPosition } from '../Shared/CanvasPosition.ts';
-import { Mouse } from '../InputManager/Mouse/Mouse.ts';
+import { IMouse, Mouse } from '../InputManager/Mouse/Mouse.ts';
 import { IDrawable } from '../Drawables/IDrawable.ts';
-import { IInputManager } from './IInputManager.ts';
-import { SelectBoxManager } from './SelectBoxManager/SelectBoxManager.ts';
+import { ISelectBoxManager, SelectBoxManager } from './SelectBoxManager/SelectBoxManager.ts';
 import { InputStates } from './InputStates.ts';
+
+// #region Interface
+export interface IInputManager {
+    readonly mouseScreenPosition: Position;
+    readonly mouseGridPosition: Position;
+    readonly isPanningActive: boolean;
+
+    toggleShapesButton(shapesButton: HTMLButtonElement): void;
+    addDrawables(drawables: IDrawable[]): void;
+    setupEventListeners(): void;
+    render(): void;
+    stopPanning(): void;
+}
+// #endregion
 
 export class InputManager implements IInputManager {
     private mouseScreenPos: Position = new Position(null, null);
@@ -14,11 +27,11 @@ export class InputManager implements IInputManager {
     private isPanning: boolean = false;
     private panStart: Position = new Position(null, null);
     private canvas: HTMLCanvasElement;
-    private drawablesManager: DrawablesManager;
-    public selectBoxManager: SelectBoxManager;
+    private drawablesManager: IDrawablesManager;
+    public selectBoxManager: ISelectBoxManager;
     private ctx: CanvasRenderingContext2D;
     private viewport: Viewport;
-    private mouse: Mouse;
+    private mouse: IMouse;
     private mouseCanvasPosition: number = CanvasPosition.NotOn;
     private inputState: number = InputStates.Idle;
 

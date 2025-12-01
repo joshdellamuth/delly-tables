@@ -1,9 +1,9 @@
 import { Position } from "../../Shared/Position";
-import { IDrawable } from "../IDrawable";
 import { CanvasPosition } from "../../Shared/CanvasPosition";
 import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
+import { IRectangularDrawable } from './IRectangularDrawable.ts';
 
-export abstract class RectangularDrawable implements IDrawable {
+export abstract class RectangularDrawable implements IRectangularDrawable {
     ID: string = "";
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
@@ -31,6 +31,9 @@ export abstract class RectangularDrawable implements IDrawable {
 
         this.updatePoints();
     }
+    draw(context: CanvasRenderingContext2D, zoom: number, rounding: number | null): void {
+        throw new Error("Method not implemented.");
+    }
 
     public updatePoints(): void {
         let x1 = this.gridPosition.x!;
@@ -45,15 +48,6 @@ export abstract class RectangularDrawable implements IDrawable {
             { x: x1, y: y2 }
         ];
 
-    }
-
-    // Overrid-able method for rectangluar drawables 
-    draw(context: CanvasRenderingContext2D, zoom: number, rounding: number | null): void {
-        if (rounding == null) {
-            rounding = 8;
-        }
-
-        throw new Error("Method not implemented.");
     }
 
     getMousePosOnDrawable(mousePosition: Position): number {

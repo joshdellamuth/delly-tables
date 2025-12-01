@@ -1,5 +1,18 @@
 import { CanvasPosition } from '../../Shared/CanvasPosition.ts';
-import { IMouse } from './IMouse.ts';
+
+// #region Interfaces
+export interface IMouse {
+    setStyleByHoveringStatus(hoveringStatus: CanvasPosition | string): void;
+    setStyleMove(): void;
+    setStyleGrabbing(): void;
+    setStyleGrab(): void;
+    setStyleCrosshair(): void;
+    setStyleCrosshair(): void;
+    setStyleCursor(): void;
+    setStyleDefault(): void;
+}
+
+// #endregion
 
 export class Mouse implements IMouse {
     private _canvas: HTMLCanvasElement;

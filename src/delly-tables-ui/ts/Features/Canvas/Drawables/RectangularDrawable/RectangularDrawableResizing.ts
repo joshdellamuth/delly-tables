@@ -45,9 +45,14 @@ export class RectangularDrawableResizing {
 
             //rectangularDrawable.gridPosition.x = rectangularDrawable.width + delta!.x!;
 
+            const proposedWidth = originalDimensions!.width + delta!.x!;
+            const proposedHeight = originalDimensions!.height - delta!.y!; // minus for top
 
-            rectangularDrawable.width = originalDimensions!.width + delta!.x!;
-            rectangularDrawable.height = originalDimensions!.height - delta!.y!; // minus for top
+            rectangularDrawable.width = Math.max(proposedWidth, rectangularDrawable.minimumWidth);
+            rectangularDrawable.height = Math.max(proposedHeight, rectangularDrawable.minimumHeight);
+
+            // rectangularDrawable.width = originalDimensions!.width + delta!.x!;
+            // rectangularDrawable.height = originalDimensions!.height - delta!.y!; // minus for top
             rectangularDrawable.gridPosition.y = originalDimensions!.y + delta!.y!;
 
             //rectangularDrawable.gridPosition.x! = rectangularDrawable.gridPosition.x! + delta!.x!;

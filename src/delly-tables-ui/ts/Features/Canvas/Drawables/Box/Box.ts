@@ -19,7 +19,7 @@ export class Box
         console.log(this.points);
     }
 
-    override draw(context: CanvasRenderingContext2D, scale: number, roundness: number | null): void {
+    public draw(context: CanvasRenderingContext2D, scale: number, roundness: number | null): void {
         this.updatePoints();
 
         // There is currently an error with rounding, so making it 0 for now.

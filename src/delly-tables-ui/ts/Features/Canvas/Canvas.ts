@@ -1,5 +1,4 @@
-import { IInputManager } from './InputManager/IInputManager.ts';
-import { InputManager } from './InputManager/InputManager.ts';
+import { IInputManager, InputManager } from './InputManager/InputManager.ts';
 import { Size } from './Shared/Size.ts';
 import { IDrawable } from '../Canvas/Drawables/IDrawable.ts';
 

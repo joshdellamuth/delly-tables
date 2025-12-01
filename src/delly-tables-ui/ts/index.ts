@@ -32,22 +32,22 @@ console.log(`The base URL is ${baseURL}.`);
 const drawables: IDrawable[] = [];
 
 // Sample box to draw
-const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 100, 100);
+const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 200, 200);
 drawables.push(box1);
 
-const box2: Box = new Box('pink-box-1', 200, 200, '#aa269fff', 400, 500);
+const box2: Box = new Box('pink-box-1', 150, 150, '#aa269fff', 400, 500);
 drawables.push(box2);
 
 // const outline: Box = new Box('outline-box-1', 500, 600, 'hsla(240, 100%, 50%, 0.3)', 100, 100);
 // drawables.push(outline);
 
-const box3: Box = new Box('teal-box-1', 200, 300, '#8ef7ffff', 750, 300);
+const box3: Box = new Box('teal-box-1', 150, 250, '#8ef7ffff', 750, 300);
 drawables.push(box3);
 
 const box4: Box = new Box('orange-box-1', 100, 300, '#ecaf2aff', 600, -300);
 drawables.push(box4);
 
-const image1: CanvImage = new CanvImage('radnom-image-1', 'images/delly-tables-logo.png', 350, 300, 800, 100);
+const image1: CanvImage = new CanvImage('radnom-image-1', 'images/delly-tables-logo.png', 100, 80, 800, 200);
 drawables.push(image1);
 
 // #endregion Add shapes to canvas

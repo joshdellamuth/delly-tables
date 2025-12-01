@@ -3,7 +3,6 @@ import { ICanvObject } from "../Base/CanvObject/ICanvObject";
 
 export interface IDrawable extends ICanvObject {
     // Properties
-    ID: string;
     gridPosition: Position;
     screenPosition: Position;
     width: number;

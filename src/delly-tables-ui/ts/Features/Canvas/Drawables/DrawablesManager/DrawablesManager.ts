@@ -3,11 +3,50 @@ import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
-import { SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
+import { ISelectBoxManager, SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
 import { MassSelectionBox } from '../MassSelectionBox/MassSelectionBox.ts';
 import { v4 as uuidv4 } from 'uuid';
 
-export class DrawablesManager {
+// #region Interface
+export interface IDrawablesManager {
+    selectedDrawables: IDrawable[] | null;
+    drawables: IDrawable[];
+
+    deleteSelected(): void;
+
+    addDrawables(drawables: IDrawable[]): void;
+    addDrawable(mouseGridPos: Position): void;
+
+    startDrawing(mouseGridPos: Position): void;
+    updateDrawing(mouseGridPos: Position, scale: number): void;
+    stopDrawing(): void;
+
+    startDragging(mouseGridPos: Position): void;
+    updateDrag(mouseGridPos: Position): void;
+    stopDragging(): void;
+
+    startResizing(mouseGridPos: Position): void;
+    updateResizing(mouseGridPos: Position): void;
+    stopResizing(): void;
+    resizeSelected(mouseGridPosition: Position, mouseCanvasPosition: number): void;
+
+    trySelectAt(mouseGridPos: Position): boolean;
+    setMassSelectedDrawables(drawables: IDrawable[]): void;
+    selectDrawable(drawable: IDrawable, mouseGridPos: Position): void;
+    clearSelection(): void;
+
+    getMouseCanvasPosition(gridPos: Position): number;
+
+    setShapesButton(state: boolean): void;
+    setTextButton(state: boolean): void;
+
+    render(viewport: Viewport, canvas: HTMLCanvasElement,
+        selectBoxManager: ISelectBoxManager, mouseGridPos: Position,
+        zoom: number): void;
+}
+// #endregion
+
+export class DrawablesManager implements IDrawablesManager {
     // This will store UUIDs for selected drawables.
     public selectedDrawables: IDrawable[] | null = null;
     private hoveredDrawable: IDrawable | null = null;
@@ -155,10 +194,6 @@ export class DrawablesManager {
         return false;
     }
 
-    public setSelectedDrawables(selectedDrawables: IDrawable[]): void {
-        this.selectedDrawables = selectedDrawables;
-    }
-
     public selectDrawable(drawable: IDrawable, mouseGridPos: Position): void {
         this.selectedDrawables = [drawable];
 
@@ -188,7 +223,6 @@ export class DrawablesManager {
         }
 
         return CanvasPosition.NotOn;
-
     }
 
     public setMassSelectedDrawables(drawables: IDrawable[]): void {
@@ -270,11 +304,6 @@ export class DrawablesManager {
             this.selectedDrawables![0].resize(mouseGridPosition, mouseCanvasPosition, false, null, null);
         }
         else {
-            // TODO: Implement logic for resizing when there are multiple drawables selected. 
-            //throw new Error("Resizing logic not implemented for multiple selected drawables.");
-
-
-
             const deltaX = mouseGridPosition.x! - this.resizeStart!.x!;
             const deltaY = mouseGridPosition.y! - this.resizeStart!.y!;
 
@@ -327,6 +356,7 @@ export class DrawablesManager {
 
     //#endregion
 
+
     // #region Text methods
 
 
@@ -336,7 +366,7 @@ export class DrawablesManager {
     // #region Rendering methods
 
     public render(viewport: Viewport, canvas: HTMLCanvasElement,
-        selectBoxManager: SelectBoxManager, mouseGridPos: Position,
+        selectBoxManager: ISelectBoxManager, mouseGridPos: Position,
         zoom: number): void {
         this.clear(canvas.width, canvas.height);
 
@@ -352,12 +382,12 @@ export class DrawablesManager {
         this.ctx.restore();
     }
 
-    public clear(width: number, height: number): void {
+    private clear(width: number, height: number): void {
         this.ctx.clearRect(0, 0, width, height);
     }
 
-    public drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement,
-        selectBoxManager: SelectBoxManager, mouseGridPos: Position,
+    private drawObjects(ctx: CanvasRenderingContext2D, viewport: Viewport, canvas: HTMLCanvasElement,
+        selectBoxManager: ISelectBoxManager, mouseGridPos: Position,
         zoom: number): void {
         this.drawables.forEach((drawable: IDrawable) => {
             const screenPosition: Position = viewport.convertToScreenPos(drawable.gridPosition);
@@ -417,7 +447,7 @@ export class DrawablesManager {
 
 
     // #region Utility methods
-    public getDrawableById(id: string): IDrawable | null {
+    private getDrawableById(id: string): IDrawable | null {
         return this.drawables.find((drawable: IDrawable) => drawable.ID === id) || null;
     }
 
