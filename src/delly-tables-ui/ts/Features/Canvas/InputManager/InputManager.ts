@@ -79,7 +79,7 @@ export class InputManager implements IInputManager {
         this.canvas.addEventListener('mouseleave', this.handleMouseLeave.bind(this));
         this.canvas.addEventListener('wheel', this.handleWheel.bind(this));
         this.canvas.addEventListener('dblclick', this.handleDoubleClick.bind(this));
-        // Must add the event on the window because canvas is not focusable bys default. 
+        // Must add the event on the window because canvas is not focusable by default. 
         window.addEventListener('keydown', this.handleKeyDown.bind(this));
     }
 
@@ -87,6 +87,34 @@ export class InputManager implements IInputManager {
     handleKeyDown(e: KeyboardEvent): void {
         if (e.key === 'Delete') {
             this.drawablesManager.deleteSelected();
+        }
+
+        switch (this.inputState) {
+            case InputStates.Idle:
+                break;
+            case InputStates.Panning:
+                break;
+            case InputStates.Selecting:
+                break;
+            case InputStates.Dragging:
+                break;
+            case InputStates.Resizing:
+                break;
+            case InputStates.Drawing:
+                break;
+            case InputStates.Typing:
+
+                if (e.key.length === 1) {
+                    // Add character to active text drawable
+                    this.drawablesManager.addText(e.key, this.mouseGridPosition);
+                }
+                else if (e.key === 'Backspace') {
+                    this.drawablesManager.removeCharacter();
+                }
+
+                break;
+            default:
+                break;
         }
 
         this.render();
@@ -140,6 +168,9 @@ export class InputManager implements IInputManager {
                     this.drawablesManager.startDrawing(this.mouseGridPosition);
                     // Clear the currently selected shapes. (the one that is being drawn will be selected.)
                     this.drawablesManager.clearSelection();
+                    break;
+                case InputStates.Typing:
+
                     break;
                 default:
                     break;
@@ -375,7 +406,10 @@ export class InputManager implements IInputManager {
             this.drawablesManager.setTextButton(true);
             this.inputState = InputStates.Typing;
             this.textButton.classList.add('active');
+            this.drawablesManager.clearSelection();
         }
+
+        this.render();
     }
 
     // #endregion

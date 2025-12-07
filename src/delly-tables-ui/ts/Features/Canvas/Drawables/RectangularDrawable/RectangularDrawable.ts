@@ -1,7 +1,11 @@
 import { Position } from "../../Shared/Position";
 import { CanvasPosition } from "../../Shared/CanvasPosition";
 import { RectangularDrawableResizing } from "./RectangularDrawableResizing";
-import { IRectangularDrawable } from './IRectangularDrawable.ts';
+import { IDrawable } from '../IDrawable.ts';
+
+export interface IRectangularDrawable
+    extends IDrawable {
+}
 
 export abstract class RectangularDrawable implements IRectangularDrawable {
     ID: string = "";
@@ -11,7 +15,6 @@ export abstract class RectangularDrawable implements IRectangularDrawable {
     height: number;
     minimumWidth: number = 30;
     minimumHeight: number = 30;
-    isSelected: boolean;
     padding: number = 20;
     rounding: number = 0;
     points: Position[] = [];
@@ -20,18 +23,17 @@ export abstract class RectangularDrawable implements IRectangularDrawable {
     lastMousePosition: number = CanvasPosition.NotOn;
 
     constructor(id: string, width: number, height: number,
-        xPosition: number, yPosition: number, isSelected: boolean = false) {
+        xPosition: number, yPosition: number) {
         this.ID = id;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
         this.width = width;
         this.height = height;
-        this.isSelected = isSelected;
         this.originalDimensions = null;
 
         this.updatePoints();
     }
-    draw(context: CanvasRenderingContext2D, zoom: number, rounding: number | null): void {
+    draw(context: CanvasRenderingContext2D, zoom: number): void {
         throw new Error("Method not implemented.");
     }
 
@@ -47,7 +49,6 @@ export abstract class RectangularDrawable implements IRectangularDrawable {
             { x: x2, y: y2 },
             { x: x1, y: y2 }
         ];
-
     }
 
     getMousePosOnDrawable(mousePosition: Position): number {

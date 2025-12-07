@@ -6,6 +6,7 @@ import { Box } from '../Box/Box.ts';
 import { ISelectBoxManager, SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
 import { MassSelectionBox } from '../MassSelectionBox/MassSelectionBox.ts';
 import { v4 as uuidv4 } from 'uuid';
+import { TextDrawable } from '../TextDrawable.ts';
 
 // #region Interface
 export interface IDrawablesManager {
@@ -37,6 +38,11 @@ export interface IDrawablesManager {
 
     getMouseCanvasPosition(gridPos: Position): number;
 
+    // Text
+    addText(text: string, gridPosition: Position): void;
+    removeCharacter(): void;
+
+    // Buttons 
     setShapesButton(state: boolean): void;
     setTextButton(state: boolean): void;
 
@@ -103,9 +109,9 @@ export class DrawablesManager implements IDrawablesManager {
 
                 let shapeToAdd = new Box(this.shapeToAddId,
                     width, height, '#e4bf1aff',
-                    this.addShapePosition.x!, this.addShapePosition.y!, true);
+                    this.addShapePosition.x!, this.addShapePosition.y!);
 
-                shapeToAdd.draw(this.ctx, scale, null);
+                shapeToAdd.draw(this.ctx, scale);
                 this.drawables.push(shapeToAdd);
 
                 this.selectedDrawables = [shapeToAdd];
@@ -237,7 +243,7 @@ export class DrawablesManager implements IDrawablesManager {
         }
 
         this.selectionBox = this.createMassSelectionBox(this.selectedDrawables!);
-        this.selectionBox.draw(this.ctx, scale, null);
+        this.selectionBox.draw(this.ctx, scale);
     }
 
     private createMassSelectionBox(drawables: IDrawable[]): MassSelectionBox {
@@ -248,13 +254,11 @@ export class DrawablesManager implements IDrawablesManager {
         const minY = Math.min(...allPoints.map(p => p.y!));
         const maxY = Math.max(...allPoints.map(p => p.y!));
 
-        //console.log(`minX: ${minX}, maxX: ${maxX}, minY: ${minY}, maxY: ${maxY}`);
-
         // Width/height calculation
         const width = maxX - minX;
         const height = maxY - minY;
 
-        let massSelectionBox = new MassSelectionBox(uuidv4(), width, height, 'rgba(0, 0, 255, 0.05)', minX, minY, true);
+        let massSelectionBox = new MassSelectionBox(uuidv4(), width, height, 'rgba(0, 0, 255, 0.05)', minX, minY);
 
         return massSelectionBox;
     }
@@ -331,9 +335,9 @@ export class DrawablesManager implements IDrawablesManager {
         const boxSize = 200;
         const sizeOffset = 200 / 2;
         let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
-        createdDrawable.isSelected = true;
         this.selectedDrawables = [createdDrawable];
         this.drawables.push(createdDrawable);
+        this.drawMassSelectionBoxAround(this.viewport.scale);
     }
 
     //#endregion
@@ -358,6 +362,35 @@ export class DrawablesManager implements IDrawablesManager {
 
 
     // #region Text methods
+
+    addText(character: string, gridPosition: Position): void {
+        if (this.selectedDrawables) {
+            // if there are multiple drawables selected, return. 
+            if (this.selectedDrawables.length > 1) {
+                return;
+            }
+
+            // If what is selected is a text drawable add text to it.
+            if (this.selectedDrawables[0] instanceof TextDrawable) {
+                this.selectedDrawables[0].addText(character);
+                return;
+            }
+        }
+        else {
+            // If there are no drawables selected, create a new text drawable and select it. 
+            let text = new TextDrawable('20px Arial', gridPosition.x!, gridPosition.y!, 30, 30);
+            text.addText(character);
+            this.drawables.push(text);
+
+            this.selectedDrawables = [text];
+        }
+
+
+    }
+
+    removeCharacter(): void {
+        throw new Error('Method not implemented.');
+    }
 
 
     //#endregion
@@ -401,7 +434,7 @@ export class DrawablesManager implements IDrawablesManager {
             // console.log(this.selectedDrawables);
 
             drawable.updateScreenPosition(screenPosition);
-            drawable.draw(ctx, zoom, null);
+            drawable.draw(ctx, zoom);
         });
 
         // Draw the boxes around the selected drawables.

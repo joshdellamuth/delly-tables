@@ -1,6 +1,5 @@
 import { IDrawable } from '../IDrawable.ts';
 import { RectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
-import { Position } from '../../Shared/Position.ts';
 
 export class Box
     extends RectangularDrawable
@@ -9,24 +8,20 @@ export class Box
     // properties just in the Box class
     public color: string;
 
+    rounding = 8;
+
     constructor(id: string, width: number, height: number, color: string,
-        xPosition: number, yPosition: number, isSelected: boolean = false) {
-        super(id, width, height, xPosition, yPosition, isSelected);
+        xPosition: number, yPosition: number) {
+        super(id, width, height, xPosition, yPosition);
 
         this.color = color;
-
-        console.log('The points is:');
-        console.log(this.points);
     }
 
-    public draw(context: CanvasRenderingContext2D, scale: number, roundness: number | null): void {
+    public draw(context: CanvasRenderingContext2D, scale: number): void {
         this.updatePoints();
 
         // There is currently an error with rounding, so making it 0 for now.
-        let rounding = 0;
-        if (roundness == null) {
-            rounding = 8;
-        }
+        let rounding = this.rounding;
 
         context.fillStyle = this.color;
         context.beginPath();

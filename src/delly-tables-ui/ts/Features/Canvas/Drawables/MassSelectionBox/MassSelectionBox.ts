@@ -16,19 +16,17 @@ export class MassSelectionBox
 
     points: Position[] = [];
 
+    rounding: number = 8;
+
     constructor(id: string, width: number, height: number, color: string,
-        xPosition: number, yPosition: number, isSelected: boolean = false) {
-        super(id, width, height, xPosition, yPosition, isSelected);
+        xPosition: number, yPosition: number) {
+        super(id, width, height, xPosition, yPosition);
 
         this.color = color;
     }
 
-    override draw(context: CanvasRenderingContext2D, scale: number, rounding: number | null): void {
+    override draw(context: CanvasRenderingContext2D, scale: number): void {
         // There is currently an error with rounding, so making it 0 for now.
-
-        if (rounding == null) {
-            rounding = 8;
-        }
 
         this.x1 = this.gridPosition.x!;
         this.y1 = this.gridPosition.y!;
@@ -39,6 +37,9 @@ export class MassSelectionBox
         context.beginPath();
         // go to the starting point
         context.moveTo(this.x1, this.y1);
+
+        let rounding = this.rounding;
+
         context.arcTo(this.x2, this.y1, this.x2, this.y2, rounding);
         context.arcTo(this.x2, this.y2, this.x1, this.y2, rounding);
         context.arcTo(this.x1, this.y2, this.x1, this.y1, rounding);
