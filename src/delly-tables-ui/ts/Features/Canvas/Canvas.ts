@@ -17,20 +17,17 @@ export class Canvas {
     ) {
         this.ID = ID;
 
-
         const canvas = document.getElementById(ID);
         if (!canvas || !(canvas instanceof HTMLCanvasElement)) {
             throw new Error(`Canvas element with ID "${ID}" not found`);
         }
         this.canvas = document.getElementById(ID) as HTMLCanvasElement;
 
-
         const ctx = this.canvas.getContext('2d');
         if (!ctx) {
             throw new Error('Failed to get 2D context from canvas');
         }
         this.ctx = ctx;
-
 
         const shapesButton = this.getButtonById('shapes-button');
         const textButton = this.getButtonById('text-button');

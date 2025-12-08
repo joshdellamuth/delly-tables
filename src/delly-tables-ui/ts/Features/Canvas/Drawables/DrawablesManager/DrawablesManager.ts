@@ -41,6 +41,9 @@ export interface IDrawablesManager {
     // Text
     addText(text: string, gridPosition: Position): void;
     removeCharacter(): void;
+    setTextPosition(textGridPosition: Position | null): void;
+    toggleCursor(): void;
+    getTextPositon(): Position | null;
 
     // Buttons 
     setShapesButton(state: boolean): void;
@@ -76,8 +79,10 @@ export class DrawablesManager implements IDrawablesManager {
     private ctx: CanvasRenderingContext2D;
     private viewport: Viewport;
     public shapesButtonActivated: boolean = false;
-    public textButtonActivated: boolean = false;
 
+    public textButtonActivated: boolean = false;
+    private addTextPosition: Position | null = null;
+    private isCursorShowing: boolean = false;
 
     constructor(canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -378,20 +383,64 @@ export class DrawablesManager implements IDrawablesManager {
         }
         else {
             // If there are no drawables selected, create a new text drawable and select it. 
-            let text = new TextDrawable('20px Arial', gridPosition.x!, gridPosition.y!, 30, 30);
-            text.addText(character);
-            this.drawables.push(text);
+            if (this.addTextPosition != null) {
+                let text = new TextDrawable('20px Arial', this.addTextPosition.x!, this.addTextPosition.y!, 30, 30);
+                text.addText(character);
+                this.drawables.push(text);
 
-            this.selectedDrawables = [text];
+                this.selectedDrawables = [text];
+            }
         }
-
-
     }
 
-    removeCharacter(): void {
-        throw new Error('Method not implemented.');
+    public removeCharacter(): void {
+        if (this.selectedDrawables) {
+            // if there are multiple drawables selected, return. 
+            if (this.selectedDrawables.length > 1) {
+                return;
+            }
+
+            // If what is selected is a text drawable add text to it.
+            if (this.selectedDrawables[0] instanceof TextDrawable) {
+                this.selectedDrawables[0].removeText();
+                return;
+            }
+        }
     }
 
+    public setTextPosition(addTextGridPosition: Position): void {
+        this.addTextPosition = addTextGridPosition;
+    }
+
+    public toggleCursor(): void {
+        this.isCursorShowing = !this.isCursorShowing;
+    }
+
+    // Used in the render method to draw the actual 
+    private drawCursor(): void {
+        if (this.isCursorShowing) {
+            const fontSpec = this.ctx.font; // e.g. "16px Arial"
+            const fontSize = parseInt(fontSpec, 10); // 16
+
+            this.ctx.beginPath();
+
+            if (this.addTextPosition != null) {
+                this.ctx.rect(
+                    this.addTextPosition!.x!,
+                    this.addTextPosition!.y! - fontSize,
+                    4,
+                    20
+                );
+            }
+
+            this.ctx.fillStyle = 'black';
+            this.ctx.fill(); // fill it in instead of stroke
+        }
+    }
+
+    public getTextPositon(): Position | null {
+        return this.addTextPosition;
+    }
 
     //#endregion
 
@@ -411,6 +460,11 @@ export class DrawablesManager implements IDrawablesManager {
         this.drawBackground(this.ctx, canvas);
 
         this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos, zoom);
+
+        if (this.isCursorShowing) {
+            console.log('Drawing cursor');
+            this.drawCursor();
+        }
 
         this.ctx.restore();
     }

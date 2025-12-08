@@ -61,6 +61,14 @@ export class InputManager implements IInputManager {
 
         this.setupEventListeners();
         this.addButtonListeners();
+
+        // Auto re-render when the user is typing (for the cursor)
+        setInterval(() => {
+            if (this.inputState === InputStates.Typing) {
+                this.drawablesManager.toggleCursor();
+                this.render();
+            }
+        }, 750);
     }
 
     public addDrawables(drawables: IDrawable[]): void {
@@ -170,6 +178,15 @@ export class InputManager implements IInputManager {
                     this.drawablesManager.clearSelection();
                     break;
                 case InputStates.Typing:
+                    if (this.drawablesManager.getTextPositon() === null) {
+                        this.drawablesManager.setTextPosition(this.mouseGridPosition);
+                    }
+                    else {
+                        this.toggleTextButton();
+                        this.drawablesManager.toggleCursor();
+                        this.drawablesManager.clearSelection();
+                        this.cancel();
+                    }
 
                     break;
                 default:

@@ -44,6 +44,8 @@ export class TextDrawable
         this.width = width;
         this.height = height;
         this.originalDimensions = null;
+
+        this.updatePoints();
     }
 
     public draw(context: CanvasRenderingContext2D, scale: number): void {
@@ -59,6 +61,33 @@ export class TextDrawable
     public addText(text: string): void {
         this.text = this.text + text;
 
+        const letters = this.text.split("");
+
+        let widthToAdd = 5;
+
+        let widthToAddEachSize = widthToAdd / 2;
+
+        this.gridPosition.x = this.gridPosition.x! - widthToAddEachSize;
+
+        letters.forEach(letter => {
+            this.width = this.width + widthToAddEachSize;
+        });
+    }
+
+    removeText(): void {
+        this.text = this.text.substring(0, this.text.length - 1);
+
+        const letters = this.text.split("");
+
+        let widthToSubtract = 5;
+
+        let widthToSubtractEachSize = widthToSubtract / 2;
+
+        this.gridPosition.x = this.gridPosition.x! + widthToSubtractEachSize;
+
+        letters.forEach(letter => {
+            this.width = this.width - widthToSubtractEachSize;
+        });
     }
 
     public updateText(text: string, indexToUpdate: number | null): void {
