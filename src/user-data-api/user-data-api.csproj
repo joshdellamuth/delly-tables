@@ -15,7 +15,9 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="npgsql.entityframeworkcore.postgresql" Version="9.0.4" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.11.6" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore.ReDoc" Version="10.0.1" />
   </ItemGroup>
 
 </Project>

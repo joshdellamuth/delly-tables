@@ -7,15 +7,17 @@ export interface IRectangularDrawable
     extends IDrawable {
 }
 
-export abstract class RectangularDrawable implements IRectangularDrawable {
+export abstract class RectangularDrawable
+    implements IRectangularDrawable {
+
     ID: string = "";
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
     width: number;
     height: number;
-    minimumWidth: number = 30;
-    minimumHeight: number = 30;
-    padding: number = 20;
+    minimumWidth: number = 5;
+    minimumHeight: number = 5;
+    padding: number = 5;
     rounding: number = 0;
     points: Position[] = [];
 

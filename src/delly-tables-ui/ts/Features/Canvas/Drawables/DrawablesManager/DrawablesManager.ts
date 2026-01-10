@@ -32,17 +32,19 @@ export interface IDrawablesManager {
     resizeSelected(mouseGridPosition: Position, mouseCanvasPosition: number): void;
 
     trySelectAt(mouseGridPos: Position): boolean;
-    setMassSelectedDrawables(drawables: IDrawable[]): void;
+    setSelectedDrawables(drawables: IDrawable[]): void;
     selectDrawable(drawable: IDrawable, mouseGridPos: Position): void;
     clearSelection(): void;
 
     getMouseCanvasPosition(gridPos: Position): number;
 
     // Text
-    addText(text: string, gridPosition: Position): void;
+    addText(text: string): void;
     removeCharacter(): void;
     setTextPosition(textGridPosition: Position | null): void;
-    toggleCursor(): void;
+    blinkCursor(): void;
+    showCursor(): void;
+    hideCursor(): void;
     getTextPositon(): Position | null;
 
     // Buttons 
@@ -82,7 +84,9 @@ export class DrawablesManager implements IDrawablesManager {
 
     public textButtonActivated: boolean = false;
     private addTextPosition: Position | null = null;
+    private isBlinkingCursor: boolean = false;
     private isCursorShowing: boolean = false;
+
 
     constructor(canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -236,13 +240,13 @@ export class DrawablesManager implements IDrawablesManager {
         return CanvasPosition.NotOn;
     }
 
-    public setMassSelectedDrawables(drawables: IDrawable[]): void {
+    public setSelectedDrawables(drawables: IDrawable[]): void {
         this.selectedDrawables = drawables;
 
         this.selectionBox = null;
     }
 
-    private drawMassSelectionBoxAround(scale: number): void {
+    private drawSelectionBoxAround(scale: number): void {
         if (this.selectedDrawables == null) {
             return;
         }
@@ -342,7 +346,7 @@ export class DrawablesManager implements IDrawablesManager {
         let createdDrawable = new Box('new-box', boxSize, boxSize, '#5c9dffff', mouseGridPos.x! - sizeOffset!, mouseGridPos.y! - sizeOffset!);
         this.selectedDrawables = [createdDrawable];
         this.drawables.push(createdDrawable);
-        this.drawMassSelectionBoxAround(this.viewport.scale);
+        this.drawSelectionBoxAround(this.viewport.scale);
     }
 
     //#endregion
@@ -368,8 +372,18 @@ export class DrawablesManager implements IDrawablesManager {
 
     // #region Text methods
 
-    addText(character: string, gridPosition: Position): void {
+    addText(character: string): void {
+        // Temporarily hard coded character width.
+        // TODO: Fix this.
+
+        // Set the font size and font. 
+        this.ctx.font = '40px Arial';
+
+        const metrics = this.ctx.measureText(character);
+        const characterWidth = metrics.width;
+
         if (this.selectedDrawables) {
+
             // if there are multiple drawables selected, return. 
             if (this.selectedDrawables.length > 1) {
                 return;
@@ -377,16 +391,23 @@ export class DrawablesManager implements IDrawablesManager {
 
             // If what is selected is a text drawable add text to it.
             if (this.selectedDrawables[0] instanceof TextDrawable) {
-                this.selectedDrawables[0].addText(character);
+                this.selectedDrawables[0].addCharacter(character);
+
+                this.addTextPosition!.x! = this.addTextPosition!.x! + characterWidth;
                 return;
             }
         }
         else {
             // If there are no drawables selected, create a new text drawable and select it. 
             if (this.addTextPosition != null) {
-                let text = new TextDrawable('20px Arial', this.addTextPosition.x!, this.addTextPosition.y!, 30, 30);
-                text.addText(character);
+                const fontSpec = this.ctx.font; // e.g. "16px Arial"
+                // Parse the int into base 10 
+                const fontSize = parseInt(fontSpec, 10); // 16
+
+                let text = new TextDrawable(this.ctx, '40px Arial', this.addTextPosition.x!, this.addTextPosition.y!, 5, fontSize);
+                text.addCharacter(character);
                 this.drawables.push(text);
+                this.addTextPosition.x! = this.addTextPosition.x! + characterWidth;
 
                 this.selectedDrawables = [text];
             }
@@ -394,6 +415,9 @@ export class DrawablesManager implements IDrawablesManager {
     }
 
     public removeCharacter(): void {
+
+        this.ctx.font = '40px Arial';
+
         if (this.selectedDrawables) {
             // if there are multiple drawables selected, return. 
             if (this.selectedDrawables.length > 1) {
@@ -402,34 +426,50 @@ export class DrawablesManager implements IDrawablesManager {
 
             // If what is selected is a text drawable add text to it.
             if (this.selectedDrawables[0] instanceof TextDrawable) {
+                let characterWidth = this.selectedDrawables[0].getCharWidthAtCursor();
+
+                if (characterWidth == null) {
+                    throw new Error('Character width is null');
+                }
+
                 this.selectedDrawables[0].removeText();
+                this.addTextPosition!.x! = this.addTextPosition!.x! - characterWidth;
                 return;
             }
         }
     }
 
-    public setTextPosition(addTextGridPosition: Position): void {
+    public setTextPosition(addTextGridPosition: Position | null): void {
         this.addTextPosition = addTextGridPosition;
     }
 
-    public toggleCursor(): void {
-        this.isCursorShowing = !this.isCursorShowing;
+    public blinkCursor(): void {
+        this.isBlinkingCursor = !this.isBlinkingCursor;
+    }
+
+    public showCursor(): void {
+        this.isCursorShowing = true;
+    }
+
+    public hideCursor(): void {
+        this.isCursorShowing = false;
     }
 
     // Used in the render method to draw the actual 
     private drawCursor(): void {
         if (this.isCursorShowing) {
-            const fontSpec = this.ctx.font; // e.g. "16px Arial"
-            const fontSize = parseInt(fontSpec, 10); // 16
-
             this.ctx.beginPath();
+
+            console.log(`font spec`);
+
+            console.log(this.ctx.font);
 
             if (this.addTextPosition != null) {
                 this.ctx.rect(
                     this.addTextPosition!.x!,
-                    this.addTextPosition!.y! - fontSize,
-                    4,
-                    20
+                    this.addTextPosition!.y!,
+                    3,
+                    40
                 );
             }
 
@@ -462,9 +502,11 @@ export class DrawablesManager implements IDrawablesManager {
         this.drawObjects(this.ctx, viewport, this.canvas, selectBoxManager, mouseGridPos, zoom);
 
         if (this.isCursorShowing) {
-            console.log('Drawing cursor');
-            this.drawCursor();
+            if (this.isBlinkingCursor) {
+                this.drawCursor();
+            }
         }
+
 
         this.ctx.restore();
     }
@@ -484,16 +526,13 @@ export class DrawablesManager implements IDrawablesManager {
                 selectBoxManager.drawSelectBox(mouseGridPos);
             }
 
-            // console.log('The drawables selected are:');
-            // console.log(this.selectedDrawables);
-
             drawable.updateScreenPosition(screenPosition);
             drawable.draw(ctx, zoom);
         });
 
         // Draw the boxes around the selected drawables.
         if (this.selectedDrawables != null) {
-            this.drawMassSelectionBoxAround(viewport.scale);
+            this.drawSelectionBoxAround(viewport.scale);
         }
     }
 
@@ -528,6 +567,7 @@ export class DrawablesManager implements IDrawablesManager {
 
     public setTextButton(state: boolean): void {
         this.textButtonActivated = state;
+        console.log('Text button activated with state: ' + this.textButtonActivated);
     }
 
     // #endregion

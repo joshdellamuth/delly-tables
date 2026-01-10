@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES6", /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "lib": [
+      "DOM",
+      "ES2022"
+    ],
     /* Modules */
     "module": "es6", /* Specify what module code is generated. */
     // "rootDir": "./",                                  /* Specify the root folder within your source files. */

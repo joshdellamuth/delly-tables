@@ -65,7 +65,7 @@ export class InputManager implements IInputManager {
         // Auto re-render when the user is typing (for the cursor)
         setInterval(() => {
             if (this.inputState === InputStates.Typing) {
-                this.drawablesManager.toggleCursor();
+                this.drawablesManager.blinkCursor();
                 this.render();
             }
         }, 750);
@@ -114,7 +114,7 @@ export class InputManager implements IInputManager {
 
                 if (e.key.length === 1) {
                     // Add character to active text drawable
-                    this.drawablesManager.addText(e.key, this.mouseGridPosition);
+                    this.drawablesManager.addText(e.key);
                 }
                 else if (e.key === 'Backspace') {
                     this.drawablesManager.removeCharacter();
@@ -178,13 +178,16 @@ export class InputManager implements IInputManager {
                     this.drawablesManager.clearSelection();
                     break;
                 case InputStates.Typing:
-                    if (this.drawablesManager.getTextPositon() === null) {
+
+                    if (this.drawablesManager.getTextPositon() == null) {
                         this.drawablesManager.setTextPosition(this.mouseGridPosition);
+                        this.drawablesManager.showCursor();
                     }
                     else {
                         this.toggleTextButton();
-                        this.drawablesManager.toggleCursor();
+                        this.drawablesManager.blinkCursor();
                         this.drawablesManager.clearSelection();
+                        this.drawablesManager.setTextPosition(null);
                         this.cancel();
                     }
 
@@ -268,7 +271,7 @@ export class InputManager implements IInputManager {
             case InputStates.Selecting:
                 // Set the selected drawables to the drawables in the select box.             
                 let selectedDrawables = this.selectBoxManager.getDrawablesInSelectBox(this.drawablesManager.drawables);
-                this.drawablesManager.setMassSelectedDrawables(selectedDrawables);
+                this.drawablesManager.setSelectedDrawables(selectedDrawables);
 
                 this.selectBoxManager.stopSelectBox();
                 this.cancel();
@@ -326,6 +329,7 @@ export class InputManager implements IInputManager {
     }
 
     private cancel(): void {
+        this.drawablesManager.hideCursor();
         this.inputState = InputStates.Idle;
         this.mouse.setStyleDefault();
     }

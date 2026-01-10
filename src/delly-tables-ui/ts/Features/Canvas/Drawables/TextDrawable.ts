@@ -7,18 +7,30 @@ import { v4 as uuidv4 } from 'uuid';
 export interface ITextDrawable
     extends IRectangularDrawable {
     size: string;
+    ctx: CanvasRenderingContext2D;
+
+    gridPosition: Position;
+    screenPosition: Position;
+    width: number;
+    height: number;
+    minimumWidth: number;
+    minimumHeight: number;
+    padding: number;
+    rounding: number;
+    points: Position[];
 }
 
 export class TextDrawable
     extends RectangularDrawable
     implements ITextDrawable {
+    ctx: CanvasRenderingContext2D;
     size: string;
     gridPosition: Position = new Position(null, null);
     screenPosition: Position = new Position(null, null);
     width: number;
     height: number;
-    minimumWidth: number = 30;
-    minimumHeight: number = 30;
+    minimumWidth: number = 10;
+    minimumHeight: number = 10;
     padding: number = 20;
     rounding: number = 0;
     points: Position[] = [];
@@ -29,8 +41,7 @@ export class TextDrawable
     originalDimensions: { x: number; y: number; width: number; height: number; } | null;
     lastMousePosition: number = CanvasPosition.NotOn;
 
-    constructor(size: string, xPosition: number,
-
+    constructor(ctx: CanvasRenderingContext2D, size: string, xPosition: number,
         yPosition: number,
         width: number,
         height: number) {
@@ -38,6 +49,7 @@ export class TextDrawable
         let id = uuidv4();
         super(id, width, height, xPosition, yPosition);
 
+        this.ctx = ctx;
         this.size = size;
         this.gridPosition.x = xPosition;
         this.gridPosition.y = yPosition;
@@ -53,41 +65,34 @@ export class TextDrawable
 
         context.font = this.size;
         context.fillStyle = 'black';
-        context.textAlign = 'center';
-        context.textBaseline = 'middle';
+        context.textAlign = 'left';
+        context.textBaseline = 'top';
         context.fillText(this.text, this.gridPosition.x!, this.gridPosition.y!);
     }
 
-    public addText(text: string): void {
-        this.text = this.text + text;
+    public addCharacter(char: string): void {
+        this.text = this.text + char;
 
-        const letters = this.text.split("");
+        const metrics = this.ctx.measureText(char);
+        let characterWidth = metrics.width;
 
-        let widthToAdd = 5;
-
-        let widthToAddEachSize = widthToAdd / 2;
-
-        this.gridPosition.x = this.gridPosition.x! - widthToAddEachSize;
-
-        letters.forEach(letter => {
-            this.width = this.width + widthToAddEachSize;
-        });
+        this.width = this.width + characterWidth;
     }
 
-    removeText(): void {
+    public removeText(): void {
+
         this.text = this.text.substring(0, this.text.length - 1);
 
-        const letters = this.text.split("");
+        let character = this.getCharAtCursor();
 
-        let widthToSubtract = 5;
+        if (!character) {
+            return;
+        }
 
-        let widthToSubtractEachSize = widthToSubtract / 2;
+        const metrics = this.ctx.measureText(character);
+        const characterWidth = metrics.width;
 
-        this.gridPosition.x = this.gridPosition.x! + widthToSubtractEachSize;
-
-        letters.forEach(letter => {
-            this.width = this.width - widthToSubtractEachSize;
-        });
+        this.width = this.width - characterWidth;
     }
 
     public updateText(text: string, indexToUpdate: number | null): void {
@@ -95,5 +100,29 @@ export class TextDrawable
             indexToUpdate = this.text.length - 1;
 
         this.text = text;
+    }
+
+    public getCharAtCursor(): string | null {
+        // TODO: Actaully get the character at the position of the cursor instead of the last character.
+
+        const last = this.text.at(-1);
+
+        if (last) {
+            return last;
+        }
+
+        return null;
+    }
+
+    public getCharWidthAtCursor(): number | null {
+
+        const character = this.getCharAtCursor();
+
+        if (!character) {
+            return null;
+        }
+
+        const metrics = this.ctx.measureText(character);
+        return metrics.width;
     }
 }
