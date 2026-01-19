@@ -33,6 +33,12 @@ var kibana = builder.AddContainer("kibana", "docker.elastic.co/kibana/kibana", "
 var ui = builder.AddJavaScriptApp("main-ui", "../../src/delly-tables-ui")
     .WithHttpEndpoint(name: "ui-http", env: "PORT");
 
+var rabbit = builder.AddContainer("rabbitmq", "rabbitmq:3-management")
+    .WithHttpEndpoint(name: "rabbit-ui", port: 15672, targetPort: 15672) // Management UI
+    .WithEnvironment("RABBITMQ_DEFAULT_USER", "guest")
+    .WithEnvironment("RABBITMQ_DEFAULT_PASS", "guest");
+
+
 // Call Build() to materialize the configuration into a runnable AppHost.
 // Call Run() to start orchestration; services launch in dependency order.
 builder.Build().Run();
