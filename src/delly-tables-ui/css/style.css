@@ -152,3 +152,13 @@ body {
 .panel-title-text {
     color: rgb(63, 63, 63);
 }
+
+.bird-corner-icon {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100px;
+    /* optional */
+    height: 100px;
+    z-index: 999;
+}

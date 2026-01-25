@@ -12,4 +12,6 @@ export class InputStates {
     public static readonly Drawing = 6;
     // Typing text
     public static readonly Typing = 7;
+    // Draw annotations
+    public static readonly Annotating = 8;
 }

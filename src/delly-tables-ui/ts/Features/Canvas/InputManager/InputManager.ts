@@ -38,6 +38,7 @@ export class InputManager implements IInputManager {
     // Buttons
     private shapesButton: HTMLButtonElement;
     private textButton: HTMLButtonElement;
+    private annotateButton: HTMLButtonElement;
 
     get mouseScreenPosition(): Position { return this.mouseScreenPos; }
     get mouseGridPosition(): Position { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
@@ -46,12 +47,14 @@ export class InputManager implements IInputManager {
     public constructor(canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
         shapesButton: HTMLButtonElement,
-        textButton: HTMLButtonElement) {
+        textButton: HTMLButtonElement,
+        annotateButton: HTMLButtonElement) {
         this.canvas = canvas;
         this.ctx = ctx;
 
         this.shapesButton = shapesButton;
         this.textButton = textButton;
+        this.annotateButton = annotateButton;
 
         this.selectBoxManager = new SelectBoxManager(ctx, canvas);
         this.mouse = new Mouse(this.canvas);
@@ -190,7 +193,8 @@ export class InputManager implements IInputManager {
                         this.drawablesManager.setTextPosition(null);
                         this.cancel();
                     }
-
+                case InputStates.Typing:
+                    console.log('typing');
                     break;
                 default:
                     break;
@@ -395,6 +399,17 @@ export class InputManager implements IInputManager {
             this.toggleTextButton();
             this.mouse.setStyleCursor();
         });
+
+        // Guard clause for annotate button
+        if (!this.annotateButton) {
+            console.error("Annotate button not found in DOM");
+            return;
+        }
+
+        this.annotateButton.addEventListener('click', () => {
+            this.toggleAnnotateButton();
+            this.mouse.setStyleDefault();
+        });
     }
 
     // #endregion
@@ -427,6 +442,23 @@ export class InputManager implements IInputManager {
             this.drawablesManager.setTextButton(true);
             this.inputState = InputStates.Typing;
             this.textButton.classList.add('active');
+            this.drawablesManager.clearSelection();
+        }
+
+        this.render();
+    }
+
+    public toggleAnnotateButton(): void {
+        // If the state was drawing, toggle the shapes button.
+        if (this.inputState === InputStates.Annotating) {
+            this.drawablesManager.setAnnotateButton(false);
+            this.annotateButton.classList.remove('active');
+        }
+        else {
+            // Otherwise, toggle the shapes button to true and set the input state. 
+            this.drawablesManager.setAnnotateButton(true);
+            this.inputState = InputStates.Annotating;
+            this.annotateButton.classList.add('active');
             this.drawablesManager.clearSelection();
         }
 

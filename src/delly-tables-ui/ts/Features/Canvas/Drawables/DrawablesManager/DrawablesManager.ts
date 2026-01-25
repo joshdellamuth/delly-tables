@@ -3,7 +3,7 @@ import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
-import { ISelectBoxManager, SelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
+import { ISelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
 import { MassSelectionBox } from '../MassSelectionBox/MassSelectionBox.ts';
 import { v4 as uuidv4 } from 'uuid';
 import { TextDrawable } from '../TextDrawable.ts';
@@ -50,6 +50,7 @@ export interface IDrawablesManager {
     // Buttons 
     setShapesButton(state: boolean): void;
     setTextButton(state: boolean): void;
+    setAnnotateButton(state: boolean): void;
 
     render(viewport: Viewport, canvas: HTMLCanvasElement,
         selectBoxManager: ISelectBoxManager, mouseGridPos: Position,
@@ -80,9 +81,11 @@ export class DrawablesManager implements IDrawablesManager {
     private canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
     private viewport: Viewport;
-    public shapesButtonActivated: boolean = false;
 
+    public shapesButtonActivated: boolean = false;
     public textButtonActivated: boolean = false;
+    public annotateButtonActivated: boolean = false;
+
     private addTextPosition: Position | null = null;
     private isBlinkingCursor: boolean = false;
     private isCursorShowing: boolean = false;
@@ -568,6 +571,11 @@ export class DrawablesManager implements IDrawablesManager {
     public setTextButton(state: boolean): void {
         this.textButtonActivated = state;
         console.log('Text button activated with state: ' + this.textButtonActivated);
+    }
+
+    public setAnnotateButton(state: boolean): void {
+        this.annotateButtonActivated = state;
+        console.log('Annotate button activated with state: ' + this.annotateButtonActivated);
     }
 
     // #endregion

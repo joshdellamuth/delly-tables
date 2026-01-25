@@ -31,12 +31,14 @@ export class Canvas {
 
         const shapesButton = this.getButtonById('shapes-button');
         const textButton = this.getButtonById('text-button');
+        const annotateButton = this.getButtonById('annotate-button');
 
         this.inputManager = new InputManager(
             this.canvas,
             ctx,
             shapesButton,
-            textButton
+            textButton,
+            annotateButton
         );
 
         // Update the canvas size according to what it was set to. 
