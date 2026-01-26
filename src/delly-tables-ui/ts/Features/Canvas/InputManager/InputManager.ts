@@ -67,7 +67,7 @@ export class InputManager implements IInputManager {
 
         // Auto re-render when the user is typing (for the cursor)
         setInterval(() => {
-            if (this.inputState === InputStates.Typing) {
+            if (this.inputState == InputStates.Typing) {
                 this.drawablesManager.blinkCursor();
                 this.render();
             }
@@ -181,20 +181,24 @@ export class InputManager implements IInputManager {
                     this.drawablesManager.clearSelection();
                     break;
                 case InputStates.Typing:
-
+                    console.log(this.drawablesManager.getTextPositon());
                     if (this.drawablesManager.getTextPositon() == null) {
                         this.drawablesManager.setTextPosition(this.mouseGridPosition);
+                        this.drawablesManager.blinkCursor();
                         this.drawablesManager.showCursor();
                     }
                     else {
+                        console.log('Typing here 1');
+
                         this.toggleTextButton();
-                        this.drawablesManager.blinkCursor();
+
                         this.drawablesManager.clearSelection();
                         this.drawablesManager.setTextPosition(null);
                         this.cancel();
                     }
-                case InputStates.Typing:
-                    console.log('typing');
+                    break;
+                case InputStates.Annotating:
+                    this.drawablesManager.startAnnotating(this.mouseGridPosition);
                     break;
                 default:
                     break;
@@ -256,6 +260,11 @@ export class InputManager implements IInputManager {
             case InputStates.Drawing:
                 this.drawablesManager.updateDrawing(this.mouseGridPosition, this.viewport.scale);
                 break;
+            case InputStates.Typing:
+                break;
+            case InputStates.Annotating:
+                this.drawablesManager.updateAnnotating(this.mouseGridPosition);
+                break;
             default:
                 break;
         }
@@ -296,12 +305,14 @@ export class InputManager implements IInputManager {
                 this.toggleShapesButton();
                 this.cancel();
                 break;
-
+            case InputStates.Annotating:
+                this.drawablesManager.stopAnnotating(this.mouseGridPosition);
+                this.toggleAnnotateButton();
+                this.cancel();
+                break;
             default:
                 break;
         }
-
-
     }
 
     private handleMouseLeave(): void {
@@ -419,7 +430,7 @@ export class InputManager implements IInputManager {
 
     public toggleShapesButton(): void {
         // If the state was drawing, toggle the shapes button.
-        if (this.inputState === InputStates.Drawing) {
+        if (this.inputState == InputStates.Drawing) {
             this.drawablesManager.setShapesButton(false);
             this.shapesButton.classList.remove('active');
         }
@@ -432,8 +443,8 @@ export class InputManager implements IInputManager {
     }
 
     public toggleTextButton(): void {
-        // If the state was drawing, toggle the shapes button.
-        if (this.inputState === InputStates.Typing) {
+        // If the state was typing, toggle the typing button.
+        if (this.inputState == InputStates.Typing) {
             this.drawablesManager.setTextButton(false);
             this.textButton.classList.remove('active');
         }
@@ -450,7 +461,7 @@ export class InputManager implements IInputManager {
 
     public toggleAnnotateButton(): void {
         // If the state was drawing, toggle the shapes button.
-        if (this.inputState === InputStates.Annotating) {
+        if (this.inputState == InputStates.Annotating) {
             this.drawablesManager.setAnnotateButton(false);
             this.annotateButton.classList.remove('active');
         }

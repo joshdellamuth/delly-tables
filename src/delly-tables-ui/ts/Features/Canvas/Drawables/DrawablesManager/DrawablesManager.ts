@@ -38,6 +38,12 @@ export interface IDrawablesManager {
 
     getMouseCanvasPosition(gridPos: Position): number;
 
+    // Annotating
+    startAnnotating(mouseGridPos: Position): void;
+    updateAnnotating(mouseGridPos: Position): void;
+    stopAnnotating(mouseGridPos: Position): void;
+
+
     // Text
     addText(text: string): void;
     removeCharacter(): void;
@@ -90,6 +96,12 @@ export class DrawablesManager implements IDrawablesManager {
     private isBlinkingCursor: boolean = false;
     private isCursorShowing: boolean = false;
 
+    // Annotating
+    private isAnnotating: boolean = false;
+    private annotateOffset: Position = new Position(null, null);
+    private annotateEnd: Position = new Position(null, null);
+    private annotations: Position[][] = [];
+    private currentAnnotation: Position[] | null = null;
 
     constructor(canvas: HTMLCanvasElement,
         ctx: CanvasRenderingContext2D,
@@ -99,6 +111,74 @@ export class DrawablesManager implements IDrawablesManager {
 
         this.viewport = viewport;
     }
+
+    // #region Annotating methods
+    public startAnnotating(mouseGridPos: Position): void {
+        this.isAnnotating = true;
+
+        // Add two points for the line to be drawn between.
+        this.currentAnnotation = [mouseGridPos];
+        console.log('set the current annotation to the inital value');
+        console.log(this.currentAnnotation);
+        // Add the annotation to the annotations
+
+        this.annotations.push(this.currentAnnotation);
+
+    }
+    public updateAnnotating(mouseGridPos: Position): void {
+        // TO DO: Calculate the difference between the current mouse position and the last mouse position.
+
+        if (this.isAnnotating) {
+            if (this.currentAnnotation !== null) {
+
+                const start = this.currentAnnotation[this.currentAnnotation.length - 1];
+                const end = mouseGridPos;
+
+                if (this.distanceBetween(start, end) < 5) {
+                    return;
+                }
+                this.currentAnnotation.push(mouseGridPos);
+            }
+        }
+
+    }
+    public stopAnnotating(mouseGridPos: Position): void {
+        // Push the last annotation coordinate.
+        if (this.currentAnnotation !== null) {
+            this.currentAnnotation.push(mouseGridPos);
+        }
+
+        this.currentAnnotation = null;
+        this.isAnnotating = false;
+    }
+
+    private drawAnnotatingLineBetween(start: Position, end: Position): void {
+
+        if (start.x === null && start.y === null && end.x === null && end.y === null) {
+            return;
+        }
+
+        this.setAnnotationStyle();
+        this.ctx.beginPath();
+        this.ctx.moveTo(start.x!, start.y!);
+        this.ctx.lineTo(end.x!, end.y!);
+        this.ctx.stroke();
+    }
+
+    private distanceBetween(a: Position, b: Position): number {
+        // Using Pythagorean theorem
+        const dx = b.x! - a.x!;
+        const dy = b.y! - a.y!;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private setAnnotationStyle(): void {
+        this.ctx.strokeStyle = '#000000ff';
+        this.ctx.lineWidth = 10;
+        this.ctx.lineCap = 'round';
+    }
+
+    // #endregion
 
     //#region Drawing methods
     public startDrawing(mouseGridPos: Position): void {
@@ -452,6 +532,7 @@ export class DrawablesManager implements IDrawablesManager {
 
     public showCursor(): void {
         this.isCursorShowing = true;
+        this.isBlinkingCursor = true;
     }
 
     public hideCursor(): void {
@@ -510,6 +591,20 @@ export class DrawablesManager implements IDrawablesManager {
             }
         }
 
+        if (this.annotations) {
+
+            for (let i = 0; i < this.annotations.length; i++) {
+                const stroke = this.annotations[i];
+
+                // Stop at stroke.length - 1 so j+1 is always valid
+                for (let j = 0; j < stroke.length - 1; j++) {
+                    const curr = stroke[j];
+                    const next = stroke[j + 1];
+
+                    this.drawAnnotatingLineBetween(curr, next);
+                }
+            }
+        }
 
         this.ctx.restore();
     }
