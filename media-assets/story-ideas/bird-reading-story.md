@@ -1,0 +1,6 @@
+# Bird reading story
+There is a black and white bird on a hill. He is reading. Behind him sits a stack of books he has already read. Above him, floats loads of information from his books. They are all in black and white. The information is immense and daunting, impossible to understand. 
+
+He is struggling. He glances up from his book feeling and looking defeated. Upon looking up, he sees something glowing behind a patch of grass in front of him. The glow is emitting color and is the only color showing in this world we are in. 
+
+Reluctantly, he moves the patch of grass and grabs the marker. As he does, whiteboard appears. He takes the information from the hill and puts it on the whiteboard using the magic marker. It makes it easy to understand. He draws things out. Everything is clicking. He is making and saving notes, creating charts, drawing arrows, and defining relationships between topics. It is basically showing what the application would do and all of the features. He understands. The world fills with color and the bird walks into the world with new doors opened and a better sense of understanding. 
