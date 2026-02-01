@@ -39,6 +39,7 @@ export class InputManager implements IInputManager {
     private shapesButton: HTMLButtonElement;
     private textButton: HTMLButtonElement;
     private annotateButton: HTMLButtonElement;
+    private colorPicker: HTMLInputElement;
 
     get mouseScreenPosition(): Position { return this.mouseScreenPos; }
     get mouseGridPosition(): Position { return new Position(this.mouseGridPos.x, this.mouseGridPos.y); }
@@ -48,13 +49,15 @@ export class InputManager implements IInputManager {
         ctx: CanvasRenderingContext2D,
         shapesButton: HTMLButtonElement,
         textButton: HTMLButtonElement,
-        annotateButton: HTMLButtonElement) {
+        annotateButton: HTMLButtonElement,
+        colorPicker: HTMLInputElement) {
         this.canvas = canvas;
         this.ctx = ctx;
 
         this.shapesButton = shapesButton;
         this.textButton = textButton;
         this.annotateButton = annotateButton;
+        this.colorPicker = colorPicker;
 
         this.selectBoxManager = new SelectBoxManager(ctx, canvas);
         this.mouse = new Mouse(this.canvas);
@@ -421,6 +424,10 @@ export class InputManager implements IInputManager {
             this.toggleAnnotateButton();
             this.mouse.setStyleDefault();
         });
+
+        this.colorPicker.addEventListener('input', () => {
+            this.drawablesManager.setColorPickerColor(this.colorPicker.value);
+        });
     }
 
     // #endregion
@@ -477,6 +484,10 @@ export class InputManager implements IInputManager {
     }
 
     // #endregion
+
+    public setColorPickerColor(): void {
+        this.drawablesManager.setColorPickerColor(this.colorPicker.value);
+    }
 
     private updateDebugValues(): void {
         const element = document.getElementById('debuggingValues') as HTMLParagraphElement;

@@ -32,13 +32,15 @@ export class Canvas {
         const shapesButton = this.getButtonById('shapes-button');
         const textButton = this.getButtonById('text-button');
         const annotateButton = this.getButtonById('annotate-button');
+        const colorPickerButton = this.getInputById('colorPicker');
 
         this.inputManager = new InputManager(
             this.canvas,
             ctx,
             shapesButton,
             textButton,
-            annotateButton
+            annotateButton,
+            colorPickerButton
         );
 
         // Update the canvas size according to what it was set to. 
@@ -57,6 +59,14 @@ export class Canvas {
             throw new Error(`Button element with ID "${id}" not found`);
         }
         return button;
+    }
+
+    private getInputById(id: string): HTMLInputElement {
+        const input = document.getElementById(id);
+        if (!input || !(input instanceof HTMLInputElement)) {
+            throw new Error(`Input element with ID "${id}" not found`);
+        }
+        return input;
     }
 
     private render(): void {

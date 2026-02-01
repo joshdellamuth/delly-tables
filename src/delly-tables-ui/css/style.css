@@ -119,6 +119,13 @@ body {
     background: var(--toolbar-color);
 }
 
+.color-picker-button {
+    display: flex;
+    /* optional: horizontal centering */
+    height: 40px;
+}
+
+
 .toolbar-button-selected {
     background: var(--active-button-color);
 }
