@@ -1,8 +1,8 @@
+// This file should never actually mutate state. It should just pass parameters to commands to mutate state. 
 import { IInputManager, InputManager } from './InputManager/InputManager.ts';
 import { Size } from './Shared/Size.ts';
-import { IDrawable } from '../Canvas/Drawables/IDrawable.ts';
 
-export class Canvas {
+export class CanvasController {
     private readonly ID: string;
     private readonly canvas: HTMLCanvasElement;
     private readonly ctx: CanvasRenderingContext2D;
@@ -12,8 +12,7 @@ export class Canvas {
     constructor(
         ID: string,
         width: number,
-        height: number,
-        canvasDrawables?: IDrawable[]
+        height: number
     ) {
         this.ID = ID;
 
@@ -45,10 +44,6 @@ export class Canvas {
 
         // Update the canvas size according to what it was set to. 
         this.updateSize(width, height);
-
-        if (canvasDrawables) {
-            this.inputManager.addDrawables(canvasDrawables);
-        }
 
         this.render();
     }

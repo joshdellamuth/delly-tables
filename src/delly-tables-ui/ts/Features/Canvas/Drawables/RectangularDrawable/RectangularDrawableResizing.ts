@@ -1,5 +1,5 @@
 import { Position } from '../../Shared/Position.ts';
-import { IRectangularDrawable } from './IRectangularDrawable.ts';
+import { IRectangularDrawable } from '../RectangularDrawable/RectangularDrawable.ts';
 
 export class RectangularDrawableResizing {
     public static resizeFromBottomRightCorner(rectangularDrawable: IRectangularDrawable, gridPosition: Position): void {
@@ -43,20 +43,12 @@ export class RectangularDrawableResizing {
         if (isMassResize) {
             console.log('Mass resize');
 
-            //rectangularDrawable.gridPosition.x = rectangularDrawable.width + delta!.x!;
-
             const proposedWidth = originalDimensions!.width + delta!.x!;
             const proposedHeight = originalDimensions!.height - delta!.y!; // minus for top
 
             rectangularDrawable.width = Math.max(proposedWidth, rectangularDrawable.minimumWidth);
             rectangularDrawable.height = Math.max(proposedHeight, rectangularDrawable.minimumHeight);
-
-            // rectangularDrawable.width = originalDimensions!.width + delta!.x!;
-            // rectangularDrawable.height = originalDimensions!.height - delta!.y!; // minus for top
             rectangularDrawable.gridPosition.y = originalDimensions!.y + delta!.y!;
-
-            //rectangularDrawable.gridPosition.x! = rectangularDrawable.gridPosition.x! + delta!.x!;
-            //rectangularDrawable.gridPosition.y! = rectangularDrawable.gridPosition.y! + delta!.y!;
         }
 
         else {

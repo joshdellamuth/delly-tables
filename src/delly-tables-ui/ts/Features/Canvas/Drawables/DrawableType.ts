@@ -1,0 +1,1 @@
+export type DrawableType = "shape" | "text" | "image" | "annotation" | "group" | "frame";

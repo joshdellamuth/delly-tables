@@ -3,6 +3,7 @@ import { IDrawable } from '../IDrawable.ts';
 import { Viewport } from '../../InputManager/Viewport/Viewport.ts';
 import { Position } from '../../Shared/Position.ts';
 import { Box } from '../Box/Box.ts';
+import { CanvImage } from '../CanvImage/CanvImage.ts';
 import { ISelectBoxManager } from '../../InputManager/SelectBoxManager/SelectBoxManager.ts';
 import { MassSelectionBox } from '../MassSelectionBox/MassSelectionBox.ts';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,6 +58,7 @@ export interface IDrawablesManager {
     setShapesButton(state: boolean): void;
     setTextButton(state: boolean): void;
     setAnnotateButton(state: boolean): void;
+    setColorPickerColor(color: string): void;
 
     render(viewport: Viewport, canvas: HTMLCanvasElement,
         selectBoxManager: ISelectBoxManager, mouseGridPos: Position,
@@ -88,6 +90,8 @@ export class DrawablesManager implements IDrawablesManager {
     private ctx: CanvasRenderingContext2D;
     private viewport: Viewport;
 
+    private selectedColor: string = "#532323";
+
     public shapesButtonActivated: boolean = false;
     public textButtonActivated: boolean = false;
     public annotateButtonActivated: boolean = false;
@@ -110,6 +114,14 @@ export class DrawablesManager implements IDrawablesManager {
         this.canvas = canvas;
 
         this.viewport = viewport;
+
+        // Set the inital objects of the drawables.
+        this.setInitialDrawables();
+
+    }
+
+    public setColorPickerColor(color: string): void {
+        this.selectedColor = color;
     }
 
     // #region Annotating methods
@@ -173,7 +185,7 @@ export class DrawablesManager implements IDrawablesManager {
     }
 
     private setAnnotationStyle(): void {
-        this.ctx.strokeStyle = '#000000ff';
+        this.ctx.strokeStyle = this.selectedColor;
         this.ctx.lineWidth = 10;
         this.ctx.lineCap = 'round';
     }
@@ -657,6 +669,30 @@ export class DrawablesManager implements IDrawablesManager {
 
     //#endregion
 
+
+    // #region Selection methods
+    public setInitialDrawables(): void {
+        // Sample box to draw
+        const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 200, 200);
+        this.drawables.push(box1);
+
+        const box2: Box = new Box('pink-box-1', 150, 150, '#aa269fff', 400, 500);
+        this.drawables.push(box2);
+
+        // const outline: Box = new Box('outline-box-1', 500, 600, 'hsla(240, 100%, 50%, 0.3)', 100, 100);
+        // drawables.push(outline);
+
+        const box3: Box = new Box('teal-box-1', 150, 250, '#8ef7ffff', 750, 300);
+        this.drawables.push(box3);
+
+        const box4: Box = new Box('orange-box-1', 100, 300, '#ecaf2aff', 600, -300);
+        this.drawables.push(box4);
+
+        const image1: CanvImage = new CanvImage('radnom-image-1', 'images/delly-tables-logo.png', 100, 80, 800, 200);
+        this.drawables.push(image1);
+    }
+
+    // #endregion
 
     // #region Button methods
     public setShapesButton(state: boolean): void {

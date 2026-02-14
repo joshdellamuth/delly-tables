@@ -1,7 +1,5 @@
-import { Box } from './Features/Canvas/Drawables/Box/Box';
-import { CanvImage } from './Features/Canvas/Drawables/CanvImage/CanvImage';
-import { IDrawable } from './Features/Canvas/Drawables/IDrawable';
-import { Canvas } from './Features/Canvas/Canvas';
+// This file will be used to set css styles of buttons, get elements, etc.
+import { CanvasController } from './Features/Canvas/CanvasController';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -26,32 +24,6 @@ function getBaseURL(): string {
 let baseURL: string = getBaseURL();
 console.log(`The base URL is ${baseURL}.`);
 
-// #region Add shapes to canvas
-
-// Represents the running list of canvas objects to be added to and deleted
-const drawables: IDrawable[] = [];
-
-// Sample box to draw
-const box1: Box = new Box('blue-box-1', 200, 100, '#5c9dffff', 200, 200);
-drawables.push(box1);
-
-const box2: Box = new Box('pink-box-1', 150, 150, '#aa269fff', 400, 500);
-drawables.push(box2);
-
-// const outline: Box = new Box('outline-box-1', 500, 600, 'hsla(240, 100%, 50%, 0.3)', 100, 100);
-// drawables.push(outline);
-
-const box3: Box = new Box('teal-box-1', 150, 250, '#8ef7ffff', 750, 300);
-drawables.push(box3);
-
-const box4: Box = new Box('orange-box-1', 100, 300, '#ecaf2aff', 600, -300);
-drawables.push(box4);
-
-const image1: CanvImage = new CanvImage('radnom-image-1', 'images/delly-tables-logo.png', 100, 80, 800, 200);
-drawables.push(image1);
-
-// #endregion Add shapes to canvas
-
 
 // #region Collapse button logic
 
@@ -71,6 +43,11 @@ const logoImage: HTMLElement | null = document.getElementById("logo-image");
 const myObjectButton: HTMLElement | null = document.getElementById("my-objects-button");
 const myObjectsPanel: HTMLElement | null = document.getElementById("my-objects-panel");
 
+const shapesButton = getButtonById('shapes-button');
+const textButton = getButtonById('text-button');
+const annotateButton = getButtonById('annotate-button');
+const colorPickerButton = getInputById('colorPicker');
+
 // Initially set to uncollapsed
 let topMenuCollapsed: boolean = true;
 let myObjectsPanelCollapsed: boolean = true;
@@ -80,18 +57,15 @@ updateMenuVisibility(topMenuCollapsed);
 
 adminPageButton?.addEventListener("click", () => {
     goToAdmin();
-}
-);
+});
 
 uncollapseButton?.addEventListener("click", () => {
     showCollapsedMenu();
-}
-);
+});
 
 collapseButton?.addEventListener("click", () => {
     showUncollapsedMenu();
-}
-);
+});
 
 // Initially set the sidebar to open or not
 toggleMyObjectsPanel();
@@ -99,8 +73,7 @@ toggleMyObjectsPanel();
 myObjectButton?.addEventListener("click", () => {
     myObjectsPanelCollapsed = !myObjectsPanelCollapsed;
     toggleMyObjectsPanel();
-}
-);
+});
 
 
 function updateMenuVisibility(collapsed: boolean): void {
@@ -155,7 +128,7 @@ const canvasWidth = window.innerWidth;
 const canvasHeight = window.innerHeight;
 
 // create the canvas
-const infiniteCanvas: Canvas = new Canvas('canvas', canvasWidth, canvasHeight, drawables);
+const infiniteCanvas: CanvasController = new CanvasController('canvas', canvasWidth, canvasHeight);
 
 // make the canvas size the same as the window
 window.addEventListener('resize', () => {
@@ -163,3 +136,20 @@ window.addEventListener('resize', () => {
     const canvasHeight = window.innerHeight;
     infiniteCanvas.updateSize(canvasWidth, canvasHeight);
 });
+
+
+function getButtonById(id: string): HTMLButtonElement {
+    const button = document.getElementById(id);
+    if (!button || !(button instanceof HTMLButtonElement)) {
+        throw new Error(`Button element with ID "${id}" not found`);
+    }
+    return button;
+}
+
+function getInputById(id: string): HTMLInputElement {
+    const input = document.getElementById(id);
+    if (!input || !(input instanceof HTMLInputElement)) {
+        throw new Error(`Input element with ID "${id}" not found`);
+    }
+    return input;
+}
